@@ -79,6 +79,11 @@ export function CommandPalette() {
   const pathname = usePathname();
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const filtered = useMemo(() => {
     const qq = q.trim().toLowerCase();
@@ -154,7 +159,7 @@ export function CommandPalette() {
     };
   }, [open]);
 
-  if (typeof document === "undefined") return null;
+  if (!mounted) return null;
 
   return createPortal(
     <AnimatePresence>

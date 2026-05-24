@@ -2,7 +2,7 @@
 
 import { m, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-import { useEffect, useId } from "react";
+import { useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { msFadeScale, msTransition } from "@/lib/theme";
@@ -18,6 +18,11 @@ type ModalProps = {
 
 export function Modal({ open, onClose, title, description, children }: ModalProps) {
   const titleId = useId();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -37,7 +42,7 @@ export function Modal({ open, onClose, title, description, children }: ModalProp
     };
   }, [open]);
 
-  if (typeof document === "undefined") return null;
+  if (!mounted || !open) return null;
 
   return createPortal(
     <AnimatePresence>
