@@ -1,0 +1,167 @@
+/* MONEYSET production polish — atmosphere, clarity, responsive stability (no redesign) */
+
+:root {
+  --ms-atmosphere-veil: color-mix(in srgb, var(--ms-bg-canvas) 88%, transparent);
+  --ms-edge-highlight: color-mix(in srgb, var(--ms-text-primary) 5%, transparent);
+  --ms-cinematic-shadow: 0 18px 48px -36px rgba(0, 0, 0, 0.55);
+  --ms-cinematic-shadow-soft: 0 10px 32px -28px rgba(0, 0, 0, 0.38);
+}
+
+[data-theme="light"] {
+  --ms-cinematic-shadow: 0 14px 40px -32px rgba(18, 17, 16, 0.1);
+  --ms-cinematic-shadow-soft: 0 8px 24px -20px rgba(18, 17, 16, 0.07);
+}
+
+/* ─── Canvas depth — restrained terminal atmosphere ─── */
+.ms-category-shell {
+  background:
+    radial-gradient(ellipse 120% 80% at 50% -20%, color-mix(in srgb, var(--ms-cognition) 4%, transparent), transparent 55%),
+    var(--ms-bg-canvas);
+}
+
+.ms-shell-primary-column {
+  position: relative;
+  isolation: isolate;
+}
+
+/* ─── Intelligence chrome — separation without glow spam ─── */
+.ms-intel-command {
+  border-bottom: 1px solid color-mix(in srgb, var(--ms-border) 42%, transparent);
+  box-shadow: 0 1px 0 var(--ms-edge-highlight);
+}
+
+.ms-cognition-pulse-strip {
+  border-bottom: 1px solid color-mix(in srgb, var(--ms-border) 28%, transparent);
+}
+
+/* ─── Page scan rhythm ─── */
+.ms-page {
+  padding-top: var(--ms-page-y);
+  padding-bottom: max(var(--ms-page-y), var(--ms-safe-bottom, 0px));
+}
+
+.ms-page > header:first-child,
+.ms-page > .ms-surface-chrome:first-child {
+  margin-bottom: var(--ms-block-gap);
+}
+
+/* ─── Execution intelligence — primary signal vs metadata ─── */
+.ms-exec-interpretation {
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--ms-bg-surface) 72%, transparent) 0%,
+    color-mix(in srgb, var(--ms-bg-elevated) 38%, transparent) 100%
+  );
+  border-color: color-mix(in srgb, var(--ms-cognition) 12%, var(--ms-border));
+  box-shadow:
+    inset 0 1px 0 var(--ms-edge-highlight),
+    var(--ms-cinematic-shadow-soft);
+}
+
+.ms-exec-interpretation--full .ms-exec-interpretation__posture {
+  font-size: var(--ms-text-sm);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+  color: var(--ms-text-primary);
+}
+
+.ms-exec-interpretation__framework > li {
+  border-left: 2px solid color-mix(in srgb, var(--ms-cognition) 22%, transparent);
+  padding-left: 0.55rem;
+}
+
+.ms-exec-map-layer {
+  display: grid;
+  gap: var(--ms-block-gap-dense);
+  min-width: 0;
+}
+
+.ms-exec-map-layer--gated > .ms-exec-interpretation:first-child {
+  margin-bottom: 0.125rem;
+}
+
+/* ─── Premium / founding — aspirational, not salesy ─── */
+.ms-premium-gate__access-dock {
+  border-color: color-mix(in srgb, var(--ms-border) 32%, transparent);
+  box-shadow: var(--ms-cinematic-shadow-soft);
+}
+
+.ms-premium-gate__cognition-ribbon {
+  border-color: color-mix(in srgb, var(--ms-cognition) 10%, var(--ms-border));
+}
+
+.ms-entry-onboarding__access {
+  box-shadow: var(--ms-cinematic-shadow);
+}
+
+/* ─── Cards — consistent stacking on narrow viewports ─── */
+@media (max-width: 1023.98px) {
+  .ms-premium-exec-surface,
+  .ms-exec-interpretation,
+  .ms-signature-surface:not(.ms-liq-theater) {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .ms-desk-command-grid,
+  .ms-premium-exec-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .ms-exec-interpretation__grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+/* Tablet — balanced density */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  :root {
+    --ms-page-y: 1.875rem;
+    --ms-block-gap: 1.25rem;
+  }
+
+  .ms-exec-interpretation {
+    padding: var(--ms-space-4) !important;
+  }
+}
+
+/* Small phone — overflow & tap targets */
+@media (max-width: 767.98px) {
+  .ms-exec-interpretation header {
+    gap: 0.5rem;
+  }
+
+  .ms-exec-interpretation--full .ms-exec-interpretation__posture {
+    font-size: var(--ms-text-xs);
+  }
+
+  .ms-scroll-main {
+    overflow-x: clip;
+  }
+
+  .ms-page,
+  .ms-cognition-world__content {
+    overflow-x: clip;
+  }
+
+  pre,
+  .font-mono {
+    overflow-x: auto;
+    max-width: 100%;
+  }
+}
+
+/* ─── Reduced motion — production default for heavy layers ─── */
+@media (prefers-reduced-motion: reduce) {
+  .ms-entry-onboarding,
+  .ms-premium-gate--locked .ms-premium-gate__cognition-ribbon {
+    animation: none !important;
+  }
+}
+
+/* ─── Focus visibility (keyboard / a11y) ─── */
+.ms-focus-ring:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--ms-cognition) 45%, transparent);
+  outline-offset: 2px;
+}

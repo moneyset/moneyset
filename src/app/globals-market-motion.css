@@ -1,0 +1,343 @@
+/* ─── Market motion intelligence (Prompt 11) ─── */
+
+:root {
+  --ms-motion-intensity: 0.32;
+  --ms-motion-tension: 0.24;
+  --ms-motion-calm: 0.68;
+  --ms-motion-breath: 0;
+  --ms-motion-breath-duration: 6.5s;
+  --ms-motion-pressure: 0.35;
+  --ms-motion-instability: 0.28;
+  --ms-motion-vol-glow: 0.2;
+  --ms-motion-narrative: 0.18;
+  --ms-motion-event-flash: 0;
+}
+
+/* Re-enable institutional ambient motion (disabled in base globals) */
+@media (prefers-reduced-motion: no-preference) {
+  .ms-motion-ambient {
+    animation: ms-motion-ambient-drift calc(var(--ms-motion-breath-duration) * 2.4) ease-in-out infinite;
+  }
+
+  .ms-motion-breathe {
+    animation: ms-glow-breathe var(--ms-motion-breath-duration) ease-in-out infinite;
+  }
+
+  .ms-motion-pulse {
+    animation: ms-pulse-soft calc(var(--ms-motion-breath-duration) * 0.85) ease-in-out infinite;
+  }
+
+  .ms-motion-separator {
+    animation: ms-separator-flow calc(var(--ms-motion-breath-duration) * 1.6) ease-in-out infinite;
+  }
+
+  [data-ms-motion-phase="strained"] .ms-motion-breathe,
+  [data-ms-motion-phase="critical"] .ms-motion-breathe {
+    animation-duration: calc(var(--ms-motion-breath-duration) * 0.78);
+  }
+
+  [data-ms-motion-phase="critical"] .ms-motion-pulse {
+    animation-duration: calc(var(--ms-motion-breath-duration) * 0.55);
+  }
+}
+
+@keyframes ms-motion-ambient-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: calc(0.35 + var(--ms-motion-intensity) * 0.25);
+  }
+  50% {
+    transform: translate3d(1%, -0.8%, 0) scale(1.02);
+    opacity: calc(0.42 + var(--ms-motion-intensity) * 0.3);
+  }
+}
+
+/* Global breath overlay */
+.ms-market-breath-overlay__drift {
+  position: absolute;
+  inset: -12% -8%;
+  background: radial-gradient(
+    ellipse 70% 45% at calc(50% + var(--ms-motion-breath) * 8%) 20%,
+    color-mix(in srgb, var(--ms-cognition) calc(6% + var(--ms-motion-intensity) * 10%), transparent),
+    transparent 58%
+  );
+  opacity: calc(0.35 + var(--ms-motion-calm) * 0.2);
+  animation: ms-market-breath-drift var(--ms-motion-breath-duration) ease-in-out infinite;
+}
+
+.ms-market-breath-overlay__pressure {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--ms-danger) calc(var(--ms-motion-tension) * 5%), transparent),
+    transparent 42%,
+    color-mix(in srgb, var(--ms-flow) calc(var(--ms-motion-pressure) * 4%), transparent)
+  );
+  opacity: calc(0.25 + var(--ms-motion-pressure) * 0.35);
+  transform: scale(calc(1 + var(--ms-motion-breath) * 0.012));
+  transition: transform 0.4s ease;
+}
+
+.ms-market-breath-overlay__vol-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 85% 15%,
+    color-mix(in srgb, var(--ms-warning) calc(var(--ms-motion-vol-glow) * 12%), transparent),
+    transparent 40%
+  );
+  opacity: var(--ms-motion-vol-glow);
+}
+
+@keyframes ms-market-breath-drift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(0.6%, 1%);
+  }
+}
+
+/* Event flash — brief topology distortion */
+[data-ms-motion-event] .ms-market-breath-overlay__pressure {
+  animation: ms-motion-event-flash 1.2s ease-out;
+}
+
+@keyframes ms-motion-event-flash {
+  0% {
+    opacity: calc(0.5 + var(--ms-motion-event-flash) * 0.4);
+    filter: contrast(1.08);
+  }
+  100% {
+    opacity: calc(0.25 + var(--ms-motion-pressure) * 0.35);
+    filter: none;
+  }
+}
+
+/* Cognition pulse strip */
+.ms-cognition-pulse-strip {
+  position: relative;
+  z-index: 19;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 1.75rem;
+  padding: 0.2rem 1rem 0.35rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--ms-border) 55%, var(--ms-cognition) 8%);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 88%, transparent);
+}
+
+@media (min-width: 768px) {
+  .ms-cognition-pulse-strip {
+    padding-inline: 1.5rem;
+  }
+}
+
+.ms-cognition-pulse-strip__beacon {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ms-cognition) 70%, transparent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--ms-cognition) 40%, transparent);
+  animation: ms-cognition-beacon var(--ms-motion-breath-duration) ease-in-out infinite;
+}
+
+@keyframes ms-cognition-beacon {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.15);
+  }
+}
+
+.ms-cognition-pulse-strip__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ms-cognition-pulse-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.12rem 0.45rem;
+  border-radius: var(--ms-radius-sm);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 70%, transparent);
+  background: color-mix(in srgb, var(--ms-bg-surface) 55%, transparent);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ms-text-secondary);
+}
+
+.ms-cognition-pulse-chip--elevated {
+  border-color: color-mix(in srgb, var(--ms-warning) 35%, var(--ms-border));
+  color: color-mix(in srgb, var(--ms-warning) 55%, var(--ms-text-primary));
+}
+
+.ms-cognition-pulse-chip--urgent {
+  border-color: color-mix(in srgb, var(--ms-danger) 40%, var(--ms-border));
+  color: color-mix(in srgb, var(--ms-danger) 58%, var(--ms-text-primary));
+}
+
+.ms-cognition-pulse-chip__dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.7;
+  animation: ms-pulse-soft calc(var(--ms-motion-breath-duration) * 0.7) ease-in-out infinite;
+}
+
+/* Live surfaces — theaters react to pressure */
+.ms-live-surface {
+  --ms-live-pressure: 0.35;
+  --ms-live-tension: 0.25;
+  --ms-live-breath: 0;
+  --ms-live-instability: 0.3;
+  position: relative;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ms-live-surface::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: calc(0.2 + var(--ms-live-pressure) * 0.35);
+    background: radial-gradient(
+      ellipse 90% 55% at calc(48% + var(--ms-live-breath) * 6%) -5%,
+      color-mix(in srgb, var(--ms-world-accent, var(--ms-cognition)) calc(8% + var(--ms-live-tension) * 12%), transparent),
+      transparent 62%
+    );
+    animation: ms-live-surface-breathe var(--ms-motion-breath-duration) ease-in-out infinite;
+    z-index: 0;
+  }
+
+  .ms-live-surface > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@keyframes ms-live-surface-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: calc(0.18 + var(--ms-live-pressure) * 0.3);
+  }
+  50% {
+    transform: scale(1.008);
+    opacity: calc(0.28 + var(--ms-live-instability) * 0.4);
+  }
+}
+
+/* Per-world live modulation */
+[data-ms-world="liquidity"] .ms-live-surface::before {
+  animation-duration: calc(var(--ms-motion-breath-duration) * 1.15);
+}
+
+[data-ms-world="agents"] .ms-live-surface::before {
+  animation-duration: calc(var(--ms-motion-breath-duration) * 0.82);
+}
+
+[data-ms-world="execution"] .ms-live-surface::before {
+  opacity: calc(0.25 + var(--ms-live-tension) * 0.45);
+}
+
+[data-ms-world="risk"] .ms-live-surface::before {
+  background: repeating-linear-gradient(
+    -8deg,
+    transparent,
+    transparent 18px,
+    color-mix(in srgb, var(--ms-danger) calc(var(--ms-live-instability) * 6%), transparent) 18px,
+    color-mix(in srgb, var(--ms-danger) calc(var(--ms-live-instability) * 6%), transparent) 19px
+  );
+}
+
+[data-ms-world="replay"] .ms-live-surface {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ms-consensus) calc(var(--ms-live-breath) * 8%), transparent);
+}
+
+/* Microinteraction intelligence */
+@media (prefers-reduced-motion: no-preference) {
+  .ms-live-surface [data-ms-focus]:hover,
+  .ms-live-surface .ms-cognition-interactive:hover {
+    transition:
+      border-color 0.28s ease,
+      box-shadow 0.32s ease,
+      transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--ms-world-accent, var(--ms-cognition)) calc(12% + var(--ms-live-pressure) * 18%), transparent);
+    transform: translateY(-0.5px);
+  }
+
+  .ms-cognition-transition {
+    transition:
+      opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+/* Theater-specific deformation */
+@media (prefers-reduced-motion: no-preference) {
+  [data-ms-world="liquidity"] .ms-liq-topology-theater,
+  [data-ms-world="liquidity"] [class*="ms-liq"] {
+    transform: translateY(calc((var(--ms-motion-breath) - 0.5) * 2px));
+  }
+
+  [data-ms-world="agents"] .ms-agents-system__grid {
+    gap: calc(1.15rem + var(--ms-motion-tension) * 0.15rem);
+  }
+
+  .ms-exec-tactical-theater.ms-live-surface .ms-exec-tactical-geo {
+    opacity: calc(0.88 + var(--ms-live-pressure) * 0.12);
+  }
+
+  .ms-global-matrix.ms-live-surface .ms-global-matrix__orb {
+    animation-duration: calc(var(--ms-motion-breath-duration) * 1.1);
+  }
+
+  .ms-systemic-topology.ms-live-surface .ms-systemic-topology__cell--hot {
+    animation-duration: calc(var(--ms-motion-breath-duration) * 0.75);
+  }
+
+  .ms-memory-constellation.ms-live-surface .ms-memory-constellation__node--active {
+    filter: drop-shadow(0 0 calc(4px + var(--ms-live-tension) * 8px) color-mix(in srgb, var(--ms-consensus) 35%, transparent));
+  }
+
+  .ms-replay-cinema.ms-live-surface .ms-replay-cinema__scrub {
+    transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-market-breath-overlay__drift,
+  .ms-market-breath-overlay__pressure,
+  .ms-cognition-pulse-strip__beacon,
+  .ms-cognition-pulse-chip__dot,
+  .ms-live-surface::before,
+  .ms-motion-ambient,
+  .ms-motion-breathe,
+  .ms-motion-pulse,
+  .ms-motion-separator {
+    animation: none !important;
+  }
+
+  [data-ms-world="liquidity"] .ms-liq-topology-theater,
+  [data-ms-world="liquidity"] [class*="ms-liq"] {
+    transform: none !important;
+  }
+}

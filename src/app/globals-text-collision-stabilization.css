@@ -1,0 +1,240 @@
+/* Text collision stabilization — containment only; no visual redesign */
+
+/* Maps topology — absolute cells */
+.ms-maps-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ms-maps-cell p {
+  margin: 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.ms-maps-cell > p:first-of-type {
+  flex-shrink: 0;
+}
+
+.ms-maps-cell > p:last-of-type {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Liquidity terrain features */
+.ms-liq-feature {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ms-liq-feature__label,
+.ms-liq-feature__read {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.ms-liq-feature__read {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+/* Global pressure matrix — field labels & divergences */
+.ms-global-field__label {
+  right: 0.2rem;
+  max-width: calc(100% - 0.35rem);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.25;
+}
+
+.ms-global-event-gravity {
+  max-width: min(4.5rem, 28%);
+  overflow: hidden;
+}
+
+.ms-global-event-gravity__label {
+  display: block;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.25;
+}
+
+.ms-global-divergence {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.ms-exec-terrain-annotation {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+}
+
+/* Systemic risk topology — cell labels */
+.ms-systemic-cell {
+  overflow: hidden;
+}
+
+.ms-systemic-cell__label {
+  right: 0.2rem;
+  max-width: calc(100% - 0.35rem);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.25;
+}
+
+.ms-systemic-trans-chip .flex {
+  min-width: 0;
+}
+
+.ms-systemic-trans-chip .flex > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Mobile / Telegram — reduce drift-induced overlap */
+/* Cognition machine / lab chrome — prevent header collision */
+.ms-cognition-machine__header {
+  min-width: 0;
+}
+
+.ms-cognition-machine__header > div:first-child {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.ms-cognition-machine__title {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  text-wrap: balance;
+}
+
+@media (max-width: 1023.98px) {
+  .ms-maps-cell-drift {
+    animation: none;
+    transform: none;
+  }
+
+  .ms-global-divergence {
+    max-width: min(88%, 14rem);
+  }
+
+  .ms-global-event-gravity {
+    max-width: min(4.25rem, 34%);
+  }
+
+  .ms-liq-feature__read {
+    -webkit-line-clamp: 2;
+  }
+}
+
+/* Execution terrain — price bands + tactical geometry labels */
+.ms-exec-terrain-band {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow: hidden;
+  row-gap: 0.12rem;
+}
+
+.ms-exec-terrain-band__label,
+.ms-exec-terrain-band__price {
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.2;
+}
+
+.ms-exec-terrain-band__label {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.ms-exec-tactical-geo {
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.ms-exec-tactical-geo__label {
+  display: block;
+  max-width: 100%;
+  padding: 0 0.15rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ms-exec-terrain-overlay__label {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@media (max-width: 1023.98px) {
+  .ms-global-field__label {
+    -webkit-line-clamp: 1;
+  }
+
+  .ms-global-divergence {
+    -webkit-line-clamp: 2;
+  }
+
+  .ms-exec-terrain-annotation {
+    -webkit-line-clamp: 3;
+  }
+
+  .ms-exec-terrain-theater__canvas .ms-exec-tactical-geo--rail,
+  .ms-exec-terrain-theater__canvas .ms-exec-tactical-geo--absorb,
+  .ms-exec-terrain-theater__canvas .ms-exec-tactical-geo--corridor {
+    opacity: 0.42;
+  }
+
+  .ms-exec-terrain-theater__canvas .ms-exec-tactical-geo--rail .ms-exec-tactical-geo__label,
+  .ms-exec-terrain-theater__canvas .ms-exec-tactical-geo--absorb .ms-exec-tactical-geo__label,
+  .ms-exec-terrain-theater__canvas .ms-exec-tactical-geo--corridor .ms-exec-tactical-geo__label {
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-maps-cell-drift {
+    animation: none !important;
+    transform: none !important;
+  }
+}

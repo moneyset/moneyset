@@ -1,0 +1,4224 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+@import "./globals-cognition-worlds.css";
+@import "./globals-market-motion.css";
+@import "./globals-signature-experiences.css";
+@import "./globals-visual-cognition.css";
+@import "./globals-mobile-cognition.css";
+@import "./globals-desktop-command.css";
+@import "./globals-category-experience.css";
+@import "./globals-stabilization.css";
+@import "./globals-text-collision-stabilization.css";
+@import "./globals-institutional-refinement.css";
+@import "./globals-telegram-institutional-intro.css";
+@import "./globals-entry-onboarding.css";
+@import "./globals-production-polish.css";
+@import "./globals-cinematic-intro.css";
+@import "./globals-phase2-ui.css";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-jetbrains-mono);
+
+  --color-ms-canvas: var(--ms-bg-canvas);
+  --color-ms-elevated: var(--ms-bg-elevated);
+  --color-ms-surface: var(--ms-bg-surface);
+  --color-ms-surface-high: var(--ms-bg-surface-high);
+  --color-ms-overlay: var(--ms-bg-overlay);
+
+  --color-ms-text: var(--ms-text-primary);
+  --color-ms-muted: var(--ms-text-secondary);
+  --color-ms-faint: var(--ms-text-tertiary);
+  --color-ms-dim: var(--ms-text-faint);
+  --color-ms-inverse: var(--ms-text-inverse);
+
+  --color-ms-border: var(--ms-border-subtle);
+  --color-ms-border-mid: var(--ms-border-medium);
+  --color-ms-border-strong: var(--ms-border-strong);
+
+  --color-ms-cognition: var(--ms-cognition);
+  --color-ms-flow: var(--ms-flow);
+  --color-ms-sentiment: var(--ms-sentiment);
+  --color-ms-danger: var(--ms-danger);
+  --color-ms-warning: var(--ms-warning);
+  --color-ms-consensus: var(--ms-consensus);
+
+  --color-ms-cognition-dim: var(--ms-cognition-dim);
+  --color-ms-flow-dim: var(--ms-flow-dim);
+  --color-ms-sentiment-dim: var(--ms-sentiment-dim);
+  --color-ms-danger-dim: var(--ms-danger-dim);
+  --color-ms-warning-dim: var(--ms-warning-dim);
+  --color-ms-consensus-dim: var(--ms-consensus-dim);
+
+  --color-ms-intel: var(--ms-intel);
+  --color-ms-intel-deep: var(--ms-intel-deep);
+
+  --shadow-ms-xs: var(--ms-shadow-xs);
+  --shadow-ms-sm: var(--ms-shadow-sm);
+  --shadow-ms-md: var(--ms-shadow-md);
+  --shadow-ms-lg: var(--ms-shadow-lg);
+  --shadow-ms-float: var(--ms-shadow-float);
+  --shadow-ms-ring: var(--ms-shadow-ring);
+
+  --radius-ms-xs: var(--ms-radius-xs);
+  --radius-ms-sm: var(--ms-radius-sm);
+  --radius-ms-md: var(--ms-radius-md);
+  --radius-ms-lg: var(--ms-radius-lg);
+  --radius-ms-xl: var(--ms-radius-xl);
+  --radius-ms-2xl: var(--ms-radius-2xl);
+  --radius-ms-pill: var(--ms-radius-pill);
+
+  --spacing-ms-1: var(--ms-space-1);
+  --spacing-ms-2: var(--ms-space-2);
+  --spacing-ms-3: var(--ms-space-3);
+  --spacing-ms-4: var(--ms-space-4);
+  --spacing-ms-5: var(--ms-space-5);
+  --spacing-ms-6: var(--ms-space-6);
+  --spacing-ms-8: var(--ms-space-8);
+  --spacing-ms-10: var(--ms-space-10);
+  --spacing-ms-12: var(--ms-space-12);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  max-height: 100%;
+}
+
+body.ms-body {
+  background: var(--ms-bg-canvas);
+  color: var(--ms-text-primary);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: var(--ms-text-base);
+  line-height: 1.58;
+  letter-spacing: -0.011em;
+  font-feature-settings: "ss01" on, "cv02" on;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+/* ─── Typography roles — hierarchy without crypto bombast ─── */
+
+.ms-hero-label {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: var(--ms-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--ms-text-tertiary);
+}
+
+.ms-hero-title {
+  font-size: var(--ms-text-hero);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+  color: var(--ms-text-primary);
+}
+
+.ms-posture-title {
+  font-size: var(--ms-text-lg);
+  font-weight: 600;
+  letter-spacing: -0.028em;
+  line-height: 1.22;
+  color: var(--ms-text-primary);
+}
+
+.ms-danger-title {
+  font-size: var(--ms-text-lg);
+  font-weight: 600;
+  letter-spacing: -0.028em;
+  line-height: 1.22;
+  color: color-mix(in srgb, var(--ms-danger) 55%, var(--ms-text-primary));
+}
+
+.ms-scenario-title {
+  font-size: var(--ms-text-md);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ms-text-primary);
+}
+
+.ms-log-meta {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: var(--ms-text-2xs);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ms-text-tertiary);
+}
+
+.ms-data-label {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: var(--ms-text-xs);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ms-text-tertiary);
+}
+
+.ms-intelligence-summary {
+  font-size: var(--ms-text-sm);
+  line-height: 1.42;
+  color: var(--ms-text-secondary);
+}
+
+.ms-display {
+  font-size: var(--ms-text-display);
+  font-weight: 500;
+  letter-spacing: -0.034em;
+  line-height: 1.1;
+}
+
+.ms-headline {
+  font-size: var(--ms-text-lg);
+  font-weight: 500;
+  letter-spacing: -0.024em;
+  line-height: 1.22;
+}
+
+.ms-title {
+  font-size: var(--ms-text-lg);
+  font-weight: 600;
+  letter-spacing: -0.022em;
+  line-height: 1.25;
+}
+
+.ms-body-text {
+  font-size: var(--ms-text-base);
+  line-height: 1.62;
+  color: var(--ms-text-secondary);
+}
+
+.ms-caption {
+  font-size: var(--ms-text-xs);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ms-text-tertiary);
+}
+
+.ms-section-eyebrow {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: var(--ms-text-xs);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ms-text-tertiary);
+}
+
+.ms-eyebrow {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: var(--ms-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--ms-text-tertiary);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ms-scrollbar-thumb) var(--ms-scrollbar-track);
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ms-scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ms-scrollbar-thumb);
+  border-radius: 9999px;
+}
+
+/* ─── Page shell — consistent padding + max width (Overview, Archive, Journal, Settings) ─── */
+
+.ms-page {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: var(--ms-content-max);
+  padding-left: var(--ms-space-5);
+  padding-right: var(--ms-space-5);
+  padding-top: var(--ms-page-y);
+  padding-bottom: var(--ms-page-y);
+}
+
+/* Overview: slightly wider reading line on large desktop; rhythm over rigid grids */
+.ms-cognition-surface {
+  max-width: min(100%, 86rem);
+}
+
+@media (max-width: 767.98px) {
+  .ms-page {
+    padding-left: max(1rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1rem, env(safe-area-inset-right, 0px));
+  }
+}
+
+@media (min-width: 640px) {
+  .ms-page {
+    padding-left: var(--ms-space-6);
+    padding-right: var(--ms-space-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .ms-page {
+    padding-top: var(--ms-page-y-lg);
+    padding-bottom: var(--ms-page-y-lg);
+  }
+}
+
+/* Primary app column — iOS momentum scroll, calm overscroll */
+.ms-scroll-main {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ─── Labs workspace — Level 3 depth, modular entry ─── */
+.ms-labs-workspace {
+  isolation: isolate;
+}
+
+.ms-labs-gateway-card {
+  min-height: 7.5rem;
+}
+
+.ms-labs-gateway-card[data-ms-machine] {
+  --ms-machine-accent: var(--ms-cognition);
+  border-color: color-mix(in srgb, var(--ms-border) 88%, var(--ms-machine-accent) 8%);
+}
+
+.ms-labs-gateway-card[data-ms-machine]:hover {
+  box-shadow: 0 14px 44px -30px color-mix(in srgb, var(--ms-machine-accent) 22%, transparent);
+}
+
+.ms-lab-skeleton {
+  background: linear-gradient(
+    110deg,
+    color-mix(in srgb, var(--ms-bg-surface) 70%, transparent) 0%,
+    color-mix(in srgb, var(--ms-bg-elevated) 55%, transparent) 45%,
+    color-mix(in srgb, var(--ms-bg-surface) 70%, transparent) 90%
+  );
+  background-size: 200% 100%;
+  animation: ms-lab-skeleton-shimmer 1.8s ease-in-out infinite;
+}
+
+@keyframes ms-lab-skeleton-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-lab-skeleton {
+    animation: none;
+  }
+}
+
+/* ─── Cognition machines — per-lab experiential identity ─── */
+.ms-cognition-machine {
+  position: relative;
+  isolation: isolate;
+  border-radius: var(--ms-radius-2xl);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 78%, var(--ms-machine-accent, var(--ms-cognition)) 14%);
+  background: color-mix(in srgb, var(--ms-bg-surface) 42%, transparent);
+  padding: var(--ms-space-4);
+}
+
+@media (min-width: 640px) {
+  .ms-cognition-machine {
+    padding: var(--ms-space-5);
+  }
+}
+
+.ms-cognition-machine__veil {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse 80% 42% at 50% -8%,
+    color-mix(in srgb, var(--ms-machine-accent, var(--ms-cognition)) 10%, transparent),
+    transparent 58%
+  );
+  opacity: 0.9;
+}
+
+.ms-cognition-machine__header {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--ms-space-3);
+  padding-bottom: var(--ms-space-4);
+  border-bottom: 1px solid color-mix(in srgb, var(--ms-border) 70%, var(--ms-machine-accent, var(--ms-cognition)) 8%);
+}
+
+.ms-cognition-machine__tag {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ms-machine-accent, var(--ms-cognition)) 72%, var(--ms-text-tertiary));
+}
+
+.ms-cognition-machine__title {
+  margin: 0.35rem 0 0;
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--ms-text-primary);
+}
+
+.ms-cognition-machine__purpose {
+  margin: 0.5rem 0 0;
+  max-width: 42rem;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--ms-text-secondary);
+}
+
+.ms-cognition-machine__body {
+  position: relative;
+  padding-top: var(--ms-space-4);
+}
+
+.ms-cognition-primary {
+  margin-bottom: var(--ms-space-4);
+}
+
+.ms-cognition-primary__label {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--ms-text-tertiary);
+}
+
+.ms-cognition-primary__state {
+  margin: 0.35rem 0 0;
+  font-size: clamp(1.15rem, 2.4vw, 1.45rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  color: var(--ms-text-primary);
+}
+
+.ms-cognition-primary__state--elevated {
+  color: color-mix(in srgb, var(--ms-warning) 55%, var(--ms-text-primary));
+}
+
+.ms-cognition-primary__state--critical {
+  color: color-mix(in srgb, var(--ms-danger) 58%, var(--ms-text-primary));
+}
+
+.ms-cognition-primary__subline {
+  margin: 0.5rem 0 0;
+  max-width: 36rem;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--ms-text-secondary);
+}
+
+/* Execution terrain engine (chart lab) */
+.ms-terrain-engine__canvas {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 11rem;
+  border-radius: var(--ms-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 65%, var(--ms-flow) 12%);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 35%, transparent);
+  padding: var(--ms-space-3);
+  overflow: hidden;
+}
+
+.ms-terrain-engine__grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--ms-border) 40%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--ms-border) 40%, transparent) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+.ms-terrain-engine__lane {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  min-height: 1.25rem;
+  border-radius: var(--ms-radius-sm);
+  border: 1px solid color-mix(in srgb, var(--ms-flow) 22%, var(--ms-border));
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ms-flow) 18%, transparent),
+    color-mix(in srgb, var(--ms-bg-surface) 20%, transparent)
+  );
+  padding: 0.25rem 0.5rem;
+}
+
+.ms-terrain-engine__lane-label {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--ms-text-secondary);
+}
+
+.ms-terrain-engine__path {
+  position: absolute;
+  inset: 12% 8% auto;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--ms-flow) 55%, transparent), transparent);
+  opacity: 0.65;
+  z-index: 2;
+}
+
+.ms-terrain-engine__meta {
+  margin-top: var(--ms-space-3);
+}
+
+/* ─── Chart Lab — Execution Terrain Engine ─── */
+.ms-exec-terrain-theater {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--ms-radius-xl);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 68%, var(--ms-flow) 14%);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 42%, transparent);
+  padding: var(--ms-space-4);
+}
+
+@media (min-width: 640px) {
+  .ms-exec-terrain-theater {
+    padding: var(--ms-space-5);
+  }
+}
+
+.ms-exec-terrain-theater--mode-on .ms-exec-terrain-theater__canvas {
+  transform: perspective(720px) rotateX(1.2deg);
+}
+
+.ms-exec-terrain-theater--focus .ms-exec-terrain-overlay:not(:first-child) {
+  opacity: 0.15 !important;
+}
+
+.ms-exec-terrain-theater--critical {
+  border-color: color-mix(in srgb, var(--ms-danger) 26%, var(--ms-border));
+}
+
+.ms-exec-terrain-theater__atmosphere {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 88% 48% at 50% 0%,
+    color-mix(in srgb, var(--ms-flow) 10%, transparent),
+    transparent 58%
+  );
+}
+
+.ms-exec-terrain-theater__scan {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 42%,
+    color-mix(in srgb, var(--ms-flow) 6%, transparent) 50%,
+    transparent 58%
+  );
+  animation: ms-exec-terrain-scan 9s ease-in-out infinite;
+}
+
+@keyframes ms-exec-terrain-scan {
+  0%,
+  100% {
+    transform: translateX(-8%);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateX(8%);
+    opacity: 0.55;
+  }
+}
+
+.ms-exec-terrain-toggle {
+  border-radius: var(--ms-radius-pill);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 70%, transparent);
+  background: color-mix(in srgb, var(--ms-bg-surface) 40%, transparent);
+  padding: 0.3rem 0.65rem;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--ms-text-secondary);
+  transition: border-color 0.25s ease, color 0.25s ease, background 0.25s ease;
+}
+
+.ms-exec-terrain-toggle--on {
+  border-color: color-mix(in srgb, var(--ms-flow) 35%, var(--ms-border));
+  color: var(--ms-text-primary);
+  background: color-mix(in srgb, var(--ms-flow) 8%, var(--ms-bg-surface));
+}
+
+.ms-exec-terrain-metric {
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 62%, var(--ms-flow) 10%);
+  padding: var(--ms-space-2) var(--ms-space-3);
+}
+
+.ms-exec-terrain-metric__value {
+  margin: 0.2rem 0 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: color-mix(in srgb, var(--ms-flow) 75%, var(--ms-text-primary));
+}
+
+.ms-exec-terrain-theater__stage {
+  display: grid;
+  gap: var(--ms-space-3);
+}
+
+@media (min-width: 1024px) {
+  .ms-exec-terrain-theater__stage {
+    grid-template-columns: 1fr min(14rem, 28%);
+  }
+}
+
+.ms-exec-terrain-theater__overlay-stack {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.5rem;
+}
+
+.ms-exec-terrain-overlay {
+  border-radius: var(--ms-radius-sm);
+  border: 1px solid color-mix(in srgb, var(--ms-flow) 18%, transparent);
+  padding: 0.2rem 0.4rem;
+  transition: opacity 0.8s ease;
+}
+
+.ms-exec-terrain-overlay--migrate {
+  animation: ms-exec-overlay-migrate 6s ease-in-out infinite;
+}
+
+@keyframes ms-exec-overlay-migrate {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(2%);
+  }
+}
+
+.ms-exec-terrain-overlay__label {
+  font-size: var(--ms-text-2xs, 0.625rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ms-text-tertiary);
+}
+
+.ms-exec-terrain-theater__canvas {
+  position: relative;
+  min-height: 16rem;
+  border-radius: var(--ms-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 58%, var(--ms-flow) 12%);
+  background: color-mix(in srgb, var(--ms-bg-surface) 35%, transparent);
+  overflow: hidden;
+  transition: transform 0.9s ease;
+}
+
+@media (min-width: 640px) {
+  .ms-exec-terrain-theater__canvas {
+    min-height: 18rem;
+  }
+}
+
+.ms-exec-terrain-canvas__grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.14;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--ms-border) 32%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--ms-border) 32%, transparent) 1px, transparent 1px);
+  background-size: 18px 18px;
+  animation: ms-exec-grid-drift 20s linear infinite;
+}
+
+.ms-exec-terrain-canvas__ridge {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 35%,
+    color-mix(in srgb, var(--ms-flow) calc(var(--ms-exec-continuation, 50) * 0.08%), transparent) 55%,
+    transparent 75%
+  );
+  animation: ms-exec-ridge-breathe 5.5s ease-in-out infinite;
+}
+
+@keyframes ms-exec-grid-drift {
+  to {
+    background-position: 18px 18px;
+  }
+}
+
+@keyframes ms-exec-ridge-breathe {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.ms-exec-terrain-paths {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.ms-exec-terrain-path {
+  stroke: color-mix(in srgb, var(--ms-flow) 40%, var(--ms-border));
+  stroke-dasharray: 3 5;
+  opacity: 0.45;
+}
+
+.ms-exec-terrain-path--dominant {
+  stroke: color-mix(in srgb, var(--ms-flow) 70%, var(--ms-cognition));
+  stroke-width: 0.75;
+  opacity: 0.75;
+}
+
+.ms-exec-terrain-path--failure {
+  stroke: color-mix(in srgb, var(--ms-danger) 55%, transparent);
+}
+
+.ms-exec-terrain-path--volatility {
+  stroke: color-mix(in srgb, var(--ms-warning) 50%, transparent);
+}
+
+.ms-exec-terrain-path--instability {
+  stroke: color-mix(in srgb, var(--ms-sentiment) 45%, transparent);
+}
+
+.ms-exec-terrain-path--evolve {
+  animation: ms-exec-path-evolve 8s ease-in-out infinite;
+}
+
+@keyframes ms-exec-path-evolve {
+  0%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.5;
+  }
+  50% {
+    stroke-dashoffset: -12;
+    opacity: 0.85;
+  }
+}
+
+.ms-exec-terrain-band {
+  position: absolute;
+  left: 8%;
+  width: 58%;
+  z-index: 3;
+  border-radius: var(--ms-radius-sm);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 55%, var(--ms-flow) 14%);
+  padding: 0.25rem 0.45rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem;
+  animation: ms-exec-band-breathe 5s ease-in-out infinite;
+  opacity: calc(0.35 + var(--ms-band-emphasis, 50) * 0.006);
+}
+
+.ms-exec-terrain-band--shelf {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--ms-consensus) 30%, var(--ms-border));
+}
+
+.ms-exec-terrain-band--invalidation {
+  border-color: color-mix(in srgb, var(--ms-danger) 32%, var(--ms-border));
+}
+
+.ms-exec-terrain-band--stress,
+.ms-exec-terrain-band--fragility {
+  box-shadow: 0 0 16px -6px color-mix(in srgb, var(--ms-warning) 22%, transparent);
+}
+
+.ms-exec-terrain-band--support {
+  border-color: color-mix(in srgb, var(--ms-consensus) 28%, var(--ms-border));
+}
+
+@keyframes ms-exec-band-breathe {
+  0%,
+  100% {
+    transform: scaleX(1);
+  }
+  50% {
+    transform: scaleX(1.02);
+  }
+}
+
+.ms-exec-terrain-band__label {
+  font-size: 8.5px;
+  font-weight: 600;
+}
+
+.ms-exec-terrain-band__price {
+  font-size: 8px;
+  color: var(--ms-text-tertiary);
+}
+
+.ms-exec-terrain-annotation {
+  position: absolute;
+  right: 4%;
+  max-width: 42%;
+  z-index: 4;
+  margin: 0;
+  padding: 0.3rem 0.45rem;
+  border-radius: var(--ms-radius-sm);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 60%, transparent);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 72%, transparent);
+  font-size: 9px;
+  line-height: 1.35;
+  backdrop-filter: blur(2px);
+}
+
+.ms-exec-terrain-annotation--elevated {
+  border-color: color-mix(in srgb, var(--ms-warning) 28%, var(--ms-border));
+}
+
+.ms-exec-terrain-annotation--critical {
+  border-color: color-mix(in srgb, var(--ms-danger) 30%, var(--ms-border));
+}
+
+.ms-exec-terrain-path-card {
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 62%, var(--ms-flow) 14%);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 55%, transparent);
+  padding: var(--ms-space-3);
+}
+
+.ms-exec-terrain-path-legend {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ms-space-2);
+}
+
+.ms-exec-terrain-path-legend__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 9px;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--ms-radius-sm);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 55%, transparent);
+}
+
+.ms-exec-terrain-panel {
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 60%, transparent);
+  background: color-mix(in srgb, var(--ms-bg-surface) 32%, transparent);
+  padding: var(--ms-space-3);
+}
+
+.ms-exec-terrain-replay {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--ms-space-2);
+}
+
+@media (min-width: 640px) {
+  .ms-exec-terrain-replay {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.ms-exec-terrain-replay__frame {
+  border-left: 2px solid color-mix(in srgb, var(--ms-flow) 28%, transparent);
+  padding-left: var(--ms-space-2);
+}
+
+@media (max-width: 639px) {
+  .ms-exec-terrain-theater__canvas {
+    min-height: 14rem;
+  }
+
+  .ms-exec-terrain-band {
+    width: 52%;
+    left: 6%;
+  }
+
+  .ms-exec-terrain-annotation {
+    max-width: 48%;
+    font-size: 8.5px;
+  }
+
+  .ms-exec-terrain-path-card {
+    margin-top: var(--ms-space-2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-exec-terrain-theater__scan,
+  .ms-exec-terrain-canvas__grid,
+  .ms-exec-terrain-canvas__ridge,
+  .ms-exec-terrain-overlay--migrate,
+  .ms-exec-terrain-path--evolve,
+  .ms-exec-terrain-band {
+    animation: none !important;
+  }
+
+  .ms-exec-terrain-theater--mode-on .ms-exec-terrain-theater__canvas {
+    transform: none;
+  }
+}
+
+/* ─── Execution — Tactical Operating Environment ─── */
+.ms-exec-tactical-system {
+  position: relative;
+}
+
+.ms-exec-tactical-theater {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--ms-radius-xl);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 62%, var(--ms-flow) 18%);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 48%, transparent);
+  padding: var(--ms-space-4);
+}
+
+@media (min-width: 640px) {
+  .ms-exec-tactical-theater {
+    padding: var(--ms-space-5) var(--ms-space-6);
+  }
+}
+
+.ms-exec-tactical-theater__atmosphere {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 90% 55% at 50% 0%,
+    color-mix(in srgb, var(--ms-flow) 12%, transparent),
+    transparent 62%
+  );
+}
+
+.ms-exec-tactical-theater__pulse-field {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.ms-exec-tactical-pulse {
+  position: absolute;
+  border-radius: 50%;
+  opacity: calc(var(--ms-pulse-intensity, 50) * 0.004);
+  animation: ms-exec-tactical-pulse 7s ease-in-out infinite;
+}
+
+.ms-exec-tactical-pulse--instability {
+  width: 42%;
+  height: 42%;
+  top: 18%;
+  right: 8%;
+  background: color-mix(in srgb, var(--ms-danger) 35%, transparent);
+}
+
+.ms-exec-tactical-pulse--sponsorship {
+  width: 36%;
+  height: 28%;
+  bottom: 22%;
+  left: 12%;
+  background: color-mix(in srgb, var(--ms-consensus) 28%, transparent);
+  animation-delay: 1.2s;
+}
+
+.ms-exec-tactical-pulse--volatility {
+  width: 30%;
+  height: 30%;
+  top: 40%;
+  left: 40%;
+  background: color-mix(in srgb, var(--ms-warning) 30%, transparent);
+  animation-delay: 2.4s;
+}
+
+.ms-exec-tactical-pulse--liquidity,
+.ms-exec-tactical-pulse--continuation,
+.ms-exec-tactical-pulse--migration {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .ms-exec-tactical-pulse--liquidity {
+    display: block;
+    width: 24%;
+    height: 24%;
+    bottom: 12%;
+    right: 20%;
+    background: color-mix(in srgb, var(--ms-flow) 22%, transparent);
+    animation-delay: 0.8s;
+  }
+}
+
+@keyframes ms-exec-tactical-pulse {
+  0%,
+  100% {
+    transform: scale(0.92);
+    opacity: calc(var(--ms-pulse-intensity, 50) * 0.003);
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: calc(var(--ms-pulse-intensity, 50) * 0.006);
+  }
+}
+
+.ms-exec-tactical-regime__tag {
+  color: color-mix(in srgb, var(--ms-flow) 70%, var(--ms-text-tertiary));
+  letter-spacing: 0.06em;
+}
+
+.ms-exec-tactical-theater--terrain-on .ms-exec-tactical-theater__canvas {
+  transform: perspective(800px) rotateX(1.4deg);
+}
+
+.ms-exec-tactical-theater--focus .ms-exec-tactical-geo:not(.ms-exec-tactical-geo--lane):not(.ms-exec-tactical-geo--wall) {
+  opacity: 0.2;
+}
+
+.ms-exec-tactical-theater--critical {
+  border-color: color-mix(in srgb, var(--ms-danger) 30%, var(--ms-border));
+}
+
+.ms-exec-tactical--regime-stable {
+  --ms-exec-regime-accent: var(--ms-consensus);
+}
+
+.ms-exec-tactical--regime-fragile,
+.ms-exec-tactical--regime-sponsorship {
+  --ms-exec-regime-accent: var(--ms-warning);
+}
+
+.ms-exec-tactical--regime-compression {
+  --ms-exec-regime-accent: var(--ms-flow);
+}
+
+.ms-exec-tactical--regime-expansion {
+  --ms-exec-regime-accent: color-mix(in srgb, var(--ms-flow) 80%, var(--ms-consensus));
+}
+
+.ms-exec-tactical--regime-instability,
+.ms-exec-tactical--regime-trap,
+.ms-exec-tactical--regime-vol {
+  --ms-exec-regime-accent: var(--ms-danger);
+}
+
+.ms-exec-tactical-theater__stage {
+  display: grid;
+  gap: var(--ms-space-3);
+}
+
+@media (min-width: 1024px) {
+  .ms-exec-tactical-theater__stage {
+    grid-template-columns: 1fr min(14rem, 28%);
+  }
+}
+
+.ms-exec-tactical-theater__canvas {
+  position: relative;
+  min-height: 18rem;
+  border-radius: var(--ms-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 55%, var(--ms-exec-regime-accent, var(--ms-flow)) 16%);
+  background: color-mix(in srgb, var(--ms-bg-surface) 38%, transparent);
+  overflow: hidden;
+  transition: transform 0.85s ease;
+}
+
+.ms-exec-tactical-geo {
+  position: absolute;
+  z-index: 2;
+  border-radius: var(--ms-radius-sm);
+  border: 1px dashed color-mix(in srgb, var(--ms-exec-regime-accent, var(--ms-flow)) 28%, transparent);
+  background: color-mix(in srgb, var(--ms-exec-regime-accent, var(--ms-flow)) calc(var(--ms-geo-emphasis, 50) * 0.06%), transparent);
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+.ms-exec-tactical-geo--wall {
+  border-style: solid;
+  border-width: 0 0 2px;
+  background: color-mix(in srgb, var(--ms-danger) 12%, transparent);
+}
+
+.ms-exec-tactical-geo--lane {
+  border-style: solid;
+  background: color-mix(in srgb, var(--ms-consensus) 8%, transparent);
+}
+
+.ms-exec-tactical-geo--stress {
+  border-color: color-mix(in srgb, var(--ms-danger) 35%, transparent);
+}
+
+.ms-exec-tactical-geo--support {
+  border-color: color-mix(in srgb, var(--ms-consensus) 35%, transparent);
+}
+
+.ms-exec-tactical-geo--migrate {
+  animation: ms-exec-overlay-migrate 5.5s ease-in-out infinite;
+}
+
+.ms-exec-tactical-geo__label {
+  position: absolute;
+  left: 0.25rem;
+  top: 0.15rem;
+  font-size: 7.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ms-text-tertiary);
+  opacity: 0.85;
+}
+
+.ms-exec-tactical-gravity {
+  margin-top: var(--ms-space-3);
+  display: grid;
+  gap: var(--ms-space-2);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .ms-exec-tactical-gravity {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.ms-exec-tactical-gravity__axis--dominant .ms-exec-tactical-gravity__fill {
+  background: color-mix(in srgb, var(--ms-exec-regime-accent, var(--ms-flow)) 55%, var(--ms-flow));
+}
+
+.ms-exec-tactical-gravity__track {
+  margin-top: 0.25rem;
+  height: 3px;
+  border-radius: var(--ms-radius-pill);
+  background: color-mix(in srgb, var(--ms-border) 70%, transparent);
+  overflow: hidden;
+}
+
+.ms-exec-tactical-gravity__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--ms-flow) 40%, transparent);
+  transition: width 0.7s ease;
+}
+
+.ms-exec-tactical-live__cell {
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 58%, transparent);
+  padding: var(--ms-space-2);
+  background: color-mix(in srgb, var(--ms-bg-surface) 30%, transparent);
+}
+
+.ms-exec-tactical-trend--up {
+  color: color-mix(in srgb, var(--ms-danger) 75%, var(--ms-text-tertiary));
+}
+
+.ms-exec-tactical-trend--down {
+  color: color-mix(in srgb, var(--ms-consensus) 75%, var(--ms-text-tertiary));
+}
+
+.ms-exec-tactical-cross {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ms-space-2);
+}
+
+.ms-exec-tactical-cross__link {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 55%, transparent);
+  padding: 0.45rem 0.6rem;
+  font-size: 10px;
+  line-height: 1.35;
+  color: var(--ms-text-secondary);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.ms-exec-tactical-cross__link:hover {
+  border-color: color-mix(in srgb, var(--ms-flow) 30%, var(--ms-border));
+  background: color-mix(in srgb, var(--ms-flow) 6%, transparent);
+}
+
+.ms-exec-tactical-cross__system {
+  font-size: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ms-text-tertiary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-exec-tactical-pulse,
+  .ms-exec-tactical-geo--migrate {
+    animation: none !important;
+  }
+
+  .ms-exec-tactical-theater--terrain-on .ms-exec-tactical-theater__canvas {
+    transform: none;
+  }
+}
+
+/* Liquidity topology theater */
+.ms-topology-theater__stage {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  min-height: 11rem;
+  border-radius: var(--ms-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 65%, var(--ms-cognition) 14%);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 30%, transparent);
+  overflow: hidden;
+}
+
+.ms-topology-theater__grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.14;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--ms-border) 35%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--ms-border) 35%, transparent) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+
+.ms-topology-cell {
+  position: absolute;
+  border-radius: var(--ms-radius-md);
+  border: 1px solid var(--ms-border);
+  padding: 0.35rem 0.45rem;
+  backdrop-filter: blur(1px);
+}
+
+.ms-topology-cell--stress {
+  border-color: color-mix(in srgb, var(--ms-warning) 28%, var(--ms-border));
+  background: color-mix(in srgb, var(--ms-warning) 8%, var(--ms-bg-surface));
+}
+
+.ms-topology-cell--support {
+  border-color: color-mix(in srgb, var(--ms-consensus) 26%, var(--ms-border));
+  background: color-mix(in srgb, var(--ms-consensus) 8%, var(--ms-bg-surface));
+}
+
+.ms-topology-cell--neutral {
+  border-color: color-mix(in srgb, var(--ms-cognition) 18%, var(--ms-border));
+  background: color-mix(in srgb, var(--ms-cognition) 6%, var(--ms-bg-surface));
+}
+
+.ms-topology-cell__label {
+  margin: 0;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.ms-topology-cell__read {
+  margin: 0.2rem 0 0;
+  font-size: 8.5px;
+  line-height: 1.3;
+  color: var(--ms-text-secondary);
+}
+
+.ms-topology-theater__implication {
+  margin-top: var(--ms-space-3);
+}
+
+/* ─── Liquidity Topology Theater — institutional pressure observatory ─── */
+.ms-liq-theater {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--ms-radius-xl);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 68%, var(--ms-cognition) 14%);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 40%, transparent);
+  padding: var(--ms-space-4);
+}
+
+@media (min-width: 640px) {
+  .ms-liq-theater {
+    padding: var(--ms-space-5);
+  }
+}
+
+.ms-liq-theater__atmosphere {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 95% 55% at 50% 100%,
+    color-mix(in srgb, var(--ms-cognition) calc(var(--ms-liq-gravity, 40) * 0.12%), transparent),
+    transparent 62%
+  );
+  transform: scaleY(calc(1 + var(--ms-liq-gravity, 40) * 0.002));
+  transform-origin: center bottom;
+  transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ms-liq-theater__fog {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: calc(0.08 + var(--ms-liq-distortion, 30) * 0.0025);
+  background: linear-gradient(
+    180deg,
+    transparent 40%,
+    color-mix(in srgb, var(--ms-warning) 8%, transparent) 100%
+  );
+  animation: ms-liq-fog-drift 18s ease-in-out infinite;
+}
+
+.ms-liq-theater__gravity-well {
+  pointer-events: none;
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  width: min(28rem, 72%);
+  height: 42%;
+  transform: translateX(-50%) scale(calc(0.85 + var(--ms-liq-gravity, 40) * 0.003));
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--ms-danger) calc(var(--ms-liq-gravity, 40) * 0.14%), transparent) 0%,
+    transparent 68%
+  );
+  animation: ms-liq-gravity-pulse 6s ease-in-out infinite;
+}
+
+@keyframes ms-liq-fog-drift {
+  0%,
+  100% {
+    opacity: 0.12;
+  }
+  50% {
+    opacity: 0.22;
+  }
+}
+
+@keyframes ms-liq-gravity-pulse {
+  0%,
+  100% {
+    transform: translateX(-50%) scale(calc(0.88 + var(--ms-liq-gravity, 40) * 0.0028));
+    opacity: 0.75;
+  }
+  50% {
+    transform: translateX(-50%) scale(calc(0.94 + var(--ms-liq-gravity, 40) * 0.0034));
+    opacity: 1;
+  }
+}
+
+.ms-liq-theater--cascade .ms-liq-theater__gravity-well,
+.ms-liq-theater--fragility .ms-liq-theater__gravity-well {
+  animation-duration: 3.8s;
+}
+
+.ms-liq-theater--balanced .ms-liq-theater__fog {
+  opacity: 0.06;
+}
+
+.ms-liq-theater__metrics {
+  display: grid;
+  gap: var(--ms-space-3);
+  margin: var(--ms-space-4) 0;
+}
+
+@media (min-width: 640px) {
+  .ms-liq-theater__metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.ms-liq-metric {
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 65%, var(--ms-cognition) 10%);
+  background: color-mix(in srgb, var(--ms-bg-surface) 38%, transparent);
+  padding: var(--ms-space-2) var(--ms-space-3);
+}
+
+.ms-liq-metric__value {
+  margin: 0.2rem 0 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: color-mix(in srgb, var(--ms-cognition) 80%, var(--ms-text-primary));
+}
+
+.ms-liq-metric__read {
+  margin: 0.35rem 0 0;
+  font-size: 9px;
+  line-height: 1.4;
+  color: var(--ms-text-tertiary);
+}
+
+.ms-liq-metric__ring {
+  margin-top: 0.35rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--ms-consensus) 25%, var(--ms-border));
+  padding: 2px;
+}
+
+.ms-liq-metric__ring span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: conic-gradient(
+    var(--ms-consensus) calc(var(--ms-pct, 50) * 1%),
+    color-mix(in srgb, var(--ms-border) 40%, transparent) 0
+  );
+}
+
+.ms-liq-metric__bar {
+  margin-top: 0.35rem;
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ms-border) 50%, transparent);
+  overflow: hidden;
+}
+
+.ms-liq-metric__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--ms-warning), var(--ms-danger));
+  transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ms-liq-theater__terrain {
+  position: relative;
+  z-index: 1;
+  aspect-ratio: 16 / 11;
+  min-height: 15rem;
+  margin: var(--ms-space-2) 0 var(--ms-space-4);
+  border-radius: var(--ms-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 58%, var(--ms-cognition) 12%);
+  background: color-mix(in srgb, var(--ms-bg-surface) 32%, transparent);
+  overflow: hidden;
+  transform: perspective(900px) rotateX(calc(var(--ms-liq-distortion, 20) * 0.04deg));
+  transition: transform 1s ease;
+}
+
+.ms-liq-terrain__contour {
+  position: absolute;
+  inset: 0;
+  opacity: 0.16;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--ms-border) 30%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--ms-border) 30%, transparent) 1px, transparent 1px);
+  background-size: 16px 16px;
+  animation: ms-liq-contour-shift 24s linear infinite;
+}
+
+.ms-liq-terrain__ridge-layer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    165deg,
+    transparent 30%,
+    color-mix(in srgb, var(--ms-cognition) 6%, transparent) 48%,
+    transparent 70%
+  );
+  animation: ms-liq-ridge-breathe 7s ease-in-out infinite;
+}
+
+@keyframes ms-liq-contour-shift {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 16px 16px;
+  }
+}
+
+@keyframes ms-liq-ridge-breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.85;
+    transform: translateY(-1.5%);
+  }
+}
+
+.ms-liq-migration {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.ms-liq-migration__path {
+  stroke-dasharray: 4 6;
+  animation: ms-liq-flow-dash 12s linear infinite;
+}
+
+@keyframes ms-liq-flow-dash {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+
+.ms-liq-feature {
+  position: absolute;
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 60%, var(--ms-cognition) 14%);
+  padding: 0.3rem 0.4rem;
+  backdrop-filter: blur(1px);
+  animation: ms-liq-feature-breathe 5.5s ease-in-out infinite;
+  opacity: calc(0.28 + var(--ms-feature-emphasis, 50) * 0.006);
+}
+
+.ms-liq-feature--stress {
+  border-color: color-mix(in srgb, var(--ms-warning) 28%, var(--ms-border));
+  box-shadow: 0 0 20px -8px color-mix(in srgb, var(--ms-warning) 25%, transparent);
+}
+
+.ms-liq-feature--support {
+  border-color: color-mix(in srgb, var(--ms-consensus) 24%, var(--ms-border));
+}
+
+.ms-liq-feature--ridge {
+  border-style: dashed;
+}
+
+.ms-liq-feature--fracture {
+  border-color: color-mix(in srgb, var(--ms-danger) 22%, var(--ms-border));
+}
+
+@keyframes ms-liq-feature-breathe {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(0.3%, -0.4%) scale(1.02);
+  }
+}
+
+.ms-liq-feature__label {
+  margin: 0;
+  font-size: 8.5px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.ms-liq-feature__read {
+  margin: 0.15rem 0 0;
+  font-size: 8px;
+  line-height: 1.3;
+  color: var(--ms-text-secondary);
+}
+
+.ms-liq-cascade-zone {
+  position: absolute;
+  right: 8%;
+  bottom: 12%;
+  width: 22%;
+  height: 28%;
+  border-radius: 50%;
+  border: 1px dashed color-mix(in srgb, var(--ms-danger) 25%, transparent);
+  opacity: calc(var(--ms-liq-gravity, 40) * 0.006);
+  animation: ms-liq-cascade-ring 4.5s ease-in-out infinite;
+}
+
+@keyframes ms-liq-cascade-ring {
+  0%,
+  100% {
+    transform: scale(0.92);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.65;
+  }
+}
+
+.ms-liq-panel {
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 62%, transparent);
+  background: color-mix(in srgb, var(--ms-bg-surface) 30%, transparent);
+  padding: var(--ms-space-3);
+}
+
+.ms-liq-crosslink-pill {
+  border-radius: var(--ms-radius-pill);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 55%, var(--ms-cognition) 12%);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 40%, transparent);
+  padding: 0.25rem 0.55rem;
+}
+
+.ms-liq-replay {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--ms-space-2);
+}
+
+@media (min-width: 640px) {
+  .ms-liq-replay {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.ms-liq-replay__frame {
+  display: flex;
+  gap: var(--ms-space-2);
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 60%, transparent);
+  padding: var(--ms-space-2);
+  border-left-width: 2px;
+}
+
+.ms-liq-replay__tick {
+  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ms-text-tertiary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-liq-theater__fog,
+  .ms-liq-theater__gravity-well,
+  .ms-liq-terrain__contour,
+  .ms-liq-terrain__ridge-layer,
+  .ms-liq-migration__path,
+  .ms-liq-feature,
+  .ms-liq-cascade-zone {
+    animation: none !important;
+  }
+
+  .ms-liq-theater__terrain {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ms-topology-cell--drift {
+    animation: ms-topology-drift 64s ease-in-out infinite;
+  }
+}
+
+@keyframes ms-topology-drift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(0.4%, -0.35%);
+  }
+}
+
+/* Macro pressure matrix */
+.ms-pressure-matrix__grid {
+  display: grid;
+  gap: var(--ms-space-3);
+}
+
+@media (min-width: 640px) {
+  .ms-pressure-matrix__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.ms-pressure-matrix__cell {
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 70%, var(--ms-warning) 10%);
+  background: color-mix(in srgb, var(--ms-bg-surface) 35%, transparent);
+  padding: var(--ms-space-3);
+}
+
+.ms-pressure-matrix__desk {
+  margin-top: var(--ms-space-4);
+}
+
+/* Sentiment narrative engine */
+.ms-narrative-engine__threads {
+  margin: var(--ms-space-4) 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--ms-space-3);
+}
+
+.ms-narrative-engine__thread {
+  border-left: 2px solid color-mix(in srgb, var(--ms-sentiment) 28%, transparent);
+  padding-left: var(--ms-space-3);
+}
+
+/* ─── Global narrative — pressure matrix ─── */
+.ms-global-matrix {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--ms-radius-xl);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 60%, var(--ms-warning) 14%);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 46%, transparent);
+  padding: var(--ms-space-4);
+}
+
+@media (min-width: 640px) {
+  .ms-global-matrix {
+    padding: var(--ms-space-5) var(--ms-space-6);
+  }
+}
+
+.ms-global-matrix__atmosphere {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 95% 60% at 50% 0%,
+    color-mix(in srgb, var(--ms-warning) 10%, transparent),
+    transparent 65%
+  );
+}
+
+.ms-global-matrix__wave {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 30% 70%,
+    color-mix(in srgb, var(--ms-sentiment) 8%, transparent),
+    transparent 45%
+  );
+  animation: ms-global-wave 11s ease-in-out infinite;
+}
+
+@keyframes ms-global-wave {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 0.75;
+  }
+}
+
+.ms-global-matrix--mode-on .ms-global-matrix__canvas {
+  transform: perspective(880px) rotateX(1deg) rotateY(-0.5deg);
+}
+
+.ms-global-matrix--focus .ms-global-field:not(.ms-global-field--macro):not(.ms-global-field--narrative) {
+  opacity: 0.18;
+}
+
+.ms-global-matrix--critical {
+  border-color: color-mix(in srgb, var(--ms-danger) 28%, var(--ms-border));
+}
+
+.ms-global-matrix__stage {
+  display: grid;
+  gap: var(--ms-space-3);
+}
+
+@media (min-width: 1024px) {
+  .ms-global-matrix__stage {
+    grid-template-columns: 1fr min(13rem, 26%);
+  }
+}
+
+.ms-global-matrix__canvas {
+  position: relative;
+  min-height: 19rem;
+  border-radius: var(--ms-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 52%, var(--ms-warning) 12%);
+  background: color-mix(in srgb, var(--ms-bg-surface) 32%, transparent);
+  overflow: hidden;
+  transition: transform 0.9s ease;
+}
+
+.ms-global-matrix__grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  background-image:
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--ms-flow) 8%, transparent) 0%, transparent 55%),
+    linear-gradient(to right, color-mix(in srgb, var(--ms-border) 28%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--ms-border) 28%, transparent) 1px, transparent 1px);
+  background-size: 100% 100%, 22px 22px, 22px 22px;
+  animation: ms-global-grid-drift 24s linear infinite;
+}
+
+.ms-global-matrix__orb {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 70% 45% at 50% 45%,
+    color-mix(in srgb, var(--ms-flow) calc(var(--ms-global-macro-instab, 50) * 0.1%), transparent),
+    transparent 70%
+  );
+  animation: ms-global-orb-breathe 6.5s ease-in-out infinite;
+}
+
+@keyframes ms-global-grid-drift {
+  to {
+    background-position: 0 0, 22px 22px, 22px 22px;
+  }
+}
+
+@keyframes ms-global-orb-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+.ms-global-field {
+  position: absolute;
+  z-index: 2;
+  border-radius: var(--ms-radius-sm);
+  border: 1px dashed color-mix(in srgb, var(--ms-border) 55%, var(--ms-warning) 18%);
+  background: color-mix(in srgb, var(--ms-warning) calc(var(--ms-field-emphasis, 50) * 0.05%), transparent);
+  pointer-events: none;
+}
+
+.ms-global-field--macro,
+.ms-global-field--policy {
+  border-style: solid;
+}
+
+.ms-global-field--narrative,
+.ms-global-field--crowd {
+  border-color: color-mix(in srgb, var(--ms-sentiment) 32%, transparent);
+  background: color-mix(in srgb, var(--ms-sentiment) calc(var(--ms-field-emphasis, 50) * 0.06%), transparent);
+}
+
+.ms-global-field--stress {
+  border-color: color-mix(in srgb, var(--ms-danger) 35%, transparent);
+}
+
+.ms-global-field--pulse {
+  animation: ms-global-field-pulse 5s ease-in-out infinite;
+}
+
+@keyframes ms-global-field-pulse {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.ms-global-field__label {
+  position: absolute;
+  left: 0.2rem;
+  top: 0.15rem;
+  font-size: 7px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ms-text-tertiary);
+}
+
+.ms-global-matrix__arcs {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.ms-global-matrix__arc {
+  stroke: color-mix(in srgb, var(--ms-flow) 45%, transparent);
+  stroke-width: 0.35;
+  stroke-dasharray: 2 1.5;
+}
+
+.ms-global-event-gravity {
+  position: absolute;
+  z-index: 4;
+  width: 4.5rem;
+  padding: 0.25rem 0.35rem;
+  border-radius: var(--ms-radius-sm);
+  border: 1px solid color-mix(in srgb, var(--ms-warning) calc(var(--ms-event-distortion, 50) * 0.35%), transparent);
+  background: color-mix(in srgb, var(--ms-warning) calc(var(--ms-event-distortion, 50) * 0.08%), transparent);
+  animation: ms-global-event-distort 7s ease-in-out infinite;
+}
+
+.ms-global-event-gravity--cpi {
+  animation-delay: 0s;
+}
+
+.ms-global-event-gravity--fomc {
+  animation-delay: 1.5s;
+}
+
+.ms-global-event-gravity--nfp {
+  animation-delay: 3s;
+}
+
+@keyframes ms-global-event-distort {
+  0%,
+  100% {
+    transform: scale(0.95);
+  }
+  50% {
+    transform: scale(calc(1 + var(--ms-event-distortion, 50) * 0.0015));
+  }
+}
+
+.ms-global-event-gravity__label {
+  font-size: 7.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--ms-text-secondary);
+}
+
+.ms-global-divergence {
+  position: absolute;
+  z-index: 5;
+  max-width: 52%;
+  font-size: 8.5px;
+  line-height: 1.35;
+  color: var(--ms-text-tertiary);
+  border-left: 2px solid color-mix(in srgb, var(--ms-warning) 40%, transparent);
+  padding-left: 0.35rem;
+}
+
+.ms-global-divergence--elevated {
+  border-color: color-mix(in srgb, var(--ms-warning) 55%, transparent);
+  color: color-mix(in srgb, var(--ms-warning) 80%, var(--ms-text-secondary));
+}
+
+.ms-global-divergence--critical {
+  border-color: color-mix(in srgb, var(--ms-danger) 50%, transparent);
+  color: color-mix(in srgb, var(--ms-danger) 85%, var(--ms-text-secondary));
+}
+
+.ms-global-matrix__regime-card {
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 55%, transparent);
+  padding: var(--ms-space-2) var(--ms-space-3);
+  background: color-mix(in srgb, var(--ms-bg-surface) 28%, transparent);
+}
+
+.ms-global-event-panel__cell {
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 50%, var(--ms-warning) 10%);
+  padding: var(--ms-space-2);
+  background: color-mix(in srgb, var(--ms-bg-surface) 25%, transparent);
+}
+
+.ms-global-replay {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ms-space-2);
+}
+
+.ms-global-replay__frame {
+  border-left: 2px solid color-mix(in srgb, var(--ms-sentiment) 30%, var(--ms-flow) 20%);
+  padding-left: var(--ms-space-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-global-matrix__wave,
+  .ms-global-matrix__grid,
+  .ms-global-matrix__orb,
+  .ms-global-field--pulse,
+  .ms-global-event-gravity {
+    animation: none !important;
+  }
+
+  .ms-global-matrix--mode-on .ms-global-matrix__canvas {
+    transform: none;
+  }
+}
+
+/* Replay structural timeline */
+.ms-replay-timeline__track {
+  margin: var(--ms-space-4) 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ms-space-3);
+}
+
+.ms-replay-timeline__moment {
+  display: flex;
+  gap: var(--ms-space-3);
+  border-left: 1px solid color-mix(in srgb, var(--ms-consensus) 22%, var(--ms-border));
+  padding-left: var(--ms-space-3);
+}
+
+.ms-replay-timeline__clock {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--ms-consensus) 70%, var(--ms-text-tertiary));
+}
+
+/* Strategy memory archive */
+/* ─── Strategy Memory — Market Constellation ─── */
+.ms-memory-constellation {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--ms-radius-xl);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 58%, var(--ms-consensus) 18%);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 44%, transparent);
+  padding: var(--ms-space-4);
+}
+
+@media (min-width: 640px) {
+  .ms-memory-constellation {
+    padding: var(--ms-space-5) var(--ms-space-6);
+  }
+}
+
+.ms-memory-constellation__void {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 55% at 50% 45%,
+    color-mix(in srgb, var(--ms-consensus) 14%, transparent),
+    transparent 68%
+  );
+}
+
+.ms-memory-constellation__echo-ring {
+  pointer-events: none;
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  width: 38%;
+  height: 38%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--ms-consensus) calc(var(--ms-memory-echo, 50) * 0.2%), transparent);
+  animation: ms-memory-echo-ring 8s ease-in-out infinite;
+}
+
+@keyframes ms-memory-echo-ring {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(0.92);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.08);
+    opacity: 0.65;
+  }
+}
+
+.ms-memory-constellation--mode-on .ms-memory-constellation__canvas {
+  transform: perspective(900px) rotateX(0.8deg);
+}
+
+.ms-memory-constellation--focus .ms-memory-node:not(.ms-memory-node--resonate):not(.ms-memory-node--archetype) {
+  opacity: 0.15;
+}
+
+.ms-memory-constellation--critical {
+  border-color: color-mix(in srgb, var(--ms-danger) 26%, var(--ms-border));
+}
+
+.ms-memory-constellation__stage {
+  display: grid;
+  gap: var(--ms-space-3);
+}
+
+@media (min-width: 1024px) {
+  .ms-memory-constellation__stage {
+    grid-template-columns: 1fr min(12rem, 24%);
+  }
+}
+
+.ms-memory-constellation__canvas {
+  position: relative;
+  min-height: 18rem;
+  border-radius: var(--ms-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 52%, var(--ms-consensus) 14%);
+  background: color-mix(in srgb, var(--ms-bg-surface) 28%, transparent);
+  overflow: hidden;
+  transition: transform 0.85s ease;
+}
+
+.ms-memory-constellation__starfield {
+  position: absolute;
+  inset: 0;
+  opacity: 0.2;
+  background-image: radial-gradient(circle, color-mix(in srgb, var(--ms-consensus) 35%, transparent) 0.5px, transparent 0.5px);
+  background-size: 14px 14px;
+  animation: ms-memory-star-drift 28s linear infinite;
+}
+
+@keyframes ms-memory-star-drift {
+  to {
+    background-position: 14px 14px;
+  }
+}
+
+.ms-memory-constellation__web {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ms-memory-constellation__edge {
+  stroke: color-mix(in srgb, var(--ms-consensus) 40%, transparent);
+  stroke-width: 0.3;
+  stroke-dasharray: 1.5 1;
+}
+
+.ms-memory-node {
+  position: absolute;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  max-width: 5.5rem;
+  text-align: center;
+  pointer-events: none;
+}
+
+.ms-memory-node__core {
+  display: block;
+  width: 0.45rem;
+  height: 0.45rem;
+  margin: 0 auto 0.2rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ms-consensus) calc(var(--ms-node-emphasis, 50) * 0.6%), transparent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--ms-consensus) 25%, transparent);
+}
+
+.ms-memory-node--resonate .ms-memory-node__core {
+  animation: ms-memory-node-pulse 4.5s ease-in-out infinite;
+}
+
+@keyframes ms-memory-node-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.35);
+  }
+}
+
+.ms-memory-node__label {
+  font-size: 6.5px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ms-text-tertiary);
+}
+
+.ms-memory-node--stress .ms-memory-node__core {
+  background: color-mix(in srgb, var(--ms-danger) 55%, transparent);
+}
+
+.ms-memory-node--support .ms-memory-node__core {
+  background: color-mix(in srgb, var(--ms-consensus) 65%, transparent);
+}
+
+.ms-memory-analog-chip {
+  border-radius: var(--ms-radius-sm);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 55%, transparent);
+  padding: 0.35rem 0.45rem;
+  background: color-mix(in srgb, var(--ms-bg-surface) 30%, transparent);
+}
+
+.ms-memory-survival {
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 55%, transparent);
+  padding: var(--ms-space-2);
+  background: color-mix(in srgb, var(--ms-bg-surface) 25%, transparent);
+}
+
+.ms-memory-survival--survived {
+  border-left: 2px solid color-mix(in srgb, var(--ms-consensus) 45%, transparent);
+}
+
+.ms-memory-survival--failed {
+  border-left: 2px solid color-mix(in srgb, var(--ms-danger) 40%, transparent);
+}
+
+.ms-memory-agent-note {
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 50%, transparent);
+  padding: 0.4rem 0.55rem;
+}
+
+.ms-memory-agent-note--fractured {
+  border-color: color-mix(in srgb, var(--ms-warning) 35%, transparent);
+}
+
+.ms-memory-evolution__frame {
+  border-left: 2px solid color-mix(in srgb, var(--ms-consensus) 28%, transparent);
+  padding-left: var(--ms-space-2);
+}
+
+.ms-memory-evolution__frame--fragility {
+  border-color: color-mix(in srgb, var(--ms-warning) 40%, transparent);
+}
+
+.ms-memory-evolution__frame--collapse {
+  border-color: color-mix(in srgb, var(--ms-danger) 45%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-memory-constellation__echo-ring,
+  .ms-memory-constellation__starfield,
+  .ms-memory-node--resonate .ms-memory-node__core {
+    animation: none !important;
+  }
+
+  .ms-memory-constellation--mode-on .ms-memory-constellation__canvas {
+    transform: none;
+  }
+}
+
+/* ─── Systemic fragility — Risk Radar + Cross-Asset topology ─── */
+.ms-systemic-topology {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--ms-radius-xl);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 55%, var(--ms-danger) 16%);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 44%, transparent);
+  padding: var(--ms-space-4);
+}
+
+@media (min-width: 640px) {
+  .ms-systemic-topology {
+    padding: var(--ms-space-5) var(--ms-space-6);
+  }
+}
+
+.ms-systemic-topology__void {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 85% 50% at 50% 55%,
+    color-mix(in srgb, var(--ms-danger) 9%, transparent),
+    transparent 70%
+  );
+}
+
+.ms-systemic-topology__pulse-wave {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    125deg,
+    transparent 40%,
+    color-mix(in srgb, var(--ms-danger) calc(var(--ms-systemic-instab, 50) * 0.08%), transparent) 50%,
+    transparent 60%
+  );
+  animation: ms-systemic-wave 10s ease-in-out infinite;
+}
+
+@keyframes ms-systemic-wave {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: translateX(-3%);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translateX(3%);
+  }
+}
+
+.ms-systemic-topology--mode-on .ms-systemic-topology__canvas {
+  transform: perspective(860px) rotateX(1deg);
+}
+
+.ms-systemic-topology--focus .ms-systemic-cell:not(.ms-systemic-cell--pulse):not(.ms-systemic-cell--instability) {
+  opacity: 0.16;
+}
+
+.ms-systemic-topology--critical {
+  border-color: color-mix(in srgb, var(--ms-danger) 32%, var(--ms-border));
+}
+
+.ms-systemic-topology--state-stable-participation {
+  --ms-systemic-accent: var(--ms-consensus);
+}
+
+.ms-systemic-topology--state-instability-cascade,
+.ms-systemic-topology--state-sponsorship-failure,
+.ms-systemic-topology--state-leverage-saturation {
+  --ms-systemic-accent: var(--ms-danger);
+}
+
+.ms-systemic-topology--state-macro-contagion,
+.ms-systemic-topology--state-volatility-compression-risk {
+  --ms-systemic-accent: var(--ms-warning);
+}
+
+.ms-systemic-topology__stage {
+  display: grid;
+  gap: var(--ms-space-3);
+}
+
+@media (min-width: 1024px) {
+  .ms-systemic-topology__stage {
+    grid-template-columns: 1fr min(12rem, 24%);
+  }
+}
+
+.ms-systemic-topology__canvas {
+  position: relative;
+  min-height: 18rem;
+  border-radius: var(--ms-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 50%, var(--ms-systemic-accent, var(--ms-danger)) 14%);
+  background: color-mix(in srgb, var(--ms-bg-surface) 30%, transparent);
+  overflow: hidden;
+  transition: transform 0.85s ease;
+}
+
+.ms-systemic-topology__grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.11;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--ms-danger) 22%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--ms-danger) 22%, transparent) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.ms-systemic-topology__tectonic {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 60% 40% at 50% 50%,
+    color-mix(in srgb, var(--ms-danger) calc(var(--ms-systemic-contagion, 40) * 0.12%), transparent),
+    transparent 72%
+  );
+  animation: ms-systemic-tectonic 7s ease-in-out infinite;
+}
+
+@keyframes ms-systemic-tectonic {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.03);
+    opacity: 0.85;
+  }
+}
+
+.ms-systemic-topology__arcs {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.ms-systemic-topology__arc {
+  stroke: color-mix(in srgb, var(--ms-flow) 42%, var(--ms-danger) 25%);
+  stroke-width: 0.4;
+  stroke-dasharray: 2 1.2;
+  animation: ms-systemic-arc-flow 5s linear infinite;
+}
+
+@keyframes ms-systemic-arc-flow {
+  to {
+    stroke-dashoffset: -6;
+  }
+}
+
+.ms-systemic-cell {
+  position: absolute;
+  z-index: 3;
+  border-radius: var(--ms-radius-sm);
+  border: 1px dashed color-mix(in srgb, var(--ms-systemic-accent, var(--ms-danger)) 30%, transparent);
+  background: color-mix(in srgb, var(--ms-danger) calc(var(--ms-cell-emphasis, 50) * 0.05%), transparent);
+  pointer-events: none;
+}
+
+.ms-systemic-cell--instability,
+.ms-systemic-cell--pulse {
+  border-style: solid;
+}
+
+.ms-systemic-cell--stress {
+  border-color: color-mix(in srgb, var(--ms-danger) 40%, transparent);
+}
+
+.ms-systemic-cell--pulse {
+  animation: ms-systemic-cell-breathe 5.5s ease-in-out infinite;
+}
+
+@keyframes ms-systemic-cell-breathe {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.ms-systemic-cell__label {
+  position: absolute;
+  left: 0.2rem;
+  top: 0.12rem;
+  font-size: 6.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ms-text-tertiary);
+}
+
+.ms-systemic-trans-chip,
+.ms-systemic-agent {
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 52%, transparent);
+  padding: 0.35rem 0.45rem;
+  background: color-mix(in srgb, var(--ms-bg-surface) 28%, transparent);
+}
+
+.ms-systemic-agent--elevated {
+  border-left: 2px solid color-mix(in srgb, var(--ms-warning) 45%, transparent);
+}
+
+.ms-systemic-agent--critical {
+  border-left: 2px solid color-mix(in srgb, var(--ms-danger) 50%, transparent);
+}
+
+.ms-systemic-evolution__frame {
+  border-left: 2px solid color-mix(in srgb, var(--ms-border) 50%, var(--ms-danger) 20%);
+  padding-left: var(--ms-space-2);
+}
+
+.ms-systemic-evolution__frame--buildup {
+  border-color: color-mix(in srgb, var(--ms-warning) 40%, transparent);
+}
+
+.ms-systemic-evolution__frame--cascade {
+  border-color: color-mix(in srgb, var(--ms-danger) 48%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-systemic-topology__pulse-wave,
+  .ms-systemic-topology__tectonic,
+  .ms-systemic-topology__arc,
+  .ms-systemic-cell--pulse {
+    animation: none !important;
+  }
+
+  .ms-systemic-topology--mode-on .ms-systemic-topology__canvas {
+    transform: none;
+  }
+}
+
+.ms-memory-archive__shelves {
+  margin: var(--ms-space-4) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--ms-space-3);
+}
+
+.ms-memory-archive__entry {
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 72%, var(--ms-consensus) 10%);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 28%, transparent);
+  padding: var(--ms-space-3);
+}
+
+/* Cross-asset transmission */
+.ms-transmission-engine__links {
+  margin: var(--ms-space-4) 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--ms-space-2);
+}
+
+.ms-transmission-engine__link {
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 70%, var(--ms-flow) 12%);
+  padding: var(--ms-space-2) var(--ms-space-3);
+}
+
+/* Risk fragility radar */
+.ms-fragility-radar__sweep {
+  margin: var(--ms-space-4) 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--ms-space-2);
+}
+
+.ms-fragility-radar__blip {
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 68%, var(--ms-danger) calc(var(--ms-radar-pct, 40%) * 0.22));
+  background: color-mix(in srgb, var(--ms-danger) 4%, var(--ms-bg-surface));
+  padding: var(--ms-space-2) var(--ms-space-3);
+}
+
+/* ─── Agents cognition warfare system ─── */
+.ms-agents-system {
+  isolation: isolate;
+}
+
+.ms-agents-command {
+  border-radius: var(--ms-radius-xl);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 72%, var(--ms-cognition) 12%);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 42%, transparent);
+  padding: var(--ms-space-4);
+}
+
+.ms-agents-command__tag {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ms-cognition) 70%, var(--ms-text-tertiary));
+}
+
+.ms-agents-command__title {
+  margin: 0.35rem 0 0;
+  font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+.ms-agents-command__structural {
+  margin: 0.5rem 0 0;
+  font-size: 11px;
+  color: var(--ms-text-secondary);
+}
+
+.ms-agents-command__grid {
+  margin-top: var(--ms-space-4);
+  display: grid;
+  gap: var(--ms-space-2);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .ms-agents-command__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.ms-agents-command__tile {
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 70%, transparent);
+  background: color-mix(in srgb, var(--ms-bg-surface) 35%, transparent);
+  padding: var(--ms-space-2) var(--ms-space-3);
+  transition: border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.ms-agents-command__tile--elevated {
+  border-color: color-mix(in srgb, var(--ms-warning) 28%, var(--ms-border));
+}
+
+.ms-agents-command__tile--critical {
+  border-color: color-mix(in srgb, var(--ms-danger) 32%, var(--ms-border));
+  box-shadow: 0 0 24px -12px color-mix(in srgb, var(--ms-danger) 22%, transparent);
+}
+
+.ms-agents-command__tile-value {
+  margin: 0.25rem 0 0;
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--ms-text-primary);
+}
+
+.ms-agents-wow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ms-space-2);
+}
+
+.ms-agents-wow__event {
+  border-radius: var(--ms-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 68%, var(--ms-warning) 18%);
+  background: color-mix(in srgb, var(--ms-warning) 5%, var(--ms-bg-surface));
+  padding: var(--ms-space-3) var(--ms-space-4);
+  animation: ms-agents-wow-in 0.6s ease-out;
+}
+
+.ms-agents-wow__event--collapse,
+.ms-agents-wow__event--cascade {
+  border-color: color-mix(in srgb, var(--ms-danger) 30%, var(--ms-border));
+  background: color-mix(in srgb, var(--ms-danger) 6%, var(--ms-bg-surface));
+}
+
+.ms-agents-wow__event--override {
+  border-color: color-mix(in srgb, var(--ms-cognition) 32%, var(--ms-border));
+}
+
+.ms-agents-wow__headline {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.ms-agents-wow__detail {
+  margin: 0.35rem 0 0;
+  font-size: 10px;
+  line-height: 1.45;
+  color: var(--ms-text-secondary);
+}
+
+@keyframes ms-agents-wow-in {
+  from {
+    opacity: 0.4;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* War room — consensus topology */
+.ms-war-room {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--ms-radius-2xl);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 70%, var(--ms-cognition) 14%);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 48%, transparent);
+  padding: var(--ms-space-4);
+}
+
+@media (min-width: 640px) {
+  .ms-war-room {
+    padding: var(--ms-space-5);
+  }
+}
+
+.ms-war-room--elevated {
+  border-color: color-mix(in srgb, var(--ms-warning) 24%, var(--ms-border));
+}
+
+.ms-war-room--critical {
+  border-color: color-mix(in srgb, var(--ms-danger) 28%, var(--ms-border));
+}
+
+.ms-war-room__veil {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 90% 55% at 50% 12%,
+    color-mix(in srgb, var(--ms-cognition) 11%, transparent),
+    transparent 58%
+  );
+}
+
+.ms-war-room__pulse {
+  pointer-events: none;
+  position: absolute;
+  inset: 18% 12%;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--ms-cognition) 12%, transparent);
+  opacity: 0.35;
+  animation: ms-war-room-pulse 5.5s ease-in-out infinite;
+}
+
+@keyframes ms-war-room-pulse {
+  0%,
+  100% {
+    transform: scale(0.92);
+    opacity: 0.28;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 0.42;
+  }
+}
+
+.ms-war-room__tag {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ms-cognition) 72%, var(--ms-text-tertiary));
+}
+
+.ms-war-room__title {
+  margin: 0;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.ms-war-room__subtitle {
+  margin: 0.35rem 0 0;
+  max-width: 40rem;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--ms-text-secondary);
+}
+
+.ms-war-room__arena {
+  position: relative;
+  margin-top: var(--ms-space-5);
+  aspect-ratio: 16 / 11;
+  min-height: 14rem;
+  border-radius: var(--ms-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 55%, var(--ms-cognition) 10%);
+  background: color-mix(in srgb, var(--ms-bg-surface) 30%, transparent);
+}
+
+.ms-war-room__topology {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  stroke: color-mix(in srgb, var(--ms-cognition) 35%, var(--ms-border));
+  stroke-width: 0.35;
+}
+
+.ms-war-room__hub {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--ms-cognition) 22%, var(--ms-border));
+  background: color-mix(in srgb, var(--ms-bg-elevated) 55%, transparent);
+  display: grid;
+  place-items: center;
+}
+
+.ms-war-room__hub-label {
+  font-size: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ms-text-tertiary);
+}
+
+.ms-war-room-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 5.5rem;
+  text-align: center;
+  z-index: 2;
+}
+
+.ms-war-room-node--leader .ms-war-room-node__ring {
+  animation: ms-war-room-halo 4s ease-in-out infinite;
+}
+
+.ms-war-room-node--critical .ms-war-room-node__core {
+  border-color: color-mix(in srgb, var(--ms-danger) 35%, var(--ms-border));
+}
+
+.ms-war-room-node__ring {
+  position: absolute;
+  inset: -0.55rem;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--ms-cognition) calc(var(--ms-node-influence, 20) * 0.5%), transparent);
+  opacity: 0.85;
+}
+
+.ms-war-room-node__ring-inner {
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    color-mix(in srgb, var(--ms-cognition) calc(var(--ms-node-conviction, 50) * 0.45%), transparent),
+    transparent calc(var(--ms-node-conviction, 50) * 1%),
+    color-mix(in srgb, var(--ms-danger) calc(var(--ms-node-stress, 30) * 0.25%), transparent) calc(var(--ms-node-stress, 30) * 1.1%),
+    transparent
+  );
+  opacity: 0.75;
+}
+
+.ms-war-room-node__core {
+  position: relative;
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 65%, var(--ms-cognition) 12%);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 65%, transparent);
+  padding: 0.35rem 0.4rem;
+  backdrop-filter: blur(2px);
+}
+
+.ms-war-room-node__name {
+  margin: 0;
+  font-size: 8.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.ms-war-room-node__conviction {
+  margin: 0.15rem 0 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ms-war-room-node__influence {
+  margin: 0;
+  font-size: 8px;
+  color: var(--ms-text-tertiary);
+}
+
+.ms-war-room-node__crown {
+  position: absolute;
+  top: -0.35rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ms-consensus) 80%, var(--ms-cognition));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--ms-consensus) 45%, transparent);
+}
+
+@keyframes ms-war-room-halo {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+.ms-war-room__legend {
+  margin: var(--ms-space-4) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--ms-space-2);
+}
+
+@media (min-width: 640px) {
+  .ms-war-room__legend {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .ms-war-room__legend {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.ms-war-room__legend-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 9px;
+  line-height: 1.3;
+  padding-left: 0.5rem;
+  border-left: 2px solid color-mix(in srgb, var(--ms-cognition) 18%, transparent);
+}
+
+.ms-agents-debate__list {
+  margin: var(--ms-space-4) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ms-space-2);
+}
+
+.ms-agents-debate__conflict {
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 68%, transparent);
+  background: color-mix(in srgb, var(--ms-bg-surface) 32%, transparent);
+  padding: var(--ms-space-3);
+  transition: border-color 0.4s ease;
+}
+
+.ms-agents-debate__conflict--fracture {
+  border-color: color-mix(in srgb, var(--ms-warning) 26%, var(--ms-border));
+}
+
+.ms-agents-debate__conflict--override {
+  border-color: color-mix(in srgb, var(--ms-danger) 24%, var(--ms-border));
+}
+
+.ms-agents-debate__agents {
+  font-size: 10px;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--ms-cognition) 75%, var(--ms-text-primary));
+}
+
+.ms-agents-debate__severity {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ms-text-tertiary);
+}
+
+.ms-agents-physics__track {
+  margin-top: 0.35rem;
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ms-border) 55%, transparent);
+  overflow: hidden;
+}
+
+.ms-agents-physics__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ms-cognition) 55%, transparent),
+    color-mix(in srgb, var(--ms-consensus) 45%, transparent)
+  );
+  transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ms-agents-physics__fill--stressed {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ms-warning) 50%, transparent),
+    color-mix(in srgb, var(--ms-danger) 45%, transparent)
+  );
+}
+
+.ms-agents-timeline__track {
+  margin: var(--ms-space-4) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--ms-space-2);
+}
+
+@media (min-width: 640px) {
+  .ms-agents-timeline__track {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.ms-agents-timeline__epoch {
+  display: flex;
+  gap: var(--ms-space-2);
+  border-left: 1px solid color-mix(in srgb, var(--ms-consensus) 22%, var(--ms-border));
+  padding-left: var(--ms-space-2);
+}
+
+.ms-agents-timeline__tick {
+  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ms-text-tertiary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-war-room__pulse,
+  .ms-war-room-node--leader .ms-war-room-node__ring,
+  .ms-agents-wow__event {
+    animation: none !important;
+  }
+
+  .ms-agents-physics__fill {
+    transition: none;
+  }
+}
+
+/* ─── Macro / Sentiment interpretation surfaces ─── */
+.ms-intel-workspace {
+  isolation: isolate;
+}
+
+.ms-intel-layer header h3 {
+  letter-spacing: -0.01em;
+}
+
+/* ─── Replay / Strategy memory — temporal cognition ─── */
+/* ─── Replay Cinema — temporal market intelligence ─── */
+.ms-replay-cinema {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--ms-radius-2xl);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 68%, var(--ms-consensus) 14%);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 45%, transparent);
+  padding: var(--ms-space-4);
+}
+
+@media (min-width: 640px) {
+  .ms-replay-cinema {
+    padding: var(--ms-space-5);
+  }
+}
+
+.ms-replay-cinema--on .ms-replay-cinema__echo {
+  opacity: 0.55;
+}
+
+.ms-replay-cinema__veil {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 90% 50% at 50% 0%,
+    color-mix(in srgb, var(--ms-consensus) 10%, transparent),
+    transparent 60%
+  );
+}
+
+.ms-replay-cinema__echo {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.25;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--ms-consensus) 5%, transparent) 50%,
+    transparent
+  );
+  animation: ms-replay-echo-sweep 14s ease-in-out infinite;
+}
+
+@keyframes ms-replay-echo-sweep {
+  0%,
+  100% {
+    transform: translateX(-12%);
+  }
+  50% {
+    transform: translateX(12%);
+  }
+}
+
+.ms-replay-cinema__tag {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ms-consensus) 72%, var(--ms-text-tertiary));
+}
+
+.ms-replay-cinema__title {
+  margin: 0.35rem 0 0;
+  font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.ms-replay-cinema__subline {
+  margin: 0.5rem 0 0;
+  font-size: 11px;
+  color: var(--ms-text-secondary);
+}
+
+.ms-replay-cinema-btn {
+  border-radius: var(--ms-radius-pill);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 70%, transparent);
+  background: color-mix(in srgb, var(--ms-bg-surface) 40%, transparent);
+  padding: 0.3rem 0.65rem;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--ms-text-secondary);
+}
+
+.ms-replay-cinema-btn--on {
+  border-color: color-mix(in srgb, var(--ms-consensus) 32%, var(--ms-border));
+  color: var(--ms-text-primary);
+  background: color-mix(in srgb, var(--ms-consensus) 8%, var(--ms-bg-surface));
+}
+
+.ms-replay-cinema__slider {
+  accent-color: var(--ms-consensus);
+  height: 0.35rem;
+}
+
+.ms-replay-cinema__stage {
+  display: grid;
+  gap: var(--ms-space-4);
+}
+
+@media (min-width: 1024px) {
+  .ms-replay-cinema__stage {
+    grid-template-columns: 1.2fr 0.8fr;
+  }
+}
+
+.ms-replay-cinema__frame {
+  border-radius: var(--ms-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 60%, var(--ms-consensus) 12%);
+  background: color-mix(in srgb, var(--ms-bg-surface) 38%, transparent);
+  padding: var(--ms-space-4);
+  animation: ms-replay-frame-in 0.5s ease-out;
+}
+
+@keyframes ms-replay-frame-in {
+  from {
+    opacity: 0.6;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ms-replay-cinema__frame-clock {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ms-text-tertiary);
+}
+
+.ms-replay-cinema__frame-headline {
+  margin: 0.35rem 0 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ms-replay-cinema__frame-read {
+  margin: 0.35rem 0 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--ms-text-secondary);
+}
+
+.ms-replay-cinema__gauge {
+  border-radius: var(--ms-radius-sm);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 55%, transparent);
+  padding: 0.25rem 0.4rem;
+  font-size: 10px;
+}
+
+.ms-replay-cinema__layers {
+  border-radius: var(--ms-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 55%, transparent);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 35%, transparent);
+  padding: var(--ms-space-3);
+}
+
+.ms-replay-layer-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ms-space-2);
+  opacity: 0.45;
+  transition: opacity 0.35s ease;
+}
+
+.ms-replay-layer-row--on {
+  opacity: 1;
+}
+
+.ms-replay-layer-toggle {
+  flex-shrink: 0;
+  width: 4.5rem;
+  text-align: left;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--ms-text-tertiary);
+}
+
+.ms-replay-layer-bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ms-border) 50%, transparent);
+  overflow: hidden;
+}
+
+.ms-replay-layer-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--ms-consensus), var(--ms-cognition));
+  transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ms-replay-moment {
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 62%, transparent);
+  background: color-mix(in srgb, var(--ms-bg-surface) 32%, transparent);
+  padding: var(--ms-space-2) var(--ms-space-3);
+  transition: border-color 0.25s ease, background 0.25s ease;
+}
+
+.ms-replay-moment:hover {
+  border-color: color-mix(in srgb, var(--ms-consensus) 28%, var(--ms-border));
+}
+
+.ms-replay-moment--collapse,
+.ms-replay-moment--instab {
+  border-left: 2px solid color-mix(in srgb, var(--ms-danger) 45%, transparent);
+}
+
+.ms-replay-moment--fracture {
+  border-left: 2px solid color-mix(in srgb, var(--ms-warning) 40%, transparent);
+}
+
+.ms-replay-cinema-panel {
+  border-radius: var(--ms-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 58%, transparent);
+  background: color-mix(in srgb, var(--ms-bg-surface) 28%, transparent);
+  padding: var(--ms-space-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-replay-cinema__echo,
+  .ms-replay-cinema__frame {
+    animation: none !important;
+  }
+
+  .ms-replay-layer-bar span {
+    transition: none;
+  }
+}
+
+.ms-replay-workspace,
+.ms-memory-workspace {
+  isolation: isolate;
+}
+
+.ms-replay-trail-bar {
+  animation: ms-replay-trail-drift 72s ease-in-out infinite;
+}
+
+@keyframes ms-replay-trail-drift {
+  0%,
+  100% {
+    opacity: 0.88;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-replay-trail-bar {
+    animation: none;
+  }
+}
+
+/* ─── Maps topology — restrained spatial fields (no heatmap warfare) ─── */
+.ms-maps-workspace {
+  isolation: isolate;
+}
+
+.ms-maps-field-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--ms-border) 35%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--ms-border) 35%, transparent) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+
+.ms-maps-cell-drift {
+  animation: ms-maps-cell-drift 48s ease-in-out infinite;
+}
+
+@keyframes ms-maps-cell-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0.35%, -0.25%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-maps-cell-drift {
+    animation: none;
+  }
+}
+
+/* ─── Surfaces — layered intelligence, not flat slabs ─── */
+
+.ms-surface-panel {
+  position: relative;
+  background: var(--ms-bg-surface);
+  border-radius: var(--ms-radius-lg);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--ms-border-medium) 55%, transparent),
+    0 12px 36px -30px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+[data-theme="light"] .ms-surface-panel {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--ms-border-medium) 70%, transparent),
+    0 10px 32px -28px rgba(18, 17, 16, 0.08);
+}
+
+.ms-surface-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: var(--ms-gradient-panel-veil);
+  opacity: 0.35;
+}
+
+.ms-surface-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ms-surface-inset {
+  background: color-mix(in srgb, var(--ms-bg-elevated) 92%, transparent);
+  border: 1px solid var(--ms-border-subtle);
+  border-radius: var(--ms-radius-md);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+[data-theme="light"] .ms-surface-inset {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.ms-grid-atmosphere {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(var(--ms-grid-fine) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ms-grid-fine) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: var(--ms-atmo-grid-opacity, 0.32);
+}
+
+.ms-intelligence-fog {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--ms-gradient-fog);
+  opacity: var(--ms-atmo-fog-opacity, 0.55);
+}
+
+.ms-atmo-vignette {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 10%, rgba(255, 255, 255, 0.05), transparent 55%),
+    radial-gradient(ellipse 95% 80% at 50% 60%, rgba(0, 0, 0, 0.55), transparent 60%);
+  opacity: var(--ms-atmo-vignette-opacity, 0.18);
+  transition: opacity 900ms var(--ms-ease-in-out);
+}
+
+[data-theme="light"] .ms-atmo-vignette {
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 10%, rgba(255, 255, 255, 0.75), transparent 58%),
+    radial-gradient(ellipse 95% 80% at 50% 60%, rgba(26, 24, 22, 0.12), transparent 64%);
+}
+
+.ms-atmo-grain {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.022) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.022) 0 1px, transparent 1px 4px);
+  mix-blend-mode: overlay;
+  opacity: var(--ms-atmo-grain-opacity, 0.034);
+}
+
+[data-theme="light"] .ms-atmo-grain {
+  background-image:
+    repeating-linear-gradient(0deg, rgba(18, 17, 16, 0.018) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(18, 17, 16, 0.014) 0 1px, transparent 1px 4px);
+  mix-blend-mode: multiply;
+}
+
+.ms-atmo-glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 48% at 32% 18%, color-mix(in srgb, var(--ms-cognition) 22%, transparent), transparent 62%),
+    radial-gradient(ellipse 65% 50% at 72% 70%, color-mix(in srgb, var(--ms-flow) 14%, transparent), transparent 64%);
+  opacity: var(--ms-atmo-glow-opacity, 0.12);
+  transition: opacity 900ms var(--ms-ease-in-out);
+}
+
+.ms-atmo-parallax {
+  transform: translate3d(var(--ms-parallax-x, 0px), var(--ms-parallax-y, 0px), 0);
+  transition: transform 750ms var(--ms-ease-in-out);
+  will-change: transform;
+}
+
+html[data-ms-focus="1"] .ms-atmo-grain {
+  opacity: calc(var(--ms-atmo-grain-opacity, 0.06) * 0.65);
+}
+
+html[data-ms-focus="1"] .ms-grid-atmosphere {
+  opacity: calc(var(--ms-atmo-grid-opacity, 0.5) * 0.72);
+}
+
+html[data-ms-focus="1"] .ms-intelligence-fog {
+  opacity: calc(var(--ms-atmo-fog-opacity, 0.85) * 0.86);
+}
+
+/* ─── Signature cognition transition (felt, not seen) ─── */
+
+@keyframes ms-shift-pulse {
+  0% {
+    filter: saturate(1) contrast(1);
+  }
+  45% {
+    filter: saturate(0.99) contrast(1.015);
+  }
+  100% {
+    filter: saturate(1) contrast(1);
+  }
+}
+
+@keyframes ms-shift-vignette {
+  0% {
+    opacity: var(--ms-atmo-vignette-opacity, 0.18);
+  }
+  45% {
+    opacity: calc(var(--ms-atmo-vignette-opacity, 0.18) + 0.04);
+  }
+  100% {
+    opacity: var(--ms-atmo-vignette-opacity, 0.18);
+  }
+}
+
+html[data-ms-shift="1"] body.ms-body {
+  animation: ms-shift-pulse 1400ms var(--ms-ease-in-out);
+}
+
+html[data-ms-shift="1"] .ms-atmo-vignette {
+  animation: ms-shift-vignette 1400ms var(--ms-ease-in-out);
+}
+
+html[data-ms-shift="1"][data-ms-shift-kind="danger"] .ms-atmo-glow {
+  opacity: calc(var(--ms-atmo-glow-opacity, 0) + 0.02);
+}
+
+html[data-ms-shift="1"][data-ms-shift-kind="regime"] .ms-grid-atmosphere {
+  opacity: calc(var(--ms-atmo-grid-opacity, 0.5) * 0.86);
+}
+
+html[data-ms-shift="1"][data-ms-shift-kind="consensus"] .ms-intelligence-fog {
+  opacity: calc(var(--ms-atmo-fog-opacity, 0.85) * 0.92);
+}
+
+/* ─── Focus mode: isolate the panel under inspection ─── */
+
+html[data-ms-focus="1"] .ms-surface-panel {
+  transition:
+    transform 280ms var(--ms-ease-in-out),
+    box-shadow 280ms var(--ms-ease-in-out),
+    border-color 280ms var(--ms-ease-in-out);
+}
+
+html[data-ms-focus="1"] [data-ms-focus] {
+  transform: translate3d(0, -1px, 0);
+  box-shadow:
+    var(--ms-shadow-float),
+    0 0 0 1px color-mix(in srgb, var(--ms-border-strong) 62%, transparent);
+}
+
+.ms-focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ms-bg-canvas), 0 0 0 4px color-mix(in srgb, var(--ms-cognition) 42%, transparent);
+}
+
+/* ─── Clamp utilities (readability, not marketing) ─── */
+
+.ms-clamp-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.ms-clamp-3 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+@keyframes ms-ambient-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(1.2%, -1%, 0) scale(1.025);
+  }
+}
+
+@keyframes ms-pulse-soft {
+  0%,
+  100% {
+    opacity: 0.32;
+  }
+  50% {
+    opacity: 0.52;
+  }
+}
+
+@keyframes ms-glow-breathe {
+  0%,
+  100% {
+    opacity: 0.22;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes ms-separator-flow {
+  0% {
+    transform: translateX(-12%);
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateX(12%);
+    opacity: 0.35;
+  }
+}
+
+.ms-motion-ambient {
+  animation: none;
+}
+
+.ms-motion-pulse {
+  animation: none;
+}
+
+.ms-motion-breathe {
+  animation: none;
+}
+
+.ms-motion-separator {
+  animation: none;
+}
+
+@keyframes ms-exec-micro-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.93;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ms-exec-micro-pulse {
+    animation: ms-exec-micro-pulse 10s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-exec-micro-pulse {
+    animation: none !important;
+  }
+}
+
+@keyframes ms-exec-anchor-pulse {
+  0%,
+  100% {
+    opacity: 0.28;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.52;
+    transform: scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ms-exec-anchor-pulse {
+    transform-origin: center;
+    transform-box: fill-box;
+    animation: ms-exec-anchor-pulse 4.2s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-exec-anchor-pulse {
+    animation: none !important;
+  }
+}
+
+/* ─── Structural rail — session ambient field (desk rhythm, not ticker) ─── */
+.ms-cognition-rail-session {
+  position: relative;
+  isolation: isolate;
+}
+
+.ms-cognition-rail-session::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0.028;
+}
+
+@keyframes ms-cognition-rail-session-drift {
+  0%,
+  100% {
+    opacity: 0.02;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.046;
+    transform: scale(1.006);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ms-cognition-rail-session--asia::after {
+    background: radial-gradient(125% 100% at 10% 36%, color-mix(in srgb, var(--ms-flow) 24%, transparent), transparent 72%);
+    animation: ms-cognition-rail-session-drift 48s ease-in-out infinite;
+  }
+  .ms-cognition-rail-session--london::after {
+    background: radial-gradient(120% 95% at 78% 32%, color-mix(in srgb, var(--ms-consensus) 22%, transparent), transparent 70%);
+    animation: ms-cognition-rail-session-drift 40s ease-in-out infinite;
+  }
+  .ms-cognition-rail-session--overlap::after {
+    background: radial-gradient(105% 90% at 50% 28%, color-mix(in srgb, var(--ms-warning) 18%, transparent), transparent 68%);
+    animation: ms-cognition-rail-session-drift 32s ease-in-out infinite;
+  }
+  .ms-cognition-rail-session--ny::after {
+    background: radial-gradient(118% 100% at 22% 68%, color-mix(in srgb, var(--ms-intel) 20%, transparent), transparent 74%);
+    animation: ms-cognition-rail-session-drift 36s ease-in-out infinite;
+  }
+  .ms-cognition-rail-session--drift::after {
+    background: radial-gradient(130% 110% at 50% 50%, color-mix(in srgb, var(--ms-text-primary) 8%, transparent), transparent 76%);
+    animation: ms-cognition-rail-session-drift 56s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-cognition-rail-session::after {
+    animation: none !important;
+    transform: none !important;
+    opacity: 0.03;
+  }
+}
+
+[data-theme="light"] .ms-cognition-rail-session::after {
+  opacity: 0.034;
+}
+
+@keyframes ms-cadence-terminal-pulse {
+  0%,
+  100% {
+    fill-opacity: 0.3;
+  }
+  50% {
+    fill-opacity: 0.46;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ms-cadence-terminal-pulse {
+    animation: ms-cadence-terminal-pulse 11s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-cadence-terminal-pulse {
+    animation: none !important;
+  }
+}
+
+/* ─── Premium execution — bias strip + structural ladder (Prompt 26) ─── */
+.ms-premium-exec-surface {
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ms-text-primary) 4%, transparent);
+}
+
+@media (min-width: 1024px) {
+  .ms-premium-exec-surface--dominant {
+    background: color-mix(in srgb, var(--ms-bg-elevated) 84%, var(--ms-cognition-dim) 11%);
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, var(--ms-text-primary) 6%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--ms-cognition) 12%, var(--ms-border)),
+      0 22px 60px -30px color-mix(in srgb, var(--ms-cognition) 16%, transparent);
+  }
+}
+
+[data-theme="light"] .ms-premium-exec-surface--dominant {
+  background: color-mix(in srgb, var(--ms-bg-elevated) 94%, var(--ms-cognition-dim) 5%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--ms-text-primary) 5%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--ms-cognition) 8%, var(--ms-border)),
+    0 18px 44px -26px color-mix(in srgb, var(--ms-cognition) 10%, transparent);
+}
+
+.ms-exec-zone-band--secondary {
+  opacity: 0.92;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ms-exec-zone-band--primary {
+    animation: ms-exec-zone-primary-ambient 16s ease-in-out infinite;
+  }
+
+  .ms-exec-zone-band--primary .ms-exec-zone-pressure-ribbon {
+    animation: ms-exec-map-pressure-flow 52s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-exec-zone-band--primary {
+    animation: none !important;
+  }
+
+  .ms-exec-zone-band--primary .ms-exec-zone-pressure-ribbon {
+    animation: none !important;
+  }
+}
+
+@keyframes ms-exec-zone-primary-ambient {
+  0%,
+  100% {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ms-cognition) 11%, transparent);
+  }
+  50% {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ms-cognition) 22%, transparent);
+  }
+}
+
+/* ─── Dashboard continuity — one field, not a card deck (Prompt 30) ─── */
+.ms-cognition-continuity-field {
+  position: relative;
+}
+
+@media (min-width: 1024px) {
+  .ms-cognition-continuity-field::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    width: 1px;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ms-cognition) 22%, transparent),
+      color-mix(in srgb, var(--ms-border-medium) 55%, transparent) 42%,
+      color-mix(in srgb, var(--ms-border-subtle) 80%, transparent) 100%
+    );
+    pointer-events: none;
+    opacity: 0.85;
+  }
+
+  .ms-cognition-continuity-field {
+    padding-left: 0.35rem;
+  }
+}
+
+.ms-cognition-lower-field {
+  border-top: 1px solid color-mix(in srgb, var(--ms-border-medium) 38%, transparent);
+  padding-top: var(--ms-block-gap);
+}
+
+@media (min-width: 1024px) {
+  .ms-cognition-lower-field {
+    border-top-color: color-mix(in srgb, var(--ms-border-medium) 28%, transparent);
+    padding-top: var(--ms-section-gap);
+  }
+}
+
+[data-theme="light"] .ms-cognition-lower-field {
+  border-top-color: color-mix(in srgb, var(--ms-border-medium) 55%, transparent);
+}
+
+.ms-premium-terminal--unlocked {
+  border-color: color-mix(in srgb, var(--ms-border) 78%, var(--ms-cognition) 8%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--ms-text-primary) 5%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--ms-cognition) 6%, transparent);
+}
+
+.ms-premium-exec-surface--extended {
+  --ms-premium-aside-rhythm: 1.05;
+}
+
+@media (max-width: 1023px) {
+  .ms-premium-exec-surface--extended .ms-data-label {
+    letter-spacing: 0.04em;
+  }
+}
+
+/* ─── Premium gate — locked preview (Prompt 29) ─── */
+.ms-premium-gate--locked .ms-premium-gate__preview-shell {
+  position: relative;
+}
+
+.ms-premium-gate__vignette {
+  background:
+    radial-gradient(
+      ellipse 92% 78% at 50% 36%,
+      transparent 0%,
+      transparent 34%,
+      color-mix(in srgb, var(--ms-bg-canvas) 38%, transparent) 72%,
+      color-mix(in srgb, var(--ms-bg-canvas) 76%, transparent) 100%
+    ),
+    linear-gradient(180deg, color-mix(in srgb, var(--ms-bg-canvas) 22%, transparent), transparent 38%);
+}
+
+.ms-premium-gate__cognition-ribbon {
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ms-text-primary) 3%, transparent);
+}
+
+.ms-premium-gate__preview-line:last-child {
+  mask-image: linear-gradient(90deg, #000 0%, #000 72%, transparent 100%);
+}
+
+.ms-premium-gate__access-dock {
+  color: var(--ms-text-secondary);
+}
+
+[data-theme="light"] .ms-premium-gate__preview-content {
+  opacity: 0.46;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ms-premium-gate--locked .ms-premium-gate__cognition-ribbon {
+    animation: ms-premium-gate-ribbon-drift 54s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-premium-gate--locked .ms-premium-gate__cognition-ribbon {
+    animation: none !important;
+  }
+}
+
+@keyframes ms-premium-gate-ribbon-drift {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(1px);
+    opacity: 0.94;
+  }
+}
+
+.ms-exec-bias-strip__glow {
+  background: linear-gradient(
+    108deg,
+    color-mix(in srgb, var(--ms-cognition) 12%, transparent),
+    transparent 40%,
+    color-mix(in srgb, var(--ms-flow) 9%, transparent) 100%
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ms-exec-bias-strip__glow {
+    animation: ms-exec-bias-glow-drift 52s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-exec-bias-strip__glow {
+    animation: none !important;
+  }
+}
+
+@keyframes ms-exec-bias-glow-drift {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: translateX(-1.5%);
+  }
+  50% {
+    opacity: 0.72;
+    transform: translateX(1.5%);
+  }
+}
+
+.ms-exec-bias--defensive {
+  border-color: color-mix(in srgb, var(--ms-danger) 24%, var(--ms-border));
+}
+.ms-exec-bias--caution {
+  border-color: color-mix(in srgb, var(--ms-warning) 22%, var(--ms-border));
+}
+.ms-exec-bias--expansion {
+  border-color: color-mix(in srgb, var(--ms-warning) 18%, var(--ms-border));
+}
+.ms-exec-bias--reclaim {
+  border-color: color-mix(in srgb, var(--ms-flow) 22%, var(--ms-border));
+}
+.ms-exec-bias--continuation {
+  border-color: color-mix(in srgb, var(--ms-consensus) 22%, var(--ms-border));
+}
+.ms-exec-bias--favor-long {
+  border-color: color-mix(in srgb, var(--ms-consensus) 18%, var(--ms-border));
+}
+.ms-exec-bias--favor-short {
+  border-color: color-mix(in srgb, var(--ms-intel) 20%, var(--ms-border));
+}
+.ms-exec-bias--neutral {
+  border-color: color-mix(in srgb, var(--ms-border) 88%, transparent);
+}
+
+[data-theme="light"] .ms-exec-bias-strip {
+  background: color-mix(in srgb, var(--ms-bg-surface) 92%, var(--ms-bg-elevated));
+}
+
+.ms-exec-session-desk {
+  color: color-mix(in srgb, var(--ms-text-secondary) 92%, var(--ms-text-primary));
+}
+
+[data-theme="light"] .ms-exec-session-desk {
+  color: var(--ms-text-secondary);
+}
+
+.ms-exec-transition {
+  border-left-color: color-mix(in srgb, var(--ms-cognition) 35%, var(--ms-border));
+}
+
+/* @keyframes ms-exec-ladder-primary-breathe removed — static primary emphasis (Prompt 31) */
+
+@media (prefers-reduced-motion: no-preference) {
+  .ms-exec-ladder-rung--primary {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ms-cognition) 16%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-exec-ladder-rung--primary {
+    animation: none !important;
+  }
+}
+
+[data-theme="light"] .ms-exec-ladder-rung--primary {
+  background: color-mix(in srgb, var(--ms-bg-surface) 96%, var(--ms-cognition-dim));
+}
+
+/* ─── Execution map mode — live structural environment (Prompt 27) ─── */
+.ms-exec-map-surface {
+  --exec-map-ribbon-speed: 70s;
+  --exec-map-lane-density: 1;
+}
+
+.ms-exec-map-surface--asia {
+  --exec-map-ribbon-speed: 72s;
+  --exec-map-lane-density: 0.92;
+}
+
+.ms-exec-map-surface--london {
+  --exec-map-ribbon-speed: 62s;
+  --exec-map-lane-density: 1.04;
+}
+
+.ms-exec-map-surface--overlap {
+  --exec-map-ribbon-speed: 54s;
+  --exec-map-lane-density: 1.08;
+}
+
+.ms-exec-map-surface--ny {
+  --exec-map-ribbon-speed: 48s;
+  --exec-map-lane-density: 1.1;
+}
+
+.ms-exec-map-surface--drift {
+  --exec-map-ribbon-speed: 66s;
+  --exec-map-lane-density: 0.96;
+}
+
+@keyframes ms-exec-map-pressure-flow {
+  0%,
+  100% {
+    opacity: 0.72;
+    filter: saturate(var(--exec-map-lane-density));
+  }
+  50% {
+    opacity: 0.95;
+    filter: saturate(calc(var(--exec-map-lane-density) * 1.04));
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ms-exec-map-pressure-ribbon {
+    animation: ms-exec-map-pressure-flow var(--exec-map-ribbon-speed, 70s) ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-exec-map-pressure-ribbon {
+    animation: none !important;
+  }
+}
+
+@keyframes ms-exec-map-lane-focus {
+  0%,
+  100% {
+    border-color: color-mix(in srgb, var(--ms-cognition) 18%, var(--ms-border));
+  }
+  50% {
+    border-color: color-mix(in srgb, var(--ms-cognition) 28%, var(--ms-border));
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ms-exec-map-lane--focus {
+    animation: ms-exec-map-lane-focus 16s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-exec-map-lane--focus {
+    animation: none !important;
+  }
+}
+
+[data-theme="light"] .ms-exec-map-surface {
+  background: color-mix(in srgb, var(--ms-bg-surface) 97%, var(--ms-bg-surface-high));
+}
+
+[data-theme="light"] .ms-exec-map--invalidate-soft::before {
+  opacity: 0.36;
+}
+
+/* ─── Prompt 28: visual compression, soft invalidation, strip micro-motion ─── */
+.ms-exec-map--invalidate-soft {
+  isolation: isolate;
+}
+
+.ms-exec-map--invalidate-soft::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    188deg,
+    transparent 55%,
+    color-mix(in srgb, var(--ms-danger) 6.5%, transparent) 100%
+  );
+  opacity: 0.55;
+}
+
+.ms-exec-map--invalidate-soft > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes ms-exec-map-ribbon-drift {
+  0%,
+  100% {
+    opacity: 0.58;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ms-exec-map-structural-ribbon {
+    animation: ms-exec-map-ribbon-drift var(--exec-map-ribbon-speed, 70s) ease-in-out infinite;
+  }
+}
+
+@keyframes ms-exec-strip-breathe {
+  0%,
+  100% {
+    opacity: 0.76;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes ms-exec-depth-breathe {
+  0%,
+  100% {
+    opacity: 0.68;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.94;
+    filter: brightness(1.05);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ms-exec-strip-fill,
+  .ms-exec-depth-cell {
+    animation: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-exec-strip-fill,
+  .ms-exec-depth-cell,
+  .ms-exec-map-structural-ribbon {
+    animation: none !important;
+  }
+}
+
+/**
+ * Scenario evolution shell — motion off for pre-data stability (Prompt 31).
+ */
+@media (prefers-reduced-motion: no-preference) {
+  article.ms-scenario-evoshell[data-ms-evo="strengthening"],
+  article.ms-scenario-evoshell[data-ms-evo="rebuilding"],
+  article.ms-scenario-evoshell[data-ms-evo="weakening"],
+  article.ms-scenario-evoshell[data-ms-evo="deteriorating"] {
+    animation: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  article.ms-scenario-evoshell[data-ms-evo] {
+    animation: none !important;
+  }
+}
+
+@keyframes ms-scenario-edge-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.97;
+  }
+}
+
+/* ─── Prompt 31 — terminal motion lock (wins after execution map rules) ─── */
+@media (prefers-reduced-motion: no-preference) {
+  .ms-exec-map-lane--focus {
+    animation: none !important;
+    border-color: color-mix(in srgb, var(--ms-cognition) 22%, var(--ms-border));
+  }
+
+  .ms-exec-anchor-pulse {
+    animation: none !important;
+    opacity: 0.34;
+  }
+}
+
+/* ─── Institutional command bar — recedes from content ─── */
+.ms-intel-command {
+  box-shadow: 0 1px 0 0 color-mix(in srgb, var(--ms-border) 55%, transparent);
+}
+
+/* ─── Desktop workspace depth — restrained institutional atmosphere ─── */
+@media (min-width: 768px) {
+  .ms-desktop-workspace-depth {
+    background-image:
+      radial-gradient(
+        ellipse 92% 48% at 50% -14%,
+        color-mix(in srgb, var(--ms-cognition) 6%, transparent),
+        transparent 56%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--ms-bg-elevated) 42%, transparent),
+        transparent min(32rem, 58vh)
+      );
+  }
+}
+
+/* Core execution column — visual gravity on large screens */
+@media (min-width: 1024px) {
+  .ms-desktop-exec-gravity {
+    box-shadow:
+      inset 0 1px 0 0 color-mix(in srgb, var(--ms-cognition) 16%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--ms-border) 82%, var(--ms-cognition) 9%),
+      0 22px 56px -28px color-mix(in srgb, var(--ms-cognition) 14%, transparent);
+  }
+}

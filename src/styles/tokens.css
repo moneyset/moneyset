@@ -1,0 +1,209 @@
+/* ─── MONEYSET design tokens — semantic identity, dark + light (not simple inversion) ─── */
+
+:root {
+  /* Typography scale (rem) — tactical rhythm */
+  --ms-text-2xs: 0.625rem;
+  --ms-text-xs: 0.6875rem;
+  --ms-text-sm: 0.8125rem;
+  --ms-text-base: 0.9375rem;
+  --ms-text-md: 1.0625rem;
+  --ms-text-lg: 1.25rem;
+  --ms-text-xl: 1.5rem;
+  --ms-text-2xl: 1.875rem;
+  --ms-text-display: clamp(1.625rem, 3.6vw, 2rem);
+  --ms-text-hero: clamp(1.375rem, 3vw, 1.75rem);
+
+  /* Spacing — 4px base */
+  --ms-space-0: 0;
+  --ms-space-1: 0.25rem;
+  --ms-space-2: 0.5rem;
+  --ms-space-3: 0.75rem;
+  --ms-space-4: 1rem;
+  --ms-space-5: 1.25rem;
+  --ms-space-6: 1.5rem;
+  --ms-space-8: 2rem;
+  --ms-space-10: 2.5rem;
+  --ms-space-12: 3rem;
+  --ms-space-16: 4rem;
+
+  /* Radius */
+  --ms-radius-xs: 0.25rem;
+  --ms-radius-sm: 0.375rem;
+  --ms-radius-md: 0.625rem;
+  --ms-radius-lg: 0.875rem;
+  --ms-radius-xl: 1.125rem;
+  --ms-radius-2xl: 1.375rem;
+  --ms-radius-pill: 9999px;
+
+  /* Motion */
+  --ms-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ms-ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+  --ms-ease-spring: cubic-bezier(0.34, 1.2, 0.64, 1);
+  --ms-duration-instant: 100ms;
+  --ms-duration-fast: 180ms;
+  --ms-duration-medium: 320ms;
+  --ms-duration-slow: 520ms;
+  --ms-duration-reveal: 720ms;
+  --ms-duration-ambient: 16s;
+  --ms-duration-breathe: 6.5s;
+
+  /* Layout */
+  --ms-sidebar-width: 15.75rem;
+  --ms-intel-bar-height: 3.5rem;
+  --ms-content-max: 80rem;
+  --ms-panel-inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  /* Page rhythm — 4px grid, one system across routes */
+  --ms-page-y: 2.25rem;
+  --ms-page-y-lg: 2.625rem;
+  --ms-section-gap: 2.75rem;
+  --ms-section-gap-lg: 3rem;
+  --ms-block-gap: var(--ms-space-5);
+  --ms-block-gap-dense: var(--ms-space-4);
+  /* Bottom inset — single-row primary nav + safe area */
+  --ms-mobile-nav-pad: max(5.75rem, calc(env(safe-area-inset-bottom, 0px) + 4.75rem));
+  /* Telegram / notch — JS may override --ms-tg-safe-* from WebApp.safeAreaInset */
+  --ms-tg-safe-top: 0px;
+  --ms-tg-safe-bottom: 0px;
+  --ms-tg-safe-left: 0px;
+  --ms-tg-safe-right: 0px;
+}
+
+/* Phone portrait — calmer rhythm: less empty verticals, not cramped cards */
+@media (max-width: 767.98px) {
+  :root {
+    --ms-page-y: 1.625rem;
+    --ms-section-gap: 1.875rem;
+    --ms-section-gap-lg: 2rem;
+    --ms-block-gap: 1.125rem;
+    --ms-block-gap-dense: 0.875rem;
+  }
+}
+
+/* Dense grid — measurably tighter rhythm for scan speed (subtree inherits vars) */
+.ms-density-dense {
+  --ms-page-y: 1.125rem;
+  --ms-page-y-lg: 1.25rem;
+  --ms-section-gap: 1.125rem;
+  --ms-section-gap-lg: 1.25rem;
+  --ms-block-gap: 0.6875rem;
+  --ms-block-gap-dense: 0.5rem;
+}
+
+@media (max-width: 767.98px) {
+  .ms-density-dense {
+    --ms-page-y: 1rem;
+    --ms-section-gap: 1.125rem;
+    --ms-section-gap-lg: 1.25rem;
+    --ms-block-gap: 0.625rem;
+    --ms-block-gap-dense: 0.4375rem;
+  }
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --ms-bg-canvas: #060608;
+  --ms-bg-elevated: #0a0a0f;
+  --ms-bg-surface: #0f0f15;
+  --ms-bg-surface-high: #14141b;
+  --ms-bg-overlay: rgba(6, 6, 8, 0.82);
+
+  --ms-text-primary: #f2f1f4;
+  --ms-text-secondary: #a6a6ae;
+  --ms-text-tertiary: #7d7d88;
+  --ms-text-faint: #5c5c67;
+  --ms-text-inverse: #0c0c10;
+
+  --ms-border-subtle: rgba(255, 255, 255, 0.05);
+  --ms-border-medium: rgba(255, 255, 255, 0.078);
+  --ms-border-strong: rgba(255, 255, 255, 0.1);
+
+  /* Semantic accents — tension & structure, not retail bull/bear */
+  --ms-cognition: #6a8a91;
+  --ms-cognition-dim: rgba(106, 138, 145, 0.2);
+  --ms-flow: #6b829c;
+  --ms-flow-dim: rgba(107, 130, 156, 0.18);
+  --ms-sentiment: #8578a0;
+  --ms-sentiment-dim: rgba(133, 120, 160, 0.18);
+  --ms-danger: #a86b5c;
+  --ms-danger-dim: rgba(168, 107, 92, 0.16);
+  --ms-warning: #b29468;
+  --ms-warning-dim: rgba(178, 148, 104, 0.14);
+  --ms-consensus: #76899e;
+  --ms-consensus-dim: rgba(118, 137, 158, 0.18);
+
+  --ms-intel: #879aad;
+  --ms-intel-deep: #5a6d7e;
+
+  --ms-gradient-ambient-a: rgba(68, 88, 108, 0.075);
+  --ms-gradient-ambient-b: rgba(18, 20, 28, 0.34);
+  --ms-gradient-ambient-c: rgba(82, 74, 62, 0.045);
+  --ms-gradient-fog: radial-gradient(ellipse 82% 58% at 50% 0%, rgba(106, 138, 145, 0.035), transparent 56%);
+  --ms-gradient-panel-veil: linear-gradient(165deg, rgba(255, 255, 255, 0.018) 0%, transparent 40%);
+
+  /* Elevation — depth without harsh float */
+  --ms-shadow-xs: 0 1px 0 rgba(255, 255, 255, 0.028) inset;
+  --ms-shadow-sm: var(--ms-shadow-xs), 0 10px 32px -24px rgba(0, 0, 0, 0.72);
+  --ms-shadow-md: var(--ms-shadow-xs), 0 16px 44px -26px rgba(0, 0, 0, 0.78);
+  --ms-shadow-lg: var(--ms-shadow-xs), 0 24px 56px -28px rgba(0, 0, 0, 0.82);
+  --ms-shadow-float: 0 20px 48px -30px rgba(0, 0, 0, 0.68);
+  --ms-shadow-ring: 0 0 0 1px rgba(255, 255, 255, 0.045);
+
+  --ms-grid-fine: rgba(255, 255, 255, 0.022);
+  --ms-scrollbar-thumb: rgba(255, 255, 255, 0.11);
+  --ms-scrollbar-track: transparent;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --ms-bg-canvas: #eceae5;
+  --ms-bg-elevated: #f3f1ec;
+  --ms-bg-surface: #fbfaf7;
+  --ms-bg-surface-high: #ebe8e1;
+  --ms-bg-overlay: rgba(236, 234, 229, 0.9);
+
+  --ms-text-primary: #121110;
+  --ms-text-secondary: #35322d;
+  --ms-text-tertiary: #4d4840;
+  --ms-text-faint: #5f574d;
+  --ms-text-inverse: #faf9f6;
+
+  --ms-border-subtle: rgba(18, 17, 16, 0.09);
+  --ms-border-medium: rgba(18, 17, 16, 0.125);
+  --ms-border-strong: rgba(18, 17, 16, 0.168);
+
+  --ms-cognition: #456a72;
+  --ms-cognition-dim: rgba(69, 106, 114, 0.16);
+  --ms-flow: #455d78;
+  --ms-flow-dim: rgba(69, 93, 120, 0.14);
+  --ms-sentiment: #5f5278;
+  --ms-sentiment-dim: rgba(95, 82, 120, 0.13);
+  --ms-danger: #8f4f44;
+  --ms-danger-dim: rgba(143, 79, 68, 0.12);
+  --ms-warning: #7a663f;
+  --ms-warning-dim: rgba(122, 102, 63, 0.11);
+  --ms-consensus: #4a5c6e;
+  --ms-consensus-dim: rgba(74, 92, 110, 0.13);
+
+  --ms-intel: #4f5f6c;
+  --ms-intel-deep: #36424c;
+
+  --ms-gradient-ambient-a: rgba(88, 108, 124, 0.09);
+  --ms-gradient-ambient-b: rgba(255, 255, 255, 0.62);
+  --ms-gradient-ambient-c: rgba(148, 138, 118, 0.055);
+  --ms-gradient-fog: radial-gradient(ellipse 78% 52% at 50% 0%, rgba(69, 106, 114, 0.06), transparent 52%);
+  --ms-gradient-panel-veil: linear-gradient(168deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0) 44%);
+
+  --ms-shadow-xs: 0 1px 0 rgba(255, 255, 255, 0.88) inset;
+  --ms-shadow-sm: var(--ms-shadow-xs), 0 8px 28px -18px rgba(18, 17, 16, 0.11);
+  --ms-shadow-md: var(--ms-shadow-xs), 0 14px 40px -20px rgba(18, 17, 16, 0.13);
+  --ms-shadow-lg: var(--ms-shadow-xs), 0 22px 52px -22px rgba(18, 17, 16, 0.15);
+  --ms-shadow-float: 0 18px 44px -26px rgba(18, 17, 16, 0.12);
+  --ms-shadow-ring: 0 0 0 1px rgba(18, 17, 16, 0.07);
+
+  --ms-grid-fine: rgba(18, 17, 16, 0.042);
+  --ms-scrollbar-thumb: rgba(18, 17, 16, 0.15);
+  --ms-scrollbar-track: transparent;
+}

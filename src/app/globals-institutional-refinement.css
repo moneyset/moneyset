@@ -1,0 +1,237 @@
+/* MONEYSET institutional refinement — hierarchy, rhythm, depth (no redesign) */
+
+/* ─── Metadata vs execution signal ─── */
+.ms-metadata,
+.ms-cognition-density__telemetry-body,
+.ms-cognition-density__summary--faint,
+.tabular-nums.text-ms-faint {
+  color: var(--ms-text-faint);
+  font-size: var(--ms-text-2xs);
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  opacity: 0.78;
+}
+
+.ms-exec-implication {
+  margin: 0;
+  font-size: var(--ms-text-xs);
+  line-height: 1.45;
+  color: var(--ms-text-secondary);
+}
+
+.ms-exec-implication--primary {
+  color: var(--ms-text-primary);
+  font-weight: 500;
+}
+
+/* ─── Section rhythm (scan flow) ─── */
+.ms-category-organism > section + section,
+.ms-labs-workspace > article + article,
+.ms-labs-workspace > section + section {
+  margin-top: var(--ms-block-gap);
+}
+
+.ms-cognition-world__content > * + * {
+  margin-top: var(--ms-block-gap-dense);
+}
+
+/* ─── Signature / intelligence surfaces — separation without slab weight ─── */
+.ms-signature-surface:not(.ms-liq-theater) {
+  padding: var(--ms-space-5) var(--ms-space-4);
+  border-radius: var(--ms-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 38%, transparent);
+  background: color-mix(in srgb, var(--ms-bg-surface) 48%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--ms-text-primary) 4%, transparent),
+    0 12px 36px -32px rgba(0, 0, 0, 0.42);
+}
+
+[data-theme="light"] .ms-signature-surface:not(.ms-liq-theater) {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--ms-text-primary) 5%, transparent),
+    0 10px 28px -24px rgba(18, 17, 16, 0.07);
+}
+
+/* ─── Primary cognition — posture reads first ─── */
+.ms-cognition-primary__label {
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: var(--ms-text-2xs);
+  opacity: 0.88;
+}
+
+.ms-cognition-primary__state {
+  text-wrap: balance;
+}
+
+.ms-cognition-primary__subline {
+  text-wrap: pretty;
+}
+
+/* ─── Density panels — grouped, not stacked noise ─── */
+.ms-cognition-density {
+  margin-top: var(--ms-space-4);
+  padding-top: var(--ms-space-3);
+  border-top: 1px solid color-mix(in srgb, var(--ms-border) 32%, transparent);
+}
+
+.ms-cognition-density__deep-body {
+  display: grid;
+  gap: var(--ms-space-2);
+}
+
+.ms-cognition-density__deep-body > p + p {
+  margin-top: 0;
+}
+
+.ms-cognition-density__deep-body ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.35rem;
+}
+
+/* ─── Liquid Lab / topology theater ─── */
+.ms-liq-topology-theater .ms-cognition-primary {
+  margin-bottom: var(--ms-space-3);
+}
+
+.ms-liq-theater__terrain {
+  margin-top: var(--ms-space-4);
+  isolation: isolate;
+}
+
+.ms-liq-feature {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.18rem;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.ms-liq-feature__label {
+  flex-shrink: 0;
+  text-wrap: balance;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.ms-liq-feature__read {
+  flex: 1 1 auto;
+  min-height: 0;
+  text-wrap: pretty;
+}
+
+/* ─── Maps workspace cells ─── */
+.ms-maps-cell {
+  padding: 0.4rem 0.5rem;
+  gap: 0.22rem;
+}
+
+.ms-maps-field {
+  isolation: isolate;
+}
+
+/* ─── Canvas annotations & overlays ─── */
+.ms-exec-terrain-annotation,
+.ms-global-divergence {
+  box-sizing: border-box;
+  overflow: hidden;
+  text-wrap: pretty;
+}
+
+.ms-exec-terrain-annotation {
+  max-width: min(42%, 11.5rem);
+  line-height: 1.4;
+}
+
+.ms-global-divergence {
+  padding: 0.28rem 0.4rem 0.28rem 0.35rem;
+  background: color-mix(in srgb, var(--ms-bg-elevated) 65%, transparent);
+  border-radius: 0 var(--ms-radius-xs) var(--ms-radius-xs) 0;
+}
+
+.ms-global-event-gravity {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* ─── Premium execution emphasis ─── */
+.ms-premium-exec-surface--dominant .ms-cognition-primary__state,
+.ms-premium-exec-surface--dominant .ms-posture-title {
+  font-weight: 600;
+}
+
+.ms-exec-zone-band--primary {
+  border-color: color-mix(in srgb, var(--ms-cognition) 18%, var(--ms-border));
+}
+
+/* Execution interpretation layer */
+.ms-exec-interpretation {
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ms-text-primary) 3%, transparent);
+}
+
+/* ─── Cards & panels — subtle depth, clearer edges ─── */
+.ms-surface-panel,
+.ms-exec-terrain-panel,
+.ms-global-matrix__regime-card,
+.ms-liq-panel {
+  border-color: color-mix(in srgb, var(--ms-border) 48%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ms-text-primary) 3%, transparent);
+}
+
+/* ─── Mobile / Telegram readability ─── */
+@media (max-width: 767.98px) {
+  .ms-signature-surface:not(.ms-liq-theater) {
+    padding: var(--ms-space-4) var(--ms-space-3);
+  }
+
+  .ms-liq-theater {
+    padding: var(--ms-space-4) var(--ms-space-3);
+  }
+
+  .ms-liq-theater__terrain {
+    min-height: 13.5rem;
+  }
+
+  .ms-liq-feature__label {
+    font-size: 8px;
+  }
+
+  .ms-liq-feature__read {
+    font-size: 7.5px;
+    line-height: 1.32;
+  }
+
+  .ms-cognition-glyph {
+    padding: var(--ms-space-2) var(--ms-space-3);
+  }
+
+  .ms-exec-terrain-annotation {
+    max-width: min(48%, 10.5rem);
+    font-size: 8.5px;
+  }
+
+  .ms-global-divergence {
+    max-width: min(88%, 13rem);
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .ms-liq-feature {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-liq-feature,
+  .ms-maps-cell-drift {
+    animation: none !important;
+    transform: none !important;
+  }
+}

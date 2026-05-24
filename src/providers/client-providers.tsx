@@ -1,0 +1,33 @@
+"use client";
+
+import { LazyMotion, domAnimation } from "framer-motion";
+import type { ReactNode } from "react";
+
+import { TelegramWebAppBridge } from "@/components/layout/telegram-webapp-bridge";
+import { TelegramInstitutionalIntro } from "@/components/telegram/telegram-institutional-intro";
+import { ThemeProvider } from "@/providers/theme-provider";
+import { AuthBootstrap } from "@/components/auth/auth-bootstrap";
+import { IntelligenceBootstrap } from "@/components/intelligence/intelligence-bootstrap";
+import { CinematicIntroRoot } from "@/components/motion/cinematic-intro-root";
+import { MoneysetEntryOnboarding } from "@/components/onboarding/moneyset-entry-onboarding";
+import { GlobalAuthModal } from "@/components/auth/global-auth-modal";
+import { GlobalCheckoutModal } from "@/components/premium/global-checkout-modal";
+
+export function ClientProviders({ children }: { children: ReactNode }) {
+  return (
+    <LazyMotion features={domAnimation} strict>
+      <ThemeProvider>
+        <CinematicIntroRoot>
+          <TelegramWebAppBridge />
+          <TelegramInstitutionalIntro />
+          <AuthBootstrap />
+          <MoneysetEntryOnboarding />
+          <GlobalAuthModal />
+          <GlobalCheckoutModal />
+          <IntelligenceBootstrap />
+          {children}
+        </CinematicIntroRoot>
+      </ThemeProvider>
+    </LazyMotion>
+  );
+}

@@ -1,0 +1,211 @@
+/* Mobile cinematic cognition (Prompt 14) — device-native, not compressed desktop */
+
+:root {
+  --ms-mobile-depth-scale: 1;
+  --ms-mobile-breath-scale: 1;
+  --ms-mobile-hero-min: min(72vh, 640px);
+}
+
+@media (max-width: 767.98px) {
+  :root {
+    --ms-page-inline: max(1rem, env(safe-area-inset-left, 0px));
+  }
+
+  /* Single natural scroll — no snap traps or forced hero viewport */
+  .ms-scroll-main {
+    scroll-snap-type: none;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+
+  .ms-mobile-cognition-viewport .ms-cognition-world__content > * {
+    scroll-snap-align: none;
+    min-height: 0;
+  }
+
+  /* Mobile hero typography — structural states dominate */
+  .ms-mobile-cognition-viewport .ms-cognition-primary--visual .ms-cognition-primary__state {
+    font-size: clamp(1.65rem, 9vw, 2.85rem);
+    letter-spacing: -0.045em;
+    line-height: 0.98;
+  }
+
+  .ms-mobile-cognition-viewport .ms-cognition-glyph__value {
+    font-size: clamp(1.45rem, 7vw, 2.1rem);
+  }
+
+  /* Depth & fog — scaled per mobile world on :root */
+  .ms-mobile-cognition-viewport .ms-cognition-world__depth {
+    opacity: calc(0.55 * var(--ms-mobile-depth-scale, 1));
+    transform: scale(calc(1 + (var(--ms-mobile-depth-scale, 1) - 1) * 0.15));
+  }
+
+  .ms-mobile-cognition-viewport .ms-cognition-world__fog {
+    opacity: calc(0.42 * var(--ms-mobile-depth-scale, 1));
+  }
+
+  /* Pulse strip — compact on mobile; beacon carries world identity */
+  .ms-cognition-pulse-strip {
+    min-height: 0;
+    padding-block: 0.35rem;
+    border-bottom-width: 0;
+  }
+
+  .ms-cognition-pulse-strip__beacon {
+    opacity: 0.85;
+  }
+
+  /* World beacon */
+  .ms-mobile-world-beacon {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 1rem 0.5rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--ms-border) 55%, transparent);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ms-bg-elevated) 88%, transparent),
+      transparent
+    );
+  }
+
+  .ms-mobile-world-beacon__pulse {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--ms-world-accent, var(--ms-cognition));
+    box-shadow: 0 0 12px color-mix(in srgb, var(--ms-world-accent, var(--ms-cognition)) 55%, transparent);
+    animation: ms-mobile-beacon-pulse calc(6.5s / var(--ms-mobile-breath-scale, 1)) ease-in-out infinite;
+  }
+
+  .ms-mobile-world-beacon__label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ms-text-tertiary);
+  }
+
+  @keyframes ms-mobile-beacon-pulse {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.65;
+    }
+    50% {
+      transform: scale(1.35);
+      opacity: 1;
+    }
+  }
+
+  /* Per-world mobile atmosphere */
+  [data-ms-mobile-world="liquidity"] .ms-mobile-world-beacon__pulse {
+    animation-duration: 7.2s;
+  }
+  [data-ms-mobile-world="agents"] .ms-mobile-world-beacon__pulse {
+    animation-duration: 4.8s;
+  }
+  [data-ms-mobile-world="replay"] .ms-mobile-world-beacon__pulse {
+    animation-duration: 9s;
+  }
+  [data-ms-mobile-world="execution"] .ms-mobile-world-beacon__pulse {
+    animation-duration: 5.2s;
+  }
+
+  /* Clutter reduction — progressive disclosure default collapsed feel */
+  .ms-mobile-cognition-viewport .ms-cognition-density-panel--telemetry {
+    opacity: 0.72;
+  }
+
+  .ms-mobile-cognition-viewport .ms-cognition-nav-rail {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 0.15rem;
+  }
+
+  .ms-mobile-cognition-viewport .ms-cognition-nav-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Touch affordances */
+  .ms-mobile-cognition-viewport [data-ms-focus],
+  .ms-mobile-cognition-viewport button,
+  .ms-mobile-cognition-viewport a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .ms-mobile-cognition-viewport .ms-live-surface:active {
+    transform: scale(0.996);
+    transition: transform 0.12s ease-out;
+  }
+
+  .ms-mobile-cognition-viewport .ms-replay-cinema__scrub,
+  .ms-mobile-cognition-viewport .ms-replay-scrub {
+    min-height: 44px;
+    touch-action: pan-x;
+  }
+
+  /* Bottom nav — world accent on active tab */
+  .ms-mobile-bottom-nav__link--active[data-ms-nav-world] {
+    box-shadow: inset 0 -2px 0 var(--ms-nav-world-accent, var(--ms-cognition));
+  }
+
+  .ms-mobile-bottom-nav__link--active[data-ms-nav-world="execution"] {
+    --ms-nav-world-accent: var(--ms-flow);
+  }
+  .ms-mobile-bottom-nav__link--active[data-ms-nav-world="agents"] {
+    --ms-nav-world-accent: var(--ms-warning);
+  }
+
+  /* Page padding — cinematic bleed */
+  .ms-mobile-cognition-viewport .ms-page {
+    padding-top: 1.25rem;
+    padding-bottom: 1.5rem;
+  }
+
+  /* Signature surfaces — full bleed drama on phone */
+  .ms-mobile-cognition-viewport .ms-signature-surface {
+    margin-inline: calc(-1 * var(--ms-page-inline, 1rem));
+    padding-inline: var(--ms-page-inline, 1rem);
+    border-radius: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ms-mobile-world-beacon__pulse {
+      animation: none;
+    }
+  }
+}
+
+/* Cadence modifiers on viewport */
+@media (max-width: 767.98px) {
+  .ms-mobile-cadence--tension .ms-cognition-world__fog {
+    animation: ms-mobile-fog-tension 4.5s ease-in-out infinite;
+  }
+
+  .ms-mobile-cadence--temporal .ms-cognition-world__depth {
+    animation: ms-mobile-depth-glide 8s ease-in-out infinite;
+  }
+
+  @keyframes ms-mobile-fog-tension {
+    0%,
+    100% {
+      opacity: 0.35;
+    }
+    50% {
+      opacity: 0.55;
+    }
+  }
+
+  @keyframes ms-mobile-depth-glide {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    50% {
+      transform: translate3d(0, -1.5%, 0);
+    }
+  }
+}

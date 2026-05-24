@@ -1,0 +1,305 @@
+/* Visual cognition — show structure, compress text (Prompt 13) */
+
+/* Desktop: collapse verbose reads into focus mode; mobile keeps operational copy visible */
+@media (min-width: 1024px) {
+  .ms-visual-cognition-surface .ms-liq-feature__read,
+  .ms-visual-cognition-surface .ms-global-divergence,
+  .ms-visual-cognition-surface .ms-exec-terrain-annotation {
+    display: none;
+  }
+
+  .ms-visual-cognition-surface.ms-exec-tactical-theater--focus .ms-exec-terrain-annotation,
+  .ms-visual-cognition-surface.ms-global-matrix--focus .ms-global-divergence {
+    display: block;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .ms-visual-cognition-surface .ms-liq-feature__read,
+  .ms-visual-cognition-surface .ms-global-divergence,
+  .ms-visual-cognition-surface .ms-exec-terrain-annotation {
+    display: block;
+    font-size: 10px;
+    line-height: 1.4;
+    color: var(--ms-text-secondary);
+  }
+}
+
+/* Giant structural states */
+.ms-cognition-primary--visual .ms-cognition-primary__state {
+  font-size: clamp(1.35rem, 4.2vw, 2.55rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.ms-cognition-primary--visual .ms-cognition-primary__label {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.ms-cognition-primary__deep {
+  margin-top: 0.35rem;
+}
+
+.ms-cognition-primary__deep-summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 10px;
+  color: var(--ms-text-tertiary);
+  opacity: 0.6;
+}
+
+.ms-cognition-primary__deep-summary::-webkit-details-marker {
+  display: none;
+}
+
+.ms-cognition-primary__deep .ms-cognition-primary__subline {
+  margin-top: 0.35rem;
+  font-size: 10px;
+  max-width: 32rem;
+}
+
+/* Metric glyphs */
+.ms-cognition-glyph {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: var(--ms-space-3);
+  border-radius: var(--ms-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 65%, transparent);
+  background: color-mix(in srgb, var(--ms-bg-surface) 45%, transparent);
+}
+
+.ms-cognition-glyph__value {
+  margin: 0;
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--ms-text-primary);
+}
+
+.ms-cognition-glyph__label {
+  margin: 0;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ms-text-tertiary);
+}
+
+.ms-cognition-glyph__meter {
+  margin-top: 0.35rem;
+  height: 3px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--ms-border) 70%, transparent);
+  overflow: hidden;
+}
+
+.ms-cognition-glyph__meter > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ms-cognition);
+  transition: width 0.5s ease;
+}
+
+.ms-cognition-glyph--stress .ms-cognition-glyph__meter > span {
+  background: var(--ms-warning);
+}
+
+.ms-cognition-glyph--critical .ms-cognition-glyph__value {
+  color: color-mix(in srgb, var(--ms-danger) 65%, var(--ms-text-primary));
+}
+
+.ms-cognition-glyph--critical .ms-cognition-glyph__meter > span {
+  background: var(--ms-danger);
+}
+
+/* Instant chips */
+.ms-cognition-instant-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ms-cognition-instant-chip {
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--ms-radius-sm);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 70%, transparent);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ms-text-secondary);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 50%, transparent);
+}
+
+.ms-cognition-instant-chip--stress {
+  border-color: color-mix(in srgb, var(--ms-warning) 35%, var(--ms-border));
+  color: color-mix(in srgb, var(--ms-warning) 70%, var(--ms-text-primary));
+}
+
+.ms-cognition-instant-chip--critical {
+  border-color: color-mix(in srgb, var(--ms-danger) 40%, var(--ms-border));
+  color: color-mix(in srgb, var(--ms-danger) 75%, var(--ms-text-primary));
+}
+
+.ms-cognition-instant-chip--support {
+  border-color: color-mix(in srgb, var(--ms-consensus) 30%, var(--ms-border));
+}
+
+/* Density layers */
+.ms-cognition-density__summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--ms-text-tertiary);
+  padding: 0.35rem 0;
+}
+
+.ms-cognition-density__summary--faint {
+  opacity: 0.55;
+}
+
+.ms-cognition-density__summary::-webkit-details-marker {
+  display: none;
+}
+
+.ms-cognition-density__deep-body,
+.ms-cognition-density__telemetry-body {
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--ms-text-secondary);
+  padding-bottom: 0.5rem;
+}
+
+.ms-cognition-density__telemetry-body {
+  opacity: 0.75;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 9px;
+}
+
+/* Nav rail — no footer essays */
+.ms-cognition-nav-rail {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 0.75rem;
+  margin-top: var(--ms-space-5);
+}
+
+.ms-cognition-nav-rail__link {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ms-cognition) 75%, var(--ms-text-tertiary));
+  text-decoration: none;
+}
+
+.ms-cognition-nav-rail__link:hover {
+  color: var(--ms-text-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Machine shell — purpose hidden */
+.ms-cognition-machine__purpose-wrap {
+  margin-top: 0.25rem;
+}
+
+.ms-cognition-machine__purpose-summary {
+  display: inline-block;
+  cursor: pointer;
+  list-style: none;
+  font-size: 10px;
+  color: var(--ms-text-tertiary);
+  opacity: 0.45;
+}
+
+.ms-cognition-machine__purpose-summary::-webkit-details-marker {
+  display: none;
+}
+
+.ms-cognition-machine__purpose {
+  margin: 0.35rem 0 0;
+  max-width: 42rem;
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--ms-text-secondary);
+}
+
+/* Liquidity feature — label only on canvas */
+.ms-liq-feature__label {
+  font-size: 8px;
+}
+
+.ms-liq-glyphs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+@media (min-width: 640px) {
+  .ms-liq-glyphs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Labs gateway — visual cards */
+.ms-labs-gateway-card .ms-labs-gateway-purpose {
+  display: none;
+}
+
+.ms-labs-gateway-card[data-expanded="true"] .ms-labs-gateway-purpose {
+  display: block;
+}
+
+/* World chrome — subtitle visible on mobile for operational context */
+.ms-world-chrome--visual .ms-world-chrome__subtitle {
+  display: block;
+  max-width: 24rem;
+  font-size: 10px;
+  line-height: 1.35;
+  color: var(--ms-text-tertiary);
+}
+
+@media (min-width: 1024px) {
+  .ms-world-chrome--visual .ms-world-chrome__subtitle {
+    font-size: 9px;
+  }
+}
+
+/* Echo / beat rails as visual pulses */
+.ms-cognition-echo-rail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ms-cognition-echo-rail__item {
+  height: 4px;
+  min-width: 2.5rem;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--ms-border) 80%, var(--ms-cognition) 20%);
+  opacity: calc(0.35 + var(--ms-echo-weight, 0.5) * 0.65);
+}
+
+.ms-cognition-echo-rail__item--critical {
+  background: color-mix(in srgb, var(--ms-danger) 55%, transparent);
+}
+
+.ms-cognition-echo-rail__item--elevated {
+  background: color-mix(in srgb, var(--ms-warning) 45%, transparent);
+}

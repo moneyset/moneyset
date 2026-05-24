@@ -1,0 +1,290 @@
+/* Desktop command center — institutional cognition terminal (Prompt 15) */
+
+@media (min-width: 1024px) {
+  :root {
+    --ms-desk-command-max: min(100%, 100rem);
+    --ms-desk-panel-breath: 8s;
+  }
+
+  .ms-scroll-main--command-host {
+    max-width: none !important;
+    overflow: hidden !important;
+    padding-bottom: 0 !important;
+  }
+
+  .ms-desktop-command-center {
+    min-height: calc(100dvh - var(--ms-intel-bar-height) - 2.5rem);
+    background: radial-gradient(
+      120% 80% at 50% -20%,
+      color-mix(in srgb, var(--ms-cognition) 8%, transparent),
+      transparent 55%
+    );
+  }
+
+  .ms-desk-command-atmosphere {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 12% 30%, color-mix(in srgb, var(--ms-cognition) 6%, transparent), transparent),
+      radial-gradient(ellipse 50% 35% at 88% 70%, color-mix(in srgb, var(--ms-warning) 4%, transparent), transparent);
+    opacity: calc(0.5 + var(--ms-motion-intensity, 0.32) * 0.4);
+    animation: ms-desk-atmosphere-drift var(--ms-desk-panel-breath) ease-in-out infinite;
+  }
+
+  @keyframes ms-desk-atmosphere-drift {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    50% {
+      transform: translate3d(0.5%, -0.8%, 0);
+    }
+  }
+
+  /* Command deck */
+  .ms-desk-command-deck {
+    position: relative;
+    background: color-mix(in srgb, var(--ms-bg-elevated) 92%, transparent);
+    backdrop-filter: blur(12px);
+  }
+
+  .ms-desk-command-deck__glow {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--ms-cognition) 12%, transparent) 50%,
+      transparent
+    );
+    opacity: 0.35;
+    animation: ms-desk-deck-pulse calc(var(--ms-desk-panel-breath) * 0.9) ease-in-out infinite;
+  }
+
+  .ms-desk-command-deck--strained .ms-desk-command-deck__glow {
+    opacity: 0.55;
+    animation-duration: 5s;
+  }
+
+  .ms-desk-command-deck--critical .ms-desk-command-deck__glow {
+    opacity: 0.72;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--ms-danger) 8%, transparent),
+      color-mix(in srgb, var(--ms-warning) 15%, transparent) 50%,
+      color-mix(in srgb, var(--ms-danger) 8%, transparent)
+    );
+    animation-duration: 3.5s;
+  }
+
+  @keyframes ms-desk-deck-pulse {
+    0%,
+    100% {
+      opacity: 0.25;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .ms-desk-deck-beacon {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--ms-cognition);
+    box-shadow: 0 0 14px var(--ms-cognition-dim);
+    animation: ms-desk-beacon 4s ease-in-out infinite;
+  }
+
+  @keyframes ms-desk-beacon {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.25);
+    }
+  }
+
+  .ms-desk-sync-tag {
+    border: 1px solid color-mix(in srgb, var(--ms-cognition) 35%, var(--ms-border));
+    background: color-mix(in srgb, var(--ms-cognition) 8%, transparent);
+    color: var(--ms-text-tertiary);
+  }
+
+  /* Rails — living panel stack */
+  .ms-desk-rail {
+    max-height: calc(100dvh - var(--ms-intel-bar-height) - 6rem);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+  }
+
+  .ms-desk-panel {
+    min-height: 7rem;
+    transition:
+      flex-grow 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+      flex-basis 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.4s ease,
+      box-shadow 0.4s ease;
+  }
+
+  .ms-desk-panel__atmosphere {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      80% 60% at 50% 100%,
+      color-mix(in srgb, var(--ms-world-accent, var(--ms-cognition)) 10%, transparent),
+      transparent
+    );
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .ms-desk-panel--primary .ms-desk-panel__atmosphere,
+  .ms-desk-panel--elevated .ms-desk-panel__atmosphere {
+    opacity: 1;
+  }
+
+  .ms-desk-panel--primary {
+    animation: ms-desk-panel-breathe var(--ms-desk-panel-breath) ease-in-out infinite;
+  }
+
+  @keyframes ms-desk-panel-breathe {
+    0%,
+    100% {
+      box-shadow: 0 0 32px -14px var(--ms-cognition-dim);
+    }
+    50% {
+      box-shadow: 0 0 48px -8px color-mix(in srgb, var(--ms-cognition) 35%, transparent);
+    }
+  }
+
+  .ms-desk-panel--collapsed {
+    opacity: 0.82;
+  }
+
+  .ms-desk-panel--collapsed .ms-cognition-instant-chips {
+    display: none;
+  }
+
+  .ms-desk-panel-viz__bar {
+    transition: height 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ms-cognition) 55%, transparent),
+      color-mix(in srgb, var(--ms-cognition) 15%, transparent)
+    ) !important;
+  }
+
+  /* Cross-system sync */
+  .ms-desk-sync--risk-exec.ms-desk-panel[data-ms-desk-panel="risk"],
+  .ms-desk-sync--risk-exec.ms-desk-panel[data-ms-desk-panel="execution"] {
+    border-color: color-mix(in srgb, var(--ms-danger) 35%, var(--ms-border));
+  }
+
+  .ms-desk-sync--macro-liq.ms-desk-panel[data-ms-desk-panel="macro"],
+  .ms-desk-sync--macro-liq.ms-desk-panel[data-ms-desk-panel="liquidity"] {
+    border-color: color-mix(in srgb, var(--ms-flow) 30%, var(--ms-border));
+  }
+
+  .ms-desk-sync--agents-exec .ms-desk-panel[data-ms-desk-panel="agents"],
+  .ms-desk-sync--agents-exec .ms-desk-panel[data-ms-desk-panel="execution"] {
+    animation: ms-desk-escalation-pulse 3.2s ease-in-out infinite;
+  }
+
+  @keyframes ms-desk-escalation-pulse {
+    0%,
+    100% {
+      filter: brightness(1);
+    }
+    50% {
+      filter: brightness(1.08);
+    }
+  }
+
+  .ms-desk-cross--risk-to-execution .ms-desk-command-main {
+    box-shadow: inset 0 0 80px -40px color-mix(in srgb, var(--ms-danger) 12%, transparent);
+  }
+
+  .ms-desk-cross--macro-to-liquidity .ms-desk-rail--right {
+    filter: saturate(1.05);
+  }
+
+  /* Main command stage — cinematic hero */
+  .ms-desk-command-main {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .ms-desk-command-main::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse 70% 50% at 50% 0%,
+      color-mix(in srgb, var(--ms-cognition) 6%, transparent),
+      transparent 70%
+    );
+    z-index: 0;
+  }
+
+  .ms-desk-command-main__inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .ms-desk-command-main .ms-page {
+    max-width: none;
+    padding-left: var(--ms-space-6);
+    padding-right: var(--ms-space-6);
+  }
+
+  .ms-desk-command-main .ms-cognition-world__depth {
+    opacity: 0.65;
+  }
+
+  .ms-desk-command-main .ms-cognition-world__fog {
+    opacity: 0.5;
+  }
+
+  /* WOW — theaters expand on desktop command stage */
+  .ms-desk-command-main .ms-signature-surface,
+  .ms-desk-command-main .ms-liq-theater,
+  .ms-desk-command-main .ms-exec-tactical-theater,
+  .ms-desk-command-main .ms-global-matrix,
+  .ms-desk-command-main .ms-replay-cinema,
+  .ms-desk-command-main .ms-agents-system {
+    min-height: min(58vh, 720px);
+  }
+
+  .ms-desk-command-main .ms-cognition-primary--visual .ms-cognition-primary__state {
+    font-size: clamp(1.75rem, 3.5vw, 3rem);
+  }
+
+  /* Core — on command layout only, side asides move to rails (desktop lg+ only) */
+  .ms-desktop-command-center .ms-desk-command-main .ms-page > .lg\:grid > aside {
+    display: none !important;
+  }
+
+  .ms-desktop-command-center .ms-desk-command-main .ms-page > .lg\:grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  /* Core homepage — full command grid inside main */
+  .ms-desk-command-main .ms-desktop-exec-gravity {
+    min-height: min(62vh, 760px);
+    border-radius: var(--ms-radius-2xl);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ms-desk-command-atmosphere,
+    .ms-desk-command-deck__glow,
+    .ms-desk-panel--primary,
+    .ms-desk-sync--agents-exec .ms-desk-panel {
+      animation: none;
+    }
+  }
+}

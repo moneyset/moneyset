@@ -1,0 +1,68 @@
+/* Phase 2 — responsive repair, safe area, typography floor (no visual redesign) */
+
+/* Avoid double horizontal inset: scroll host owns safe-area; pages use rhythm only */
+@media (max-width: 1023.98px) {
+  .ms-scroll-main .ms-page,
+  .ms-scroll-main .ms-labs-workspace {
+    padding-left: var(--ms-space-5);
+    padding-right: var(--ms-space-5);
+  }
+
+  .ms-labs-workspace {
+    padding-top: var(--ms-page-y);
+    padding-bottom: max(var(--ms-page-y), var(--ms-safe-bottom));
+  }
+}
+
+/* Labs sub-nav — horizontal scroll on narrow / foldable widths */
+.ms-labs-sub-nav-scroll {
+  -webkit-overflow-scrolling: touch;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.ms-labs-sub-nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Typography floor — institutional micro copy stays legible */
+.ms-exec-terrain-overlay__label,
+.ms-exec-terrain-toggle {
+  font-size: var(--ms-text-2xs, 0.625rem);
+  line-height: 1.35;
+}
+
+/* Theater canvases — grow on small screens without clipping labels */
+@media (max-width: 1023.98px) {
+  .ms-exec-terrain-theater__canvas,
+  .ms-liq-theater__terrain,
+  .ms-systemic-topology__canvas {
+    min-height: min(42vh, 18rem);
+  }
+
+  .ms-systemic-topology__stage {
+    grid-template-columns: 1fr;
+  }
+
+  .ms-systemic-topology__aside {
+    max-width: 100%;
+  }
+}
+
+/* Foldable / very narrow */
+@media (max-width: 380px) {
+  .ms-mobile-bottom-nav .grid {
+    gap: 0;
+  }
+
+  .ms-mobile-bottom-nav__link {
+    padding-inline: 0.125rem;
+  }
+}
+
+/* Workspace skeleton shimmer inherits lab skeleton */
+.ms-workspace-skeleton .ms-lab-skeleton {
+  border-radius: var(--ms-radius-sm);
+}

@@ -1,0 +1,283 @@
+/* Category-defining market cognition experience (Prompt 16) */
+
+:root {
+  --ms-xp-breath-scale: 1;
+  --ms-xp-pressure-scale: 1;
+  --ms-xp-gravity-scale: 1;
+  --ms-xp-tension-opacity: 0.28;
+  --ms-xp-transition-sec: 0.65s;
+}
+
+/* ─── Organism shell — living intelligence substrate ─── */
+.ms-category-organism,
+.ms-category-shell {
+  position: relative;
+}
+
+.ms-category-world-surface .ms-cognition-world__content {
+  animation-duration: calc(var(--ms-xp-transition-sec, 0.65s) + 0.15s);
+}
+
+@media (min-width: 1024px) {
+  .ms-category-organism::before {
+    content: "";
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 90% 55% at 50% -8%, color-mix(in srgb, var(--ms-cognition) calc(var(--ms-xp-tension-opacity) * 18%), transparent), transparent 62%),
+      radial-gradient(ellipse 70% 45% at 88% 92%, color-mix(in srgb, var(--ms-warning) calc(var(--ms-xp-tension-opacity) * 8%), transparent), transparent 55%);
+    opacity: calc(0.22 + var(--ms-xp-pressure-scale) * 0.1);
+    transition: opacity 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+/* ─── Prototype energy removal — surfaces feel finished ─── */
+.ms-category-organism .ms-page,
+.ms-category-organism .ms-cognition-surface {
+  position: relative;
+  z-index: 1;
+}
+
+.ms-category-organism [class*="border-ms-border"][class*="bg-ms-elevated"],
+.ms-category-organism [class*="border-ms-border"][class*="bg-ms-surface"] {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 5%, transparent),
+    0 12px 40px -28px rgba(0, 0, 0, 0.55);
+}
+
+@media (min-width: 1024px) {
+  .ms-category-organism .ms-cognition-glyph,
+  .ms-category-organism .ms-cognition-density-panel,
+  .ms-category-organism .ms-desk-panel {
+    background: color-mix(in srgb, var(--ms-bg-surface) 72%, transparent);
+    backdrop-filter: blur(10px);
+  }
+}
+
+/* Scroll surface — no mask/clipping (was hiding mobile content) */
+@media (min-width: 1024px) {
+  .ms-scroll-main.ms-scroll-main--command-host {
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--ms-border) 22%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--ms-border) 22%, transparent) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-position: center top;
+  }
+}
+
+/* ─── World emotional orchestration ─── */
+html[data-ms-experience-world="replay"] {
+  --ms-xp-motion-slow: 1.35;
+}
+
+html[data-ms-experience-world="replay"] .ms-cognition-world__fog {
+  animation: ms-xp-temporal-fog 14s ease-in-out infinite;
+}
+
+@keyframes ms-xp-temporal-fog {
+  0%,
+  100% {
+    opacity: 0.32;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    opacity: 0.48;
+    transform: translate3d(-0.5%, 0.5%, 0) scale(1.02);
+  }
+}
+
+html[data-ms-experience-world="liquidity"] .ms-cognition-world__depth {
+  filter: saturate(1.08) contrast(1.04);
+  opacity: calc(0.55 * var(--ms-xp-pressure-scale));
+}
+
+html[data-ms-experience-world="agents"] .ms-agents-system {
+  --ms-xp-local-tension: 1.12;
+}
+
+html[data-ms-experience-world="macro"] .ms-global-matrix {
+  transform-origin: center top;
+}
+
+html[data-ms-experience-world="macro"] .ms-cognition-world__depth {
+  transform: scale(1.04);
+  opacity: 0.62;
+}
+
+html[data-ms-experience-world="execution"] .ms-exec-tactical-theater,
+html[data-ms-experience-world="execution"] .ms-desktop-exec-gravity {
+  box-shadow: inset 0 0 120px -60px color-mix(in srgb, var(--ms-flow) calc(var(--ms-xp-gravity-scale) * 14%), transparent);
+}
+
+html[data-ms-experience-tension="critical"] {
+  --ms-xp-tension-opacity: 0.78;
+}
+
+html[data-ms-experience-tension="charged"] .ms-cognition-pulse-strip__beacon {
+  animation-duration: 3.8s;
+}
+
+/* ─── Pressure geometry & probability atmosphere ─── */
+.ms-cognition-world__depth::after,
+.ms-cognition-world__fog::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: calc(0.25 * var(--ms-xp-pressure-scale));
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg 14deg,
+    color-mix(in srgb, var(--ms-world-accent, var(--ms-cognition)) 4%, transparent) 14deg 15deg
+  );
+  mix-blend-mode: soft-light;
+}
+
+.ms-xp-atmosphere--pressure .ms-market-breath-overlay__drift {
+  filter: blur(42px) saturate(1.1);
+}
+
+.ms-xp-atmosphere--tactical .ms-market-breath-overlay__drift {
+  opacity: calc(0.38 + var(--ms-xp-gravity-scale) * 0.15);
+}
+
+.ms-xp-atmosphere--planetary .ms-ambient-backdrop {
+  transform: scale(1.06);
+}
+
+/* ─── Visual memory — signature moments burn in ─── */
+[data-ms-signature] .ms-signature-moment {
+  animation: ms-xp-memory-flash 0.9s ease-out;
+}
+
+@keyframes ms-xp-memory-flash {
+  0% {
+    filter: brightness(1.35);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+.ms-signature--liquidity-cascade .ms-liq-theater,
+.ms-signature--consensus-fracture .ms-agents-system,
+.ms-signature--macro-instability-wave .ms-global-matrix,
+.ms-signature--structural-collapse .ms-systemic-system,
+.ms-signature--replay-singularity .ms-replay-cinema {
+  animation: ms-xp-surface-memory 2.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes ms-xp-surface-memory {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--ms-cognition) 0%, transparent);
+  }
+  35% {
+    box-shadow: 0 0 80px -20px color-mix(in srgb, var(--ms-cognition) 35%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+/* ─── Labs gateway — not repetitive capability cards ─── */
+.ms-labs-gateway-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 7.5rem;
+  isolation: isolate;
+}
+
+.ms-labs-gateway-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    120% 80% at 0% 100%,
+    color-mix(in srgb, var(--ms-machine-accent, var(--ms-cognition)) 14%, transparent),
+    transparent 55%
+  );
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.ms-labs-gateway-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--ms-machine-accent, var(--ms-cognition));
+  opacity: 0.35;
+  transform: scaleY(0.4);
+  transform-origin: top;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ms-labs-gateway-card:hover::before {
+  opacity: 1;
+}
+
+.ms-labs-gateway-card:hover::after {
+  transform: scaleY(1);
+}
+
+/* ─── Institutional motion — slow, structural, probabilistic ─── */
+@media (prefers-reduced-motion: no-preference) {
+  .ms-category-organism * {
+    scroll-behavior: smooth;
+  }
+
+  .ms-motion-breathe,
+  .ms-motion-ambient,
+  .ms-motion-pulse {
+    animation-timing-function: cubic-bezier(0.42, 0, 0.38, 1) !important;
+  }
+
+  .ms-xp-cadence--temporal .ms-motion-breathe {
+    animation-duration: calc(var(--ms-motion-breath-duration) * 1.35) !important;
+  }
+
+  .ms-xp-cadence--tension .ms-motion-pulse {
+    animation-duration: calc(var(--ms-motion-breath-duration) * 0.72) !important;
+  }
+
+  .ms-xp-cadence--strike .ms-motion-breathe {
+    animation-duration: calc(var(--ms-motion-breath-duration) * 0.82) !important;
+  }
+}
+
+/* ─── Decision gravity — emotional tension without retail fear ─── */
+html[data-ms-drama-phase="peak"] .ms-cognition-primary__state,
+html[data-ms-experience-tension="critical"] .ms-cognition-primary__state {
+  text-shadow: 0 0 48px color-mix(in srgb, var(--ms-cognition) calc(var(--ms-xp-gravity-scale) * 22%), transparent);
+}
+
+html[data-ms-drama-phase="rising"] .ms-intel-command,
+html[data-ms-experience-tension="charged"] .ms-desk-command-deck {
+  border-bottom-color: color-mix(in srgb, var(--ms-warning) 28%, var(--ms-border));
+}
+
+/* World chrome — premium hierarchy */
+.ms-world-chrome__title {
+  letter-spacing: -0.04em;
+}
+
+/* Desktop command — category polish */
+@media (min-width: 1024px) {
+  .ms-desktop-command-center {
+    background:
+      radial-gradient(ellipse 100% 60% at 50% 0%, color-mix(in srgb, var(--ms-cognition) 5%, transparent), transparent 50%),
+      radial-gradient(ellipse 40% 50% at 0% 50%, color-mix(in srgb, var(--ms-flow) 4%, transparent), transparent),
+      radial-gradient(ellipse 40% 50% at 100% 50%, color-mix(in srgb, var(--ms-warning) 3%, transparent), transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ms-signature] .ms-signature-moment,
+  .ms-signature--liquidity-cascade .ms-liq-theater {
+    animation: none;
+  }
+}

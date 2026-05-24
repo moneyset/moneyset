@@ -1,0 +1,204 @@
+/* MONEYSET production stabilization — scroll, performance, interaction (no redesign) */
+
+:root {
+  /* Effective safe areas: env() + Telegram API fallbacks (--ms-tg-safe-*) set by TelegramWebAppBridge */
+  --ms-safe-top: max(env(safe-area-inset-top, 0px), var(--ms-tg-safe-top, 0px));
+  --ms-safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--ms-tg-safe-bottom, 0px));
+  --ms-safe-left: max(env(safe-area-inset-left, 0px), var(--ms-tg-safe-left, 0px));
+  --ms-safe-right: max(env(safe-area-inset-right, 0px), var(--ms-tg-safe-right, 0px));
+}
+
+/* ─── Single scroll contract (mobile + Telegram WebApp) ─── */
+@media (max-width: 1023.98px) {
+  :root {
+    --ms-motion-breath-duration: 6.5s;
+    --ms-signature-intensity: 0.35;
+    --ms-mobile-nav-pad: max(6rem, calc(5rem + var(--ms-safe-bottom)));
+  }
+
+  .ms-shell-primary-column {
+    min-height: 0;
+    flex: 1 1 auto;
+    /* Lateral insets handled on scroll/chrome — avoid double padding */
+  }
+
+  /* Smoother main scroll — avoid scroll-linked jank vs scroll-smooth on WebKit */
+  .ms-scroll-main {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto !important;
+    overflow-x: hidden;
+    touch-action: pan-y;
+    overscroll-behavior-y: contain;
+    scroll-snap-type: none;
+    scroll-behavior: auto !important;
+    min-height: 0;
+    flex: 1 1 auto;
+    padding-inline: max(1rem, var(--ms-safe-left)), max(1rem, var(--ms-safe-right));
+  }
+
+  .ms-category-shell > .relative.z-10.flex.min-h-0.flex-1.flex-col {
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+
+  /* No nested scroll panes on phone */
+  .ms-desk-command-main,
+  .ms-desktop-command-center {
+    overflow: visible !important;
+    min-height: 0;
+    height: auto;
+  }
+
+  .ms-desk-command-main__inner {
+    min-height: 0;
+    height: auto;
+  }
+
+  /* Reduce GPU load — atmospheric layers off on mobile */
+  .ms-shell-atmosphere {
+    display: none !important;
+  }
+
+  /* Softer premium gate — no blur (laggy on Android / TG) */
+  .ms-premium-gate__preview-content {
+    filter: none !important;
+    opacity: 0.5 !important;
+  }
+
+  .ms-premium-gate__access-dock {
+    backdrop-filter: none;
+    background: color-mix(in srgb, var(--ms-bg-surface) 94%, transparent);
+  }
+
+  /* Signature / world entry — no blur or infinite GPU loops */
+  .ms-world-entry .ms-cognition-world__content,
+  .ms-cognition-world--reveal .ms-cognition-world__content {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .ms-signature-moment__shockwave {
+    animation: none !important;
+    opacity: 0.25 !important;
+  }
+
+  .ms-signature-moment {
+    animation: none !important;
+  }
+
+  /* Content must expand naturally */
+  .ms-cognition-world__content > * {
+    min-height: 0 !important;
+  }
+
+  .ms-page {
+    min-height: 0;
+    padding-bottom: max(var(--ms-page-y, 1.5rem), var(--ms-safe-bottom));
+  }
+
+  /* Intel bar — Telegram / notch: never under system chrome; lighter blur on GPU */
+  .ms-intel-command {
+    padding-top: calc(var(--ms-space-2, 0.5rem) + var(--ms-safe-top));
+    padding-left: max(0.75rem, var(--ms-safe-left));
+    padding-right: max(0.75rem, var(--ms-safe-right));
+    backdrop-filter: blur(10px);
+  }
+
+  .ms-mobile-bottom-nav {
+    padding-inline: max(0.35rem, var(--ms-safe-left)), max(0.35rem, var(--ms-safe-right));
+    padding-bottom: max(0.35rem, var(--ms-safe-bottom));
+  }
+
+  .ms-mobile-bottom-nav__link {
+    min-height: 48px !important;
+    touch-action: manipulation;
+  }
+
+  .ms-cognition-pulse-strip,
+  .ms-mobile-world-beacon {
+    padding-left: max(1rem, var(--ms-safe-left));
+    padding-right: max(1rem, var(--ms-safe-right));
+  }
+
+  .ms-shell-chrome-stack {
+    flex-shrink: 0;
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .ms-intel-command-right-cluster {
+    gap: 0.35rem !important;
+  }
+}
+
+/* ─── Desktop scroll chain (command center) ─── */
+@media (min-width: 1024px) {
+  .ms-scroll-main--command-host {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden !important;
+  }
+
+  .ms-desktop-command-center {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ms-desk-command-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .ms-desk-command-main {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ─── Interaction safety — nothing blocks taps ─── */
+.ms-shell-atmosphere,
+.ms-market-breath-overlay,
+.ms-desk-command-atmosphere,
+.ms-cognition-world__depth,
+.ms-cognition-world__fog,
+.ms-war-room__veil,
+.ms-war-room__pulse {
+  pointer-events: none !important;
+}
+
+/* Overlays must not trap scroll on body */
+body.ms-body {
+  overflow: hidden;
+}
+
+.ms-category-shell {
+  min-height: 0;
+  height: 100%;
+  max-height: 100dvh;
+}
+
+/* Prevent collapsed flex children */
+.ms-scroll-main > * {
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-signature-moment__shockwave,
+  .ms-desk-command-deck__glow,
+  .ms-desk-command-atmosphere,
+  .ms-motion-ambient,
+  .ms-motion-breathe,
+  .ms-motion-pulse {
+    animation: none !important;
+  }
+}
