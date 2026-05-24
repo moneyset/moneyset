@@ -29,7 +29,7 @@ export const useTelegramStore = create<TelegramStore>()(
         set({ status: "linked", chatId, username, updatedAtTs: Date.now() }),
       reset: () => set({ ...initial, updatedAtTs: Date.now() }),
     }),
-    { name: "moneyset_telegram_v1", partialize: (s) => ({ status: s.status, linkCode: s.linkCode, chatId: s.chatId, username: s.username, prefs: s.prefs, updatedAtTs: s.updatedAtTs }) },
+    { name: "moneyset_telegram_v1", partialize: (s) => ({ status: s.status, linkCode: s.linkCode, chatId: s.chatId, username: s.username, prefs: s.prefs, updatedAtTs: s.updatedAtTs }), skipHydration: true },
   ),
 );
 

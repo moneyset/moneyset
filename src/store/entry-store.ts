@@ -20,6 +20,6 @@ export const useEntryStore = create<EntryState>()(
       completeEntry: (mode) => set({ entryComplete: true, entryMode: mode }),
       resetEntry: () => set({ entryComplete: false, entryMode: "unknown" }),
     }),
-    { name: "moneyset_entry_v1" },
+    { name: "moneyset_entry_v1", skipHydration: true },
   ),
 );

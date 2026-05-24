@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { useShallow } from "zustand/react/shallow";
 
 import { runIntelligencePipeline } from "@/lib/intelligence/pipeline/run-pipeline";
-import { useExecutionSurface } from "@/hooks/use-execution-surface";
 import { useAiCognitionStore } from "@/store/ai-cognition-store";
 import { useCognitionSimulationStore } from "@/store/cognition-simulation-store";
 import { useIntelligencePipelineStore } from "@/store/intelligence-pipeline-store";
@@ -14,98 +12,96 @@ import { useUiPrefsStore } from "@/store/ui-prefs-store";
 /**
  * Runs intelligence pipeline whenever market + simulation + AI state changes.
  * UI reads posture from this hook / store — never invents opinions locally.
+ *
+ * Uses primitive store selectors only (no useShallow objects) so React 19
+ * getServerSnapshot stays stable during SSR/hydration.
  */
 export function useIntelligencePipeline(enabled = true) {
   const locale = useUiPrefsStore((s) => s.uiLocale);
   const setResult = useIntelligencePipelineStore((s) => s.setResult);
-  const unified = useIntelligencePipelineStore((s) => s.unifiedMarket);
-
-  const tape = useMarketStore(
-    useShallow((s) => ({
-      symbol: s.symbol,
-      price: s.price,
-      ts: s.ts,
-      changePercent24h: s.changePercent24h,
-      markPrice: s.markPrice,
-      fundingRate: s.fundingRate,
-      nextFundingTime: s.nextFundingTime,
-      openInterest: s.openInterest,
-      realizedVol: s.realizedVol,
-      momentum: s.momentum,
-      connection: s.connection,
-      lastWsTs: s.lastWsTs,
-      lastRestTs: s.lastRestTs,
-      error: s.error,
-    })),
-  );
-
-  const sim = useCognitionSimulationStore(
-    useShallow((s) => ({
-      derived: s.derived,
-      latent: s.latent,
-      history: s.history,
-      scenarioBook: s.scenarioBook,
-      simTick: s.simTick,
-    })),
-  );
-
-  const { orchestrator, aiAgents } = useAiCognitionStore(
-    useShallow((s) => ({
-      orchestrator: s.orchestrator,
-      aiAgents: Object.values(s.agents).filter(Boolean),
-    })),
-  );
-
-  const surface = useExecutionSurface();
+  const unifiedSignature = useIntelligencePipelineStore((s) => s.unifiedMarket?.signature);
+  const price = useMarketStore((s) => s.price);
+  const fundingRate = useMarketStore((s) => s.fundingRate);
+  const momentum = useMarketStore((s) => s.momentum);
+  const realizedVol = useMarketStore((s) => s.realizedVol);
+  const simTick = useCognitionSimulationStore((s) => s.simTick);
+  const phase = useCognitionSimulationStore((s) => s.derived.phase);
+  const dangerBand = useCognitionSimulationStore((s) => s.derived.dangerBand);
+  const actionBias = useAiCognitionStore((s) => s.orchestrator?.actionBias);
+  const aiAgentCount = useAiCognitionStore((s) => {
+    let count = 0;
+    for (const agent of Object.values(s.agents)) {
+      if (agent) count += 1;
+    }
+    return count;
+  });
 
   const depsKey = useMemo(
     () =>
       [
-        unified?.signature,
-        tape.price,
-        tape.fundingRate,
-        tape.momentum,
-        tape.realizedVol,
-        sim.simTick,
-        sim.derived.phase,
-        sim.derived.dangerBand,
-        orchestrator?.actionBias,
-        aiAgents.length,
-        surface.executionBiasVariant,
+        unifiedSignature,
+        price,
+        fundingRate,
+        momentum,
+        realizedVol,
+        simTick,
+        phase,
+        dangerBand,
+        actionBias,
+        aiAgentCount,
       ].join("|"),
     [
-      unified?.signature,
-      tape.price,
-      tape.fundingRate,
-      tape.momentum,
-      tape.realizedVol,
-      sim.simTick,
-      sim.derived.phase,
-      sim.derived.dangerBand,
-      orchestrator?.actionBias,
-      aiAgents.length,
-      surface.executionBiasVariant,
+      unifiedSignature,
+      price,
+      fundingRate,
+      momentum,
+      realizedVol,
+      simTick,
+      phase,
+      dangerBand,
+      actionBias,
+      aiAgentCount,
     ],
   );
 
   useEffect(() => {
     if (!enabled) return;
     try {
+      const market = useMarketStore.getState();
+      const simulation = useCognitionSimulationStore.getState();
+      const ai = useAiCognitionStore.getState();
+      const pipeline = useIntelligencePipelineStore.getState();
       const result = runIntelligencePipeline({
         locale,
-        tape,
-        unified,
-        derived: sim.derived,
-        latent: sim.latent,
-        history: sim.history,
-        scenarioBook: sim.scenarioBook,
-        simTick: sim.simTick,
-        orchestrator,
-        aiAgents,
+        tape: {
+          symbol: market.symbol,
+          price: market.price,
+          ts: market.ts,
+          changePercent24h: market.changePercent24h,
+          markPrice: market.markPrice,
+          fundingRate: market.fundingRate,
+          nextFundingTime: market.nextFundingTime,
+          openInterest: market.openInterest,
+          realizedVol: market.realizedVol,
+          momentum: market.momentum,
+          connection: market.connection,
+          lastWsTs: market.lastWsTs,
+          lastRestTs: market.lastRestTs,
+          error: market.error,
+        },
+        unified: pipeline.unifiedMarket,
+        derived: simulation.derived,
+        latent: simulation.latent,
+        history: simulation.history,
+        scenarioBook: simulation.scenarioBook,
+        simTick: simulation.simTick,
+        orchestrator: ai.orchestrator,
+        aiAgents: Object.values(ai.agents).filter(Boolean),
       });
+      if (result.signature === pipeline.lastSignature) return;
       setResult(result);
     } catch {
       /* failsafe: keep prior result in store */
     }
-  }, [enabled, locale, depsKey, tape, unified, sim, orchestrator, aiAgents, setResult]);
+  }, [enabled, locale, depsKey, setResult]);
 }

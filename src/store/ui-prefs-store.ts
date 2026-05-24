@@ -86,6 +86,7 @@ export const useUiPrefsStore = create<UiPrefsState>()(
         replayMobileDetail: s.replayMobileDetail,
         onboardingComplete: s.onboardingComplete,
       }),
+      skipHydration: true,
     },
   ),
 );

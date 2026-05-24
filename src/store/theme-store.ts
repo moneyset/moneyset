@@ -44,6 +44,7 @@ export const useThemeStore = create<ThemeState>()(
     {
       name: "moneyset_theme_v1",
       partialize: (s) => ({ preference: s.preference }),
+      skipHydration: true,
     },
   ),
 );

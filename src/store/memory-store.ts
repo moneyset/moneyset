@@ -57,6 +57,7 @@ export const useMemoryStore = create<MemoryState>()(
     {
       name: "moneyset_memory_v1",
       partialize: (s) => ({ snapshots: s.snapshots, journal: s.journal, insights: s.insights }),
+      skipHydration: true,
     },
   ),
 );

@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 
 import { TelegramWebAppBridge } from "@/components/layout/telegram-webapp-bridge";
 import { TelegramInstitutionalIntro } from "@/components/telegram/telegram-institutional-intro";
+import { PersistRehydration } from "@/providers/persist-rehydration";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { AuthBootstrap } from "@/components/auth/auth-bootstrap";
 import { IntelligenceBootstrap } from "@/components/intelligence/intelligence-bootstrap";
@@ -16,6 +17,7 @@ import { GlobalCheckoutModal } from "@/components/premium/global-checkout-modal"
 export function ClientProviders({ children }: { children: ReactNode }) {
   return (
     <LazyMotion features={domAnimation} strict>
+      <PersistRehydration />
       <ThemeProvider>
         <CinematicIntroRoot>
           <TelegramWebAppBridge />

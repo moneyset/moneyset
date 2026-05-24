@@ -57,7 +57,7 @@ export const useSubscriptionStore = create<SubscriptionState>()(
 
       setStatus: (status) => set(() => ({ status, updatedAtTs: Date.now() })),
     }),
-    { name: "moneyset_subscription_v1", partialize: (s) => ({ tier: s.tier, status: s.status, provider: s.provider, currentPeriodEndTs: s.currentPeriodEndTs, lastInvoiceId: s.lastInvoiceId, updatedAtTs: s.updatedAtTs }) },
+    { name: "moneyset_subscription_v1", partialize: (s) => ({ tier: s.tier, status: s.status, provider: s.provider, currentPeriodEndTs: s.currentPeriodEndTs, lastInvoiceId: s.lastInvoiceId, updatedAtTs: s.updatedAtTs }), skipHydration: true },
   ),
 );
 

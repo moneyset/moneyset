@@ -74,6 +74,7 @@ export const useAccessStore = create<AccessState>()(
         trialEndsAtTs: s.trialEndsAtTs,
         trialStarted: s.trialStarted,
       }),
+      skipHydration: true,
     },
   ),
 );
