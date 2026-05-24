@@ -14,7 +14,12 @@ function authorized(req: Request): boolean {
   return header === `Bearer ${secret}`;
 }
 
-/** Scheduled market refresh — no AI. Wire in Vercel cron or external scheduler. */
+/**
+ * Scheduled market refresh — no AI. Wired via vercel.json cron.
+ *
+ * TEMPORARY (Vercel Hobby): vercel.json runs this once daily (`0 0 * * *`).
+ * Production cadence: every 5 minutes (`*/5 * * * *`) — see `_scheduleProduction` in vercel.json.
+ */
 export async function GET(req: Request) {
   if (!authorized(req)) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });

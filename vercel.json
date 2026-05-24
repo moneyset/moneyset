@@ -1,8 +1,10 @@
 {
+  "_cronScheduleNote": "TEMPORARY (Vercel Hobby): daily at 00:00 UTC. Restore */5 * * * * when on Pro or external scheduler.",
   "crons": [
     {
       "path": "/api/cron/market-refresh",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 0 * * *",
+      "_scheduleProduction": "*/5 * * * *"
     }
   ]
 }
