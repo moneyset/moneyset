@@ -18,7 +18,7 @@ function authorized(req: Request): boolean {
  * Scheduled market refresh — no AI. Wired via vercel.json cron.
  *
  * TEMPORARY (Vercel Hobby): vercel.json runs this once daily (`0 0 * * *`).
- * Production cadence: every 5 minutes (`*/5 * * * *`) — see `_scheduleProduction` in vercel.json.
+ * Production cadence: every 5 minutes (`*/5 * * * *`) when on Vercel Pro or external scheduler.
  */
 export async function GET(req: Request) {
   if (!authorized(req)) {
