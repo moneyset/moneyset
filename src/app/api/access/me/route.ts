@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { capabilitiesFor } from "@/lib/access/capabilities";
 import { expireInvitationIfNeeded } from "@/lib/access/invitation";
+import { expirePremiumIfNeeded } from "@/lib/access/premium-expiry";
 import { entitlementsFor, guestProfile, roleFromProfile } from "@/lib/access/roles";
 import { resolveRequestUserId } from "@/lib/access/request-user";
 import { sanitizeApiError } from "@/lib/services/shared/env";
@@ -23,6 +24,7 @@ export async function GET(req: Request) {
   }
 
   await expireInvitationIfNeeded(admin, userId);
+  await expirePremiumIfNeeded(admin, userId);
 
   const { data, error } = await admin.from("profiles").select("*").eq("id", userId).maybeSingle();
   if (error) {

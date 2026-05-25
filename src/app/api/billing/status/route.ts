@@ -27,8 +27,14 @@ export async function GET(req: Request) {
       const { productId, userId: orderUserId } = parseOrderId(orderId);
       const admin = supabaseAdmin();
       const authUserId = await resolveRequestUserId(req, admin);
-      const userId = authUserId ?? orderUserId;
-      if (admin && userId && productId) {
+      if (!authUserId) {
+        return NextResponse.json({ ok: false, error: "Authentication required" }, { status: 401 });
+      }
+      if (orderUserId && orderUserId !== authUserId) {
+        return NextResponse.json({ ok: false, error: "Order does not belong to this account" }, { status: 403 });
+      }
+      const userId = authUserId;
+      if (admin && productId) {
         await unlockProfileForProduct(admin, userId, productId, orderId);
       }
     }

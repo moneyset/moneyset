@@ -12,6 +12,15 @@ type Req = {
 
 export async function POST(req: Request) {
   try {
+    const secret = process.env.CRON_SECRET?.trim() || process.env.TELEGRAM_ALERT_SECRET?.trim();
+    if (secret) {
+      const auth = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "").trim();
+      const header = req.headers.get("x-ms-cron-secret")?.trim();
+      if (auth !== secret && header !== secret) {
+        return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+      }
+    }
+
     const token = process.env.TELEGRAM_BOT_TOKEN?.trim();
     if (!token) return NextResponse.json({ ok: false, error: "TELEGRAM_BOT_TOKEN not configured" }, { status: 200 });
 

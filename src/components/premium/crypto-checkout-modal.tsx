@@ -10,6 +10,7 @@ import { billingProduct } from "@/lib/billing/catalog";
 import { authHeadersForUser } from "@/lib/access/request-user";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { useAccessStore } from "@/store/access-store";
+import { useAuthModalStore } from "@/store/auth-modal-store";
 import { useAuthStore } from "@/store/auth-store";
 import { useCheckoutModalStore } from "@/store/checkout-modal-store";
 import { useSubscriptionStore } from "@/store/subscription-store";
@@ -28,6 +29,8 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
   const product = billingProduct(productId);
   const user = useAuthStore((s) => s.user);
   const session = useAuthStore((s) => s.session);
+  const authStatus = useAuthStore((s) => s.status);
+  const openAuth = useAuthModalStore((s) => s.openAuth);
   const setProfile = useAccessStore((s) => s.setProfile);
   const sub = useSubscriptionStore(
     useShallow((s) => ({
@@ -40,7 +43,8 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
     })),
   );
 
-  const [currency, setCurrency] = useState<"USDT" | "BTC" | "ETH">("USDT");
+  const currency = "USDT" as const;
+  const signedIn = authStatus === "signed_in" && Boolean(user?.id);
   const [busy, setBusy] = useState(false);
   const [invoice, setInvoice] = useState<CreateInvoiceResult | null>(null);
   const [poll, setPoll] = useState<InvoiceStatusResult | null>(null);
@@ -108,6 +112,11 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
   };
 
   const create = async () => {
+    if (!signedIn) {
+      setNote(pickLocale(locale, "Sign in to create an invoice.", "Войдите, чтобы создать счёт."));
+      openAuth();
+      return;
+    }
     setNote(null);
     setBusy(true);
     try {
@@ -155,8 +164,8 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
       title={pickLocale(locale, "Crypto invoice", "Крипто-счёт")}
       description={pickLocale(
         locale,
-        "USDT / BTC / ETH. Provider: NOWPayments (modular).",
-        "USDT / BTC / ETH. Провайдер: NOWPayments (модульно).",
+        "Pay in USDT (TRC-20) via NOWPayments.",
+        "Оплата USDT (TRC-20) через NOWPayments.",
       )}
     >
       <div className="space-y-4">
@@ -172,24 +181,14 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
             </div>
             <StatusPill accent={sub.status === "active" ? "warning" : "neutral"}>{sub.status}</StatusPill>
           </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {(["USDT", "BTC", "ETH"] as const).map((c) => (
-              <Button
-                key={c}
-                type="button"
-                size="sm"
-                variant={currency === c ? "cognition" : "outline"}
-                onClick={() => setCurrency(c)}
-              >
-                {c}
-              </Button>
-            ))}
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <StatusPill accent="neutral">USDT · TRC-20</StatusPill>
           </div>
         </div>
 
         <div className="rounded-ms-xl border border-ms-border bg-ms-elevated/20 p-4">
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Button type="button" variant="outline" className="flex-1" disabled={!canUpgrade || busy} onClick={create}>
+            <Button type="button" variant="outline" className="flex-1" disabled={!canUpgrade || busy || !signedIn} onClick={create}>
               Create invoice
             </Button>
             <Button type="button" variant="outline" className="flex-1" disabled={!invoiceId || busy} onClick={() => void check()}>

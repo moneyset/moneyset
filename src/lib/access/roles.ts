@@ -103,6 +103,9 @@ export function hasExtendedAccess(profile: ProfileAccess): boolean {
   if (profile.foundingAccess || profile.accessLevel === "founding") return true;
   if (profile.subscriptionStatus === "founding") return true;
 
+  if (profile.subscriptionStatus === "expired" || profile.subscriptionStatus === "canceled") return false;
+  if (profile.subscriptionStatus === "past_due") return false;
+
   const premiumLike =
     profile.role === "premium" ||
     profile.accessLevel === "premium" ||

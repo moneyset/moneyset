@@ -100,7 +100,7 @@ export function UpgradeModal({ open, onClose }: UpgradeModalProps) {
             </Button>
           </div>
 
-          {canStartTrial ? (
+          {canStartTrial && showDevControls ? (
             <div className="mt-4 border-t border-ms-border/40 pt-4">
               <p className="text-[11px] leading-snug text-ms-faint">{t("upgrade.trialHint")}</p>
               <Button

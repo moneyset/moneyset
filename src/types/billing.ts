@@ -26,7 +26,7 @@ export type SubscriptionRecord = Readonly<{
 
 export type CreateInvoiceInput = Readonly<{
   productId: BillingProductId;
-  payCurrency: "USDT" | "BTC" | "ETH";
+  payCurrency: "USDT";
   symbol?: "BTCUSDT";
   /** @deprecated use productId */
   tier?: Exclude<SubscriptionTier, "free">;

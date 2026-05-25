@@ -57,6 +57,21 @@ export async function POST(req: Request) {
     };
 
     if (c.name === "start") {
+      const code = (c.args[0] ?? "").trim().toUpperCase();
+      if (code) {
+        const username = update.message?.from?.username ?? null;
+        const res = tgLinkChat({ code, chatId, username });
+        if (!res.ok) {
+          await reply(locale === "ru" ? `Код недействителен: ${res.error}` : `Invalid code: ${res.error}`);
+        } else {
+          await reply(
+            locale === "ru"
+              ? "Связка подтверждена. Уведомления включены (по умолчанию)."
+              : "Link confirmed. Alerts enabled by default.",
+          );
+        }
+        return NextResponse.json({ ok: true });
+      }
       await reply(
         locale === "ru"
           ? "<b>MONEYSET</b>\nКоманды: /posture /danger /scenario /consensus /regime /summary\nСвязка: /link CODE"

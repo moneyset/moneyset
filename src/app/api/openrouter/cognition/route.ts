@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { loadRequestProfile, profileHasFullAccess } from "@/lib/access/api-guard";
 import { sanitizeApiError } from "@/lib/services/shared/env";
 import { openRouterChat } from "@/services/openrouter/client";
 import { resolveModelRoute, modelForAgent, type AgentId } from "@/lib/openrouter/models";
@@ -20,6 +21,14 @@ type Req = {
 
 export async function POST(req: Request) {
   try {
+    const profile = await loadRequestProfile(req);
+    const cronSecret = process.env.CRON_SECRET?.trim();
+    const authHeader = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "").trim();
+    const isCron = Boolean(cronSecret && authHeader === cronSecret);
+    if (!isCron && !profileHasFullAccess(profile)) {
+      return NextResponse.json({ ok: false, error: "Premium access required" }, { status: 403 });
+    }
+
     const body = (await req.json()) as Req;
     if (!body?.context) return NextResponse.json({ ok: false, error: "Missing context" }, { status: 400 });
 

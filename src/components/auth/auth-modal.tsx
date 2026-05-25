@@ -9,7 +9,11 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { useT } from "@/lib/i18n/use-t";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
 import { supabaseBrowser } from "@/lib/supabase/browser";
+import { guestProfile } from "@/lib/access/roles";
 import { useAuthStore } from "@/store/auth-store";
+import { useAccessStore } from "@/store/access-store";
+import { useSubscriptionStore } from "@/store/subscription-store";
+import { useEntryStore } from "@/store/entry-store";
 import { useShallow } from "zustand/react/shallow";
 import { authModalPolicyNote } from "@/lib/i18n/trust-surface";
 
@@ -57,6 +61,9 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   const canEmail = isValidEmail(email);
   const canPassword = isValidPassword(password);
 
+  const authCallbackUrl =
+    typeof window === "undefined" ? undefined : `${window.location.origin}/auth/callback`;
+
   const doOAuth = async () => {
     setNote(null);
     if (!sb) return;
@@ -65,7 +72,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
       await sb.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: typeof window === "undefined" ? undefined : `${window.location.origin}/`,
+          redirectTo: authCallbackUrl,
         },
       });
     } catch (e) {
@@ -83,7 +90,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     try {
       const { error } = await sb.auth.signInWithOtp({
         email: email.trim(),
-        options: { emailRedirectTo: `${window.location.origin}/` },
+        options: { emailRedirectTo: authCallbackUrl },
       });
       if (error) throw error;
       setNote(t("auth.magicSent"));
@@ -122,7 +129,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
       const { error } = await sb.auth.signUp({
         email: email.trim(),
         password,
-        options: { emailRedirectTo: `${window.location.origin}/` },
+        options: { emailRedirectTo: authCallbackUrl },
       });
       if (error) throw error;
       setNote("Account created. Confirm your email if prompted, then sign in.");
@@ -133,12 +140,38 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     }
   };
 
+  const doResetPassword = async () => {
+    setNote(null);
+    if (!sb) return;
+    if (!canEmail) return;
+    setBusy(true);
+    try {
+      const { error } = await sb.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: authCallbackUrl,
+      });
+      if (error) throw error;
+      setNote("Password reset link sent. Check your email.");
+    } catch (e) {
+      setNote(friendlyAuthError(e instanceof Error ? e.message : "Auth error"));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const clearLocalSession = () => {
+    useAccessStore.getState().setProfile(guestProfile());
+    useAccessStore.setState({ trialEndsAtTs: null, trialStarted: false });
+    useSubscriptionStore.getState().setFree();
+    useEntryStore.getState().resetEntry();
+  };
+
   const doSignOut = async () => {
     setNote(null);
     if (!sb) return;
     setBusy(true);
     try {
       await sb.auth.signOut();
+      clearLocalSession();
     } finally {
       setBusy(false);
     }
@@ -220,7 +253,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                 />
               </div>
 
-              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <Button type="button" variant="outline" onClick={doMagic} disabled={!sb || busy || !canEmail}>
                   {t("auth.sendMagic")}
                 </Button>
@@ -239,6 +272,9 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                   disabled={!sb || busy || !canEmail || !canPassword}
                 >
                   {t("auth.emailSignUp")}
+                </Button>
+                <Button type="button" variant="ghost" onClick={doResetPassword} disabled={!sb || busy || !canEmail}>
+                  Reset password
                 </Button>
               </div>
 

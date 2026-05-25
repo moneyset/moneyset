@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { loadRequestProfile, profileHasFullAccess } from "@/lib/access/api-guard";
 import { deriveDailyBriefDeterministic, generateDailyBrief } from "@/lib/intelligence/daily-brief";
 import { runIntelligencePipeline } from "@/lib/intelligence/pipeline/run-pipeline";
 import { fetchUnifiedMarketSnapshot } from "@/lib/intelligence/market-state-engine";
@@ -38,6 +39,11 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const profile = await loadRequestProfile(req);
+  if (!profileHasFullAccess(profile)) {
+    return NextResponse.json({ ok: false, error: "Premium access required" }, { status: 403 });
+  }
+
   const locale: UiLocale =
     ((await req.json().catch(() => ({}))) as BriefBody).locale === "ru" ? "ru" : "en";
 

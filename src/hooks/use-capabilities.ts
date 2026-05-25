@@ -13,16 +13,21 @@ export function useCapabilities() {
   return capabilitiesFor(profile);
 }
 
+function clientTrialActive(trialEndsAtTs: number | null): boolean {
+  if (process.env.NODE_ENV === "production") return false;
+  return trialEndsAtTs != null && trialEndsAtTs > Date.now();
+}
+
 export function useFullPlatformAccess(): boolean {
   const profile = useAccessStore((s) => s.profile);
   const trial = useAccessStore((s) => s.trialEndsAtTs);
   if (hasFullPlatformAccess(profile)) return true;
-  return trial != null && trial > Date.now();
+  return clientTrialActive(trial);
 }
 
 export function useCanAccessCapability(capability: AccessCapability): boolean {
   const profile = useAccessStore((s) => s.profile);
   const trial = useAccessStore((s) => s.trialEndsAtTs);
-  if (trial != null && trial > Date.now()) return true;
+  if (clientTrialActive(trial)) return true;
   return canAccessCapability(profile, capability);
 }

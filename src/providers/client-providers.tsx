@@ -9,7 +9,6 @@ import { PersistRehydration } from "@/providers/persist-rehydration";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { AuthBootstrap } from "@/components/auth/auth-bootstrap";
 import { IntelligenceBootstrap } from "@/components/intelligence/intelligence-bootstrap";
-import { CinematicIntroRoot } from "@/components/motion/cinematic-intro-root";
 import { MoneysetEntryOnboarding } from "@/components/onboarding/moneyset-entry-onboarding";
 import { GlobalAuthModal } from "@/components/auth/global-auth-modal";
 import { GlobalCheckoutModal } from "@/components/premium/global-checkout-modal";
@@ -19,16 +18,14 @@ export function ClientProviders({ children }: { children: ReactNode }) {
     <LazyMotion features={domAnimation} strict>
       <PersistRehydration />
       <ThemeProvider>
-        <CinematicIntroRoot>
-          <TelegramWebAppBridge />
-          <TelegramInstitutionalIntro />
-          <AuthBootstrap />
-          <MoneysetEntryOnboarding />
-          <GlobalAuthModal />
-          <GlobalCheckoutModal />
-          <IntelligenceBootstrap />
-          {children}
-        </CinematicIntroRoot>
+        <TelegramWebAppBridge />
+        <TelegramInstitutionalIntro />
+        <AuthBootstrap />
+        <MoneysetEntryOnboarding />
+        <GlobalAuthModal />
+        <GlobalCheckoutModal />
+        <IntelligenceBootstrap />
+        {children}
       </ThemeProvider>
     </LazyMotion>
   );

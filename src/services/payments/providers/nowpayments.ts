@@ -1,6 +1,8 @@
 import {
   billingProduct,
   buildOrderId,
+  isSupportedPayCurrency,
+  toNowPaymentsCurrency,
   type BillingProductId,
 } from "@/lib/billing/catalog";
 import { nowPaymentsIpnUrl, publicSiteUrl } from "@/lib/services/shared/env";
@@ -27,9 +29,14 @@ export const nowPaymentsProvider: PaymentProvider = {
     const product = billingProduct(productId);
     if (!product) return { ok: false, error: "Unknown product" };
 
+    if (!isSupportedPayCurrency(input.payCurrency)) {
+      return { ok: false, error: "USDT is the only supported payment currency" };
+    }
+
     const userId = ctx?.userId ?? "anonymous";
     const orderId = buildOrderId(productId, userId);
     const priceAmount = product.priceUsd;
+    const payCurrency = toNowPaymentsCurrency(input.payCurrency);
 
     if (!hasConfig()) {
       if (process.env.NODE_ENV === "production") {
@@ -62,7 +69,7 @@ export const nowPaymentsProvider: PaymentProvider = {
       body: JSON.stringify({
         price_amount: priceAmount,
         price_currency: "usd",
-        pay_currency: input.payCurrency.toLowerCase(),
+        pay_currency: payCurrency,
         order_id: orderId,
         order_description: `MONEYSET · ${product.label}`,
         ipn_callback_url: nowPaymentsIpnUrl(),

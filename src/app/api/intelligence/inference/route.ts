@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { loadRequestProfile, profileHasFullAccess } from "@/lib/access/api-guard";
 import { runIntelligenceOrchestrator } from "@/lib/intelligence/orchestrator";
 import { getCachedInference, shouldRunHeavyInference } from "@/lib/intelligence/inference-cache";
 import { fetchUnifiedMarketSnapshot } from "@/lib/intelligence/market-state-engine";
@@ -26,12 +27,21 @@ type Body = {
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const refreshOnly = url.searchParams.get("refresh") === "market";
+  const profile = await loadRequestProfile(req);
+  const full = profileHasFullAccess(profile);
 
   try {
     if (refreshOnly) {
       const market = await fetchUnifiedMarketSnapshot("BTCUSDT");
       const cached = getCachedInference();
-      return NextResponse.json({ ok: true, market, cached: cached ?? null });
+      return NextResponse.json({
+        ok: true,
+        market,
+        cached: full ? (cached ?? null) : null,
+      });
+    }
+    if (!full) {
+      return NextResponse.json({ ok: false, error: "Premium access required" }, { status: 403 });
     }
     const cached = getCachedInference();
     if (cached) {
@@ -53,6 +63,14 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const profile = await loadRequestProfile(req);
+  const cronSecret = process.env.CRON_SECRET?.trim();
+  const authHeader = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "").trim();
+  const isCron = Boolean(cronSecret && authHeader === cronSecret);
+  if (!isCron && !profileHasFullAccess(profile)) {
+    return NextResponse.json({ ok: false, error: "Premium access required" }, { status: 403 });
+  }
+
   try {
     const body = (await req.json()) as Body;
     const market = await fetchUnifiedMarketSnapshot("BTCUSDT");

@@ -41,6 +41,15 @@ export async function unlockProfileForProduct(
   productId: BillingProductId,
   orderId?: string,
 ): Promise<{ ok: boolean; error?: string }> {
+  if (orderId) {
+    const { data: existing } = await admin
+      .from("profiles")
+      .select("last_payment_order_id")
+      .eq("id", userId)
+      .maybeSingle();
+    if (existing?.last_payment_order_id === orderId) return { ok: true };
+  }
+
   const patch = {
     ...profilePatchForProduct(productId),
     ...(orderId ? { last_payment_order_id: orderId } : {}),

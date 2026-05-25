@@ -52,6 +52,7 @@ export const useAccessStore = create<AccessState>()(
         }),
       beginCognitionTrial: () =>
         set((s) => {
+          if (process.env.NODE_ENV === "production") return s;
           if (s.tier === "premium" || s.profile.foundingAccess || s.trialStarted) return s;
           return {
             trialStarted: true,
@@ -63,6 +64,7 @@ export const useAccessStore = create<AccessState>()(
         const s = get();
         if (hasExtendedAccess(s.profile)) return true;
         if (s.tier === "premium") return true;
+        if (process.env.NODE_ENV === "production") return false;
         return s.trialEndsAtTs != null && s.trialEndsAtTs > Date.now();
       },
     }),

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { resolveRequestUserId } from "@/lib/access/request-user";
-import { billingProduct, type BillingProductId } from "@/lib/billing/catalog";
+import { billingProduct, isSupportedPayCurrency, type BillingProductId } from "@/lib/billing/catalog";
 import { sanitizeApiError } from "@/lib/services/shared/env";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { paymentProvider } from "@/services/payments/router";
@@ -19,6 +19,12 @@ export async function POST(req: Request) {
         : "founding_access");
     if (!body?.payCurrency || !billingProduct(productId)) {
       return NextResponse.json({ ok: false, error: "Missing product or currency" }, { status: 400 });
+    }
+    if (!isSupportedPayCurrency(body.payCurrency)) {
+      return NextResponse.json(
+        { ok: false, error: "USDT is the only supported payment currency" },
+        { status: 400 },
+      );
     }
 
     const admin = supabaseAdmin();

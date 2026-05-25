@@ -322,28 +322,36 @@ export function entryOnboardingCopy(locale: UiLocale): Readonly<{
   telegramHint: string;
 }> {
   return {
-    headline: pickLocale(locale, "STRUCTURE, NOT NOISE", "СТРУКТУРА, НЕ ШУМ"),
+    headline: pickLocale(locale, "WHAT IS HAPPENING NOW", "ЧТО ПРОИСХОДИТ СЕЙЧАС"),
     subheadline: pickLocale(
       locale,
-      "Institutional Execution Intelligence",
-      "Институциональный интеллект исполнения",
+      "Market posture, risk, and scenario clarity — before you act.",
+      "Рыночная позиция, риск и ясность сценариев — до того, как действовать.",
     ),
     valueLines: pickLocale(
       locale,
-      ["Read participation.", "Track pressure.", "Manage uncertainty."] as const,
-      ["Читайте участие.", "Отслеживайте давление.", "Управляйте неопределённостью."] as const,
+      [
+        "See what the market is doing now.",
+        "Know what to do under current structure.",
+        "Track what confirms or breaks the outlook.",
+      ] as const,
+      [
+        "Видите, что рынок делает сейчас.",
+        "Понимаете, что делать при текущей структуре.",
+        "Отслеживаете, что подтверждает или ломает прогноз.",
+      ] as const,
     ),
     capabilities: pickLocale(
       locale,
       [
-        { label: "MARKET POSTURE", desc: "Regime and participation read." },
-        { label: "EXECUTION INTELLIGENCE", desc: "Bias, pressure, and implication." },
-        { label: "SCENARIO MEMORY", desc: "Replay and structural recall." },
+        { label: "MARKET POSTURE", desc: "Regime, participation, and directional bias right now." },
+        { label: "EXECUTION MAP", desc: "Where to act, where risk rises, and what invalidates the read." },
+        { label: "SCENARIO MEMORY", desc: "How posture evolved — replay and compare prior states." },
       ] as const,
       [
-        { label: "РЫНОЧНАЯ ПОЗИЦИЯ", desc: "Режим и прочтение участия." },
-        { label: "ИНТЕЛЛЕКТ ИСПОЛНЕНИЯ", desc: "Смещение, давление, импликация." },
-        { label: "ПАМЯТЬ СЦЕНАРИЕВ", desc: "Реплей и структурный контекст." },
+        { label: "РЫНОЧНАЯ ПОЗИЦИЯ", desc: "Режим, участие и направленный уклон прямо сейчас." },
+        { label: "КАРТА ИСПОЛНЕНИЯ", desc: "Где действовать, где растёт риск и что снимает прочтение." },
+        { label: "ПАМЯТЬ СЦЕНАРИЕВ", desc: "Как менялась позиция — реплей и сравнение прошлых состояний." },
       ] as const,
     ),
     foundingTitle: pickLocale(locale, "Founding Access", "Founding-доступ"),
@@ -351,20 +359,20 @@ export function entryOnboardingCopy(locale: UiLocale): Readonly<{
     foundingBullets: pickLocale(
       locale,
       [
-        "Institutional interpretation.",
-        "Execution intelligence.",
-        "Scenario memory.",
-        "Decision layer.",
+        "Full execution map and invalidation logic.",
+        "Scenario evolution and risk framing.",
+        "Agent consensus and deep interpretation.",
+        "Market memory, replay, and archive continuity.",
       ] as const,
       [
-        "Институциональное прочтение.",
-        "Интеллект исполнения.",
-        "Память сценариев.",
-        "Слой решений.",
+        "Полная карта исполнения и логика снятия.",
+        "Эволюция сценариев и рамка риска.",
+        "Консенсус агентов и глубокое прочтение.",
+        "Память рынка, реплей и непрерывность архива.",
       ] as const,
     ),
-    enterCta: pickLocale(locale, "ENTER MONEYSET", "ВОЙТИ В MONEYSET"),
-    accessCta: pickLocale(locale, "ACCESS EXECUTION INTELLIGENCE", "ДОСТУП К ИНТЕЛЛЕКТУ ИСПОЛНЕНИЯ"),
+    enterCta: pickLocale(locale, "EXPLORE FREE WORKSPACE", "ОТКРЫТЬ БЕСПЛАТНОЕ ПОЛЕ"),
+    accessCta: pickLocale(locale, "UNLOCK FULL INTELLIGENCE", "ОТКРЫТЬ ПОЛНЫЙ ИНТЕЛЛЕКТ"),
     telegramLink: pickLocale(locale, "Open in Telegram", "Открыть в Telegram"),
     telegramHint: pickLocale(locale, "Awaiting Telegram session…", "Ожидание сессии Telegram…"),
   };
@@ -403,7 +411,7 @@ export function authPageWorkspaceCta(locale: UiLocale): string {
 }
 
 export function authPageTierPaid(locale: UiLocale): string {
-  return pickLocale(locale, "Reserved field access active.", "Активен доступ к зарезервированному полю.");
+  return pickLocale(locale, "Full intelligence access active.", "Активен полный доступ к интеллекту.");
 }
 
 export function authPageTierFree(locale: UiLocale): string {
@@ -425,8 +433,8 @@ export function authPageTierEvaluation(locale: UiLocale): string {
 export function authModalPolicyNote(locale: UiLocale): string {
   return pickLocale(
     locale,
-    "Auth wiring is staged: OAuth and magic links are live where Supabase is configured. Password policies ship with your production schema.",
-    "Авторизация поэтапна: OAuth и ссылки — при настроенном Supabase. Парольные политики — с вашей прод-схемой.",
+    "Sign in with Google, email, or magic link. Sessions persist on this device. Password reset available by email.",
+    "Вход через Google, email или magic link. Сессия сохраняется на устройстве. Сброс пароля — по email.",
   );
 }
 
@@ -470,8 +478,8 @@ export function cognitionOnboardingFrames(
       title: pickLocale(locale, "Cognition layers", "Слои прочтения"),
       body: pickLocale(
         locale,
-        "Core posture and log stay open; deeper execution map, memory, and archive continuity sit in the reserved field. Defaults favor restraint — expand only when you want more resolution.",
-        "Ядро и лента открыты; карта исполнения, память и архивная непрерывность — в зарезервированном поле. По умолчанию сдержанно — расширяйте, когда нужна большая деталь.",
+        "Core posture and log stay open; execution map, memory, replay, and deep interpretation require paid access.",
+        "Ядро и лента открыты; карта исполнения, память, реплей и глубокое прочтение — по платному доступу.",
       ),
     },
     {

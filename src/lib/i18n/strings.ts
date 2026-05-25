@@ -174,14 +174,14 @@ export const STRINGS: Record<UiLocale, Dict> = {
     "execution.anchorLabel": "Anchor",
     "execution.navLabel": "Execution map",
 
-    "premium.title": "Reserved field",
-    "premium.reserved": "Deeper structural cognition",
-    "premium.cta": "Request access",
-    "premium.unlock": "Full execution calibration and structural continuity.",
-    "premium.preview": "Shape and rhythm visible; resolution reserved — not a signal layer.",
+    "premium.title": "Full intelligence",
+    "premium.reserved": "Execution map · scenarios · deep interpretation",
+    "premium.cta": "Unlock access",
+    "premium.unlock": "See what to do now, what confirms the outlook, and what raises risk.",
+    "premium.preview": "Posture and summary visible; execution map and invalidation logic require access.",
 
     "tier.free": "Free access",
-    "tier.premium": "Reserved field",
+    "tier.premium": "Full intelligence",
     "tier.evaluation": "Evaluation access",
     "tier.founding": "Founding access",
 
@@ -303,14 +303,14 @@ export const STRINGS: Record<UiLocale, Dict> = {
     "execution.anchorLabel": "Опора",
     "execution.navLabel": "Карта исполнения",
 
-    "premium.title": "Зарезервированное поле",
-    "premium.reserved": "Углублённое структурное прочтение",
-    "premium.cta": "Запросить доступ",
-    "premium.unlock": "Полная калибровка исполнения и структурная непрерывность.",
-    "premium.preview": "Видны силуэт и ритм; деталь зарезервирована — это не слой сигналов.",
+    "premium.title": "Полный интеллект",
+    "premium.reserved": "Карта исполнения · сценарии · глубокое прочтение",
+    "premium.cta": "Открыть доступ",
+    "premium.unlock": "Что делать сейчас, что подтверждает прогноз и что повышает риск.",
+    "premium.preview": "Позиция и сводка открыты; карта исполнения и снятие — по доступу.",
 
     "tier.free": "Бесплатный доступ",
-    "tier.premium": "Зарезервированное поле",
+    "tier.premium": "Полный интеллект",
     "tier.evaluation": "Оценочный доступ",
     "tier.founding": "Founding доступ",
 
