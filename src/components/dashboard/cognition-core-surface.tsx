@@ -39,15 +39,15 @@ function StateField({ label, children }: { label: string; children: ReactNode })
 }
 
 const DEEP_LINKS: { href: string; en: string; ru: string; purposeEn: string; purposeRu: string }[] = [
-  { href: "/execution", en: "Execution", ru: "Исполнение", purposeEn: "What to do now", purposeRu: "Что делать" },
-  { href: "/scenarios", en: "Scenarios", ru: "Сценарии", purposeEn: "What could happen next", purposeRu: "Что дальше" },
-  { href: "/ops", en: "Changes", ru: "Изменения", purposeEn: "What changed", purposeRu: "Что изменилось" },
-  { href: "/maps", en: "Maps", ru: "Карты", purposeEn: "Market geometry", purposeRu: "Геометрия" },
-  { href: "/agents", en: "Agents", ru: "Агенты", purposeEn: "Consensus vs disagreement", purposeRu: "Консенсус" },
-  { href: "/labs", en: "Labs", ru: "Лаборатории", purposeEn: "Deep modules", purposeRu: "Модули" },
-  { href: "/macro", en: "Macro", ru: "Макро", purposeEn: "Macro layer", purposeRu: "Макро" },
-  { href: "/risk-radar", en: "Risk", ru: "Риск", purposeEn: "Risk topology", purposeRu: "Риск" },
-  { href: "/memory", en: "Memory", ru: "Память", purposeEn: "Archive", purposeRu: "Архив" },
+  { href: "/execution",      en: "Execution",    ru: "Исполнение",   purposeEn: "What should I do now.",                   purposeRu: "Что делать сейчас." },
+  { href: "/scenarios",      en: "Scenarios",    ru: "Сценарии",     purposeEn: "What could happen next.",                 purposeRu: "Что может произойти дальше." },
+  { href: "/ops",            en: "Changes",      ru: "Изменения",    purposeEn: "What changed and why.",                   purposeRu: "Что изменилось и почему." },
+  { href: "/maps",           en: "Maps",         ru: "Карты",        purposeEn: "Structural market geometry.",             purposeRu: "Структурная геометрия рынка." },
+  { href: "/agents",         en: "Agents",       ru: "Агенты",       purposeEn: "Where intelligence agrees or disagrees.", purposeRu: "Где прочтения сходятся или расходятся." },
+  { href: "/labs",           en: "Labs",         ru: "Лаборатории",  purposeEn: "Deep research environments.",             purposeRu: "Среды глубокого анализа." },
+  { href: "/macro",          en: "Macro",        ru: "Макро",        purposeEn: "Macro pressure layer.",                   purposeRu: "Макро-давление." },
+  { href: "/risk-radar",     en: "Risk Radar",   ru: "Риск",         purposeEn: "Hidden fragility and stress.",            purposeRu: "Скрытая хрупкость." },
+  { href: "/memory",         en: "Memory",       ru: "Память",       purposeEn: "Structural archive.",                     purposeRu: "Структурный архив." },
 ];
 
 export function CognitionCoreSurface() {
@@ -127,16 +127,33 @@ export function CognitionCoreSurface() {
     </>
   );
 
+  const platformCenterLine = pickLocale(
+    locale,
+    "Start here. Everything else deepens this read.",
+    "Начните здесь. Всё остальное углубляет это прочтение.",
+  );
+
   return (
     <div className={cn("ms-page ms-cognition-surface relative", compact && "ms-density-dense")}>
-      <div className="mb-3 lg:hidden">
-        <p className="text-[12px] font-semibold text-ms-text">{sectionTitle(locale, "core")}</p>
-        <p className="mt-0.5 text-[12px] leading-snug text-ms-cognition/90">{sectionPurpose(locale, "core")}</p>
+      {/* Mobile header — center of the platform framing */}
+      <div className="mb-4 lg:hidden">
+        <div className="mb-1 flex items-baseline gap-2.5">
+          <p className="text-[14px] font-semibold tracking-tight text-ms-text">
+            {sectionTitle(locale, "core")}
+          </p>
+          <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-ms-faint/70">
+            {pickLocale(locale, "Platform center", "Центр платформы")}
+          </span>
+        </div>
+        <p className="text-[12px] font-medium leading-snug text-ms-cognition/90">
+          {sectionPurpose(locale, "core")}
+        </p>
+        <p className="mt-0.5 text-[11px] leading-snug text-ms-faint">{platformCenterLine}</p>
       </div>
 
       <div className="mb-[var(--ms-section-gap)] hidden lg:block">
         <SurfaceChrome
-          eyebrow={sectionTitle(locale, "core")}
+          eyebrow={pickLocale(locale, "Platform center", "Центр платформы")}
           title={sectionTitle(locale, "core")}
           purpose={sectionPurpose(locale, "core")}
           subtitle={sectionChromeSubtitle(locale, "core")}
@@ -173,22 +190,25 @@ export function CognitionCoreSurface() {
       </div>
 
       <nav
-        aria-label={pickLocale(locale, "Deep analytical surfaces", "Глубокие аналитические поверхности")}
-        className="mt-10 hidden border-t border-ms-border/25 pt-6 lg:block"
+        aria-label={pickLocale(locale, "Analytical surfaces", "Аналитические поверхности")}
+        className="mt-8 border-t border-ms-border/25 pt-6"
       >
-        <p className="text-[10px] font-medium text-ms-faint">
-          {pickLocale(locale, "Analytical depth", "Аналитическая глубина")}
+        <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.16em] text-ms-faint/80">
+          {pickLocale(locale, "Go deeper", "Углубиться")}
         </p>
-        <ul className="mt-3 flex flex-wrap gap-x-1 gap-y-2">
-          {DEEP_LINKS.map((item, i) => (
-            <li key={item.href} className="flex items-center">
-              {i > 0 ? <span className="mx-2 text-ms-border" aria-hidden>|</span> : null}
+        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          {DEEP_LINKS.map((item) => (
+            <li key={item.href}>
               <Link
                 href={item.href}
-                className="text-[12px] font-medium text-ms-muted transition-colors hover:text-ms-text"
-                title={pickLocale(locale, item.purposeEn, item.purposeRu)}
+                className="ms-focus-ring group flex flex-col gap-0.5 rounded-ms-lg border border-ms-border/20 bg-ms-elevated/8 px-3 py-2.5 transition-[border-color,background-color] duration-150 hover:border-ms-border/35 hover:bg-ms-surface/15"
               >
-                {pickLocale(locale, item.en, item.ru)}
+                <span className="text-[12px] font-medium leading-snug text-ms-text/90 group-hover:text-ms-text">
+                  {pickLocale(locale, item.en, item.ru)}
+                </span>
+                <span className="text-[10px] leading-snug text-ms-faint group-hover:text-ms-muted">
+                  {pickLocale(locale, item.purposeEn, item.purposeRu)}
+                </span>
               </Link>
             </li>
           ))}

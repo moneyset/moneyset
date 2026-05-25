@@ -1,50 +1,37 @@
 "use client";
 
 import { AnimatePresence, m } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useTelegramAuth } from "@/hooks/use-telegram-auth";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { msEase, msTransition } from "@/lib/theme/motion";
 import { cn } from "@/lib/utils";
+import { supabaseBrowser } from "@/lib/supabase/browser";
 import { useAuthStore } from "@/store/auth-store";
 import { useCheckoutModalStore } from "@/store/checkout-modal-store";
 import { useEntryStore } from "@/store/entry-store";
 import { useUiPrefsStore, type UiLocale } from "@/store/ui-prefs-store";
 
-const TOTAL = 6;
+const TOTAL = 5;
 
 function isTelegramWebApp(): boolean {
   return typeof window !== "undefined" && Boolean(window.Telegram?.WebApp);
 }
 
-/* ─── Screen 1 — Identity ───────────────────────────────────────── */
+/* ─── Screen 1 — Identity ───────────────────────────────────────────────── */
 function Screen1({ locale }: { locale: UiLocale }) {
   return (
     <div className="ms-ob__screen ms-ob__screen--identity">
       <p className="ms-ob__wordmark">MONEYSET</p>
       <p className="ms-ob__tag">
-        {pickLocale(locale, "Institutional Market Intelligence", "Институциональный рыночный интеллект")}
+        {pickLocale(locale, "Market Structure Before Consensus", "Структура рынка до консенсуса")}
       </p>
-      <p className="ms-ob__lead">
-        {pickLocale(
-          locale,
-          "Understand market structure before consensus.",
-          "Понять рыночную структуру до формирования консенсуса.",
-        )}
-      </p>
-      <div className="ms-ob__triad" aria-hidden>
-        <span>{pickLocale(locale, "Short.", "Точно.")}</span>
-        <span className="ms-ob__triad-sep">·</span>
-        <span>{pickLocale(locale, "Powerful.", "Мощно.")}</span>
-        <span className="ms-ob__triad-sep">·</span>
-        <span>{pickLocale(locale, "Premium.", "Премиально.")}</span>
-      </div>
     </div>
   );
 }
 
-/* ─── Screen 2 — What it does ───────────────────────────────────── */
+/* ─── Screen 2 — What it does ───────────────────────────────────────────── */
 function Screen2({ locale }: { locale: UiLocale }) {
   return (
     <div className="ms-ob__screen">
@@ -57,39 +44,39 @@ function Screen2({ locale }: { locale: UiLocale }) {
       <p className="ms-ob__body">
         {pickLocale(
           locale,
-          "MONEYSET measures the quality of the current market structure and identifies what would strengthen or invalidate the active scenario.",
-          "MONEYSET измеряет качество текущей рыночной структуры и определяет, что укрепит или опровергнет активный сценарий.",
+          "It measures the quality of market structure and identifies what strengthens or invalidates active scenarios.",
+          "Он измеряет качество рыночной структуры и определяет, что укрепляет или опровергает активные сценарии.",
         )}
       </p>
     </div>
   );
 }
 
-/* ─── Screen 3 — How to use it ──────────────────────────────────── */
+/* ─── Screen 3 — How to use it ──────────────────────────────────────────── */
 const SECTIONS: Array<{ en: string; ru: string; descEn: string; descRu: string }> = [
   {
     en: "Core",
     ru: "Ядро",
-    descEn: "Understand the current market state.",
-    descRu: "Понять текущее состояние рынка.",
+    descEn: "Understand current conditions.",
+    descRu: "Понять текущие условия.",
   },
   {
     en: "Execution",
     ru: "Исполнение",
-    descEn: "Understand how to position.",
-    descRu: "Понять, как позиционироваться.",
+    descEn: "Understand positioning.",
+    descRu: "Понять позиционирование.",
   },
   {
     en: "Scenarios",
     ru: "Сценарии",
-    descEn: "Understand what could happen next.",
-    descRu: "Понять, что может произойти дальше.",
+    descEn: "Understand future paths.",
+    descRu: "Понять возможные пути.",
   },
   {
     en: "Agents",
     ru: "Агенты",
-    descEn: "Understand where intelligence agrees or disagrees.",
-    descRu: "Понять, где прочтения сходятся или расходятся.",
+    descEn: "Understand agreement and disagreement.",
+    descRu: "Понять, где прочтения сходятся и расходятся.",
   },
 ];
 
@@ -115,7 +102,7 @@ function Screen3({ locale }: { locale: UiLocale }) {
   );
 }
 
-/* ─── Screen 4 — What changes the picture ───────────────────────── */
+/* ─── Screen 4 — What changes the picture ───────────────────────────────── */
 function Screen4({ locale }: { locale: UiLocale }) {
   return (
     <div className="ms-ob__screen">
@@ -128,7 +115,7 @@ function Screen4({ locale }: { locale: UiLocale }) {
       <h2 className="ms-ob__statement ms-ob__statement--emphasis">
         {pickLocale(
           locale,
-          "MONEYSET explains what would invalidate the view.",
+          "MONEYSET explains what would invalidate that view.",
           "MONEYSET объясняет, что опровергнет эту точку зрения.",
         )}
       </h2>
@@ -139,45 +126,13 @@ function Screen4({ locale }: { locale: UiLocale }) {
   );
 }
 
-/* ─── Screen 5 — How to think ───────────────────────────────────── */
-const TRACKS: Array<{ en: string; ru: string }> = [
-  { en: "Do not seek certainty.", ru: "Не ищите определённости." },
-  { en: "Track structure.", ru: "Следите за структурой." },
-  { en: "Track risk.", ru: "Следите за риском." },
-  { en: "Track invalidation.", ru: "Следите за снятием." },
-  { en: "Track participation.", ru: "Следите за участием." },
-];
-
-function Screen5({ locale }: { locale: UiLocale }) {
-  return (
-    <div className="ms-ob__screen">
-      <p className="ms-ob__eyebrow">{pickLocale(locale, "How To Think", "Как думать")}</p>
-      <div className="ms-ob__track-list">
-        {TRACKS.map((t, i) => (
-          <m.p
-            key={t.en}
-            className={cn(
-              "ms-ob__track-item",
-              i === 0 && "ms-ob__track-item--lead",
-            )}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3, ease: msEase, delay: 0.05 + i * 0.09 }}
-          >
-            {pickLocale(locale, t.en, t.ru)}
-          </m.p>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ─── Screen 6 — Ready ──────────────────────────────────────────── */
-function Screen6({
+/* ─── Screen 5 — Ready ──────────────────────────────────────────────────── */
+function Screen5({
   locale,
   onEnter,
   onUpgrade,
   onTelegram,
+  onGoogle,
   busy,
   inTelegram,
   hasInitData,
@@ -186,63 +141,101 @@ function Screen6({
   onEnter: () => void;
   onUpgrade: () => void;
   onTelegram: () => void;
+  onGoogle: () => void;
   busy: boolean;
   inTelegram: boolean;
   hasInitData: boolean;
 }) {
+  const showTelegramCta = inTelegram || hasInitData;
+
   return (
     <div className="ms-ob__screen ms-ob__screen--ready">
       <p className="ms-ob__eyebrow">{pickLocale(locale, "Ready", "Готово")}</p>
       <p className="ms-ob__ready-label">MONEYSET</p>
-      <button
-        type="button"
-        disabled={busy}
-        onClick={onEnter}
-        className="ms-ob__enter-cta ms-focus-ring"
-      >
-        {pickLocale(locale, "Enter MONEYSET", "Войти в MONEYSET")}
-      </button>
-      <button
-        type="button"
-        disabled={busy}
-        onClick={onUpgrade}
-        className="ms-ob__upgrade-cta ms-focus-ring"
-      >
-        {pickLocale(locale, "Unlock full intelligence", "Открыть полный доступ")}
-      </button>
-      {inTelegram && !hasInitData ? (
-        <p className="ms-ob__footnote">
-          {pickLocale(locale, "Awaiting Telegram session…", "Ожидание сессии Telegram…")}
-        </p>
-      ) : (
+
+      <div className="ms-ob__auth-stack">
+        {/* Primary — Telegram (if inside Mini App) */}
+        {showTelegramCta ? (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={onTelegram}
+            className="ms-ob__auth-btn ms-ob__auth-btn--primary ms-focus-ring"
+          >
+            <span className="ms-ob__auth-btn-icon" aria-hidden>✈</span>
+            {pickLocale(locale, "Continue with Telegram", "Продолжить через Telegram")}
+          </button>
+        ) : null}
+
+        {/* Primary/Secondary — Enter as guest (if not in Telegram) or secondary */}
         <button
           type="button"
-          className="ms-ob__telegram ms-focus-ring"
           disabled={busy}
-          onClick={onTelegram}
+          onClick={onEnter}
+          className={cn(
+            "ms-ob__auth-btn ms-focus-ring",
+            showTelegramCta ? "ms-ob__auth-btn--secondary" : "ms-ob__auth-btn--primary",
+          )}
         >
-          {pickLocale(locale, "Open in Telegram", "Открыть в Telegram")}
+          {pickLocale(locale, "Enter MONEYSET", "Войти в MONEYSET")}
         </button>
-      )}
+
+        {/* Google — always available */}
+        <button
+          type="button"
+          disabled={busy}
+          onClick={onGoogle}
+          className="ms-ob__auth-btn ms-ob__auth-btn--secondary ms-focus-ring"
+        >
+          <span className="ms-ob__auth-btn-icon" aria-hidden>G</span>
+          {pickLocale(locale, "Continue with Google", "Продолжить через Google")}
+        </button>
+
+        {/* Telegram — open Mini App if not already inside */}
+        {!showTelegramCta ? (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={onTelegram}
+            className="ms-ob__telegram ms-focus-ring"
+          >
+            {pickLocale(locale, "Open in Telegram Mini App", "Открыть в Telegram Mini App")}
+          </button>
+        ) : null}
+
+        {/* Upgrade link */}
+        <button
+          type="button"
+          disabled={busy}
+          onClick={onUpgrade}
+          className="ms-ob__upgrade-cta ms-focus-ring"
+        >
+          {pickLocale(locale, "Founding Access — $149", "Founding Access — $149")}
+        </button>
+      </div>
     </div>
   );
 }
 
-/* ─── Root ──────────────────────────────────────────────────────── */
+/* ─── Root ──────────────────────────────────────────────────────────────── */
 export function MoneysetEntryOnboarding() {
   const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState(0);
+  const [googleBusy, setGoogleBusy] = useState(false);
   const locale = useUiPrefsStore((s) => s.uiLocale);
   const entryComplete = useEntryStore((s) => s.entryComplete);
   const completeEntry = useEntryStore((s) => s.completeEntry);
   const setGuest = useAuthStore((s) => s.setGuest);
   const openCheckout = useCheckoutModalStore((s) => s.openCheckout);
-  const { signInWithTelegram, busy, hasInitData } = useTelegramAuth();
+  const { signInWithTelegram, busy: telegramBusy, hasInitData } = useTelegramAuth();
   const inTelegram = isTelegramWebApp();
+  const sb = useMemo(() => (typeof window !== "undefined" ? supabaseBrowser() : null), []);
 
   useEffect(() => setMounted(true), []);
 
   if (!mounted || entryComplete) return null;
+
+  const busy = telegramBusy || googleBusy;
 
   const enter = () => {
     setGuest();
@@ -262,6 +255,18 @@ export function MoneysetEntryOnboarding() {
     }
     const bot = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME?.trim();
     window.open(bot ? `https://t.me/${bot}` : "https://t.me", "_blank", "noopener,noreferrer");
+  };
+
+  const continueWithGoogle = async () => {
+    if (!sb) return;
+    setGoogleBusy(true);
+    try {
+      const authCallbackUrl =
+        typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : undefined;
+      await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: authCallbackUrl } });
+    } finally {
+      setGoogleBusy(false);
+    }
   };
 
   const isLast = step === TOTAL - 1;
@@ -291,7 +296,10 @@ export function MoneysetEntryOnboarding() {
       </div>
 
       {/* Step counter */}
-      <div className="ms-ob__counter" aria-label={pickLocale(locale, `Step ${step + 1} of ${TOTAL}`, `Шаг ${step + 1} из ${TOTAL}`)}>
+      <div
+        className="ms-ob__counter"
+        aria-label={pickLocale(locale, `Step ${step + 1} of ${TOTAL}`, `Шаг ${step + 1} из ${TOTAL}`)}
+      >
         <span className="font-mono text-[10px] tabular-nums text-ms-faint/70">
           {String(step + 1).padStart(2, "0")}&thinsp;/&thinsp;{String(TOTAL).padStart(2, "0")}
         </span>
@@ -312,13 +320,13 @@ export function MoneysetEntryOnboarding() {
             {step === 1 && <Screen2 locale={locale} />}
             {step === 2 && <Screen3 locale={locale} />}
             {step === 3 && <Screen4 locale={locale} />}
-            {step === 4 && <Screen5 locale={locale} />}
-            {step === 5 && (
-              <Screen6
+            {step === 4 && (
+              <Screen5
                 locale={locale}
                 onEnter={enter}
                 onUpgrade={enterWithUpgrade}
                 onTelegram={() => void openTelegram()}
+                onGoogle={() => void continueWithGoogle()}
                 busy={busy}
                 inTelegram={inTelegram}
                 hasInitData={hasInitData}
@@ -328,9 +336,12 @@ export function MoneysetEntryOnboarding() {
         </AnimatePresence>
       </div>
 
-      {/* Navigation */}
+      {/* Navigation — hidden on last screen */}
       {!isLast && (
-        <nav className="ms-ob__nav" aria-label={pickLocale(locale, "Onboarding navigation", "Навигация")}>
+        <nav
+          className="ms-ob__nav"
+          aria-label={pickLocale(locale, "Onboarding navigation", "Навигация")}
+        >
           {step > 0 ? (
             <button
               type="button"

@@ -1,0 +1,259 @@
+/**
+ * Chart Lab — Clarity & Readability System
+ * Phase 3: Fix label overlap, increase font sizes, improve visual hierarchy.
+ *
+ * Core problem was:
+ *   bands:       left: 8%;  width: 58%  → right edge at 66%
+ *   annotations: right: 4%; max-width: 42% → left edge as low as 54%
+ *   → 12% overlap zone in the canvas center
+ *
+ * Fix: bands occupy left 48% of canvas, annotations right 44%, 8% gap between.
+ */
+
+/* ─── Canvas band positioning — no-overlap geometry ─── */
+.ms-exec-terrain-band {
+  left: 2%;
+  width: 48%;
+  /* Slightly taller minimum to fit readable text */
+  min-height: 1.4rem;
+  /* Improve label readability */
+  padding: 0.3rem 0.5rem;
+}
+
+/* Annotations pushed to right 44% — 6% gap from bands (48% + 6% + 44% < 100%) */
+.ms-exec-terrain-annotation {
+  right: 2%;
+  max-width: 44%;
+  /* Larger, more readable */
+  font-size: 10px;
+  line-height: 1.4;
+  padding: 0.35rem 0.5rem;
+  /* Improved background for legibility */
+  background: color-mix(in srgb, var(--ms-bg-elevated) 85%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+/* ─── Font size upgrades — readable at all sizes ─── */
+.ms-exec-terrain-band__label {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  /* Allow single-line on most band heights */
+  -webkit-line-clamp: 2;
+  line-height: 1.25;
+}
+
+.ms-exec-terrain-band__price {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--ms-text-secondary);
+  opacity: 0.9;
+}
+
+/* ─── Visual hierarchy — priority band ─── */
+.ms-exec-terrain-band--priority-1 {
+  opacity: 1 !important;
+  border-width: 1.5px;
+  z-index: 4;
+}
+
+.ms-exec-terrain-band--priority-1 .ms-exec-terrain-band__label {
+  font-size: 10px;
+  color: var(--ms-text-primary);
+}
+
+/* Stress bands — more visible signal */
+.ms-exec-terrain-band--stress,
+.ms-exec-terrain-band--invalidation {
+  box-shadow: 0 0 20px -5px color-mix(in srgb, var(--ms-warning) 28%, transparent);
+}
+
+.ms-exec-terrain-band--invalidation.ms-exec-terrain-band--stress {
+  border-left: 2px solid color-mix(in srgb, var(--ms-danger) 45%, transparent);
+}
+
+/* Support/shelf bands — subtle green accent */
+.ms-exec-terrain-band--shelf.ms-exec-terrain-band--support,
+.ms-exec-terrain-band--acceptance.ms-exec-terrain-band--support {
+  border-left: 2px solid color-mix(in srgb, var(--ms-consensus) 40%, transparent);
+}
+
+/* ─── Canvas height — larger on mobile for usability ─── */
+.ms-exec-terrain-theater__canvas {
+  min-height: 17rem;
+}
+
+/* ─── Overlay labels — legible ─── */
+.ms-exec-terrain-overlay__label {
+  font-size: 9px;
+  letter-spacing: 0.03em;
+}
+
+/* ─── Expanded band detail (tap-to-reveal) ─── */
+.ms-exec-terrain-band--expanded {
+  width: 58% !important;
+  z-index: 5;
+  opacity: 1 !important;
+  background: color-mix(in srgb, var(--ms-bg-elevated) 80%, transparent);
+  backdrop-filter: blur(4px);
+  /* Show more lines when expanded */
+}
+
+.ms-exec-terrain-band--expanded .ms-exec-terrain-band__label {
+  -webkit-line-clamp: unset;
+  white-space: normal;
+}
+
+.ms-exec-terrain-band__read {
+  font-size: 9px;
+  line-height: 1.4;
+  color: var(--ms-text-secondary);
+  margin-top: 0.2rem;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.ms-exec-terrain-band--expanded .ms-exec-terrain-band__read {
+  -webkit-line-clamp: unset;
+}
+
+/* ─── Metric items — with context ─── */
+.ms-exec-terrain-metric__context {
+  font-size: 9px;
+  color: var(--ms-text-tertiary);
+  margin-top: 0.15rem;
+  line-height: 1.3;
+}
+
+/* ─── Interpretation block ─── */
+.ms-exec-terrain-interpret {
+  border-radius: var(--ms-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 50%, transparent);
+  background: color-mix(in srgb, var(--ms-bg-surface) 28%, transparent);
+  overflow: hidden;
+}
+
+.ms-exec-terrain-interpret__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+@media (min-width: 640px) {
+  .ms-exec-terrain-interpret__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .ms-exec-terrain-interpret__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.ms-exec-terrain-interpret__cell {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--ms-border) 35%, transparent);
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .ms-exec-terrain-interpret__cell:nth-child(odd) {
+    border-right: 1px solid color-mix(in srgb, var(--ms-border) 30%, transparent);
+  }
+
+  .ms-exec-terrain-interpret__cell:nth-last-child(-n+2) {
+    border-bottom: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .ms-exec-terrain-interpret__cell {
+    border-right: 1px solid color-mix(in srgb, var(--ms-border) 30%, transparent);
+    border-bottom: none;
+  }
+
+  .ms-exec-terrain-interpret__cell:last-child {
+    border-right: none;
+  }
+}
+
+/* ─── Mobile fixes ─── */
+@media (max-width: 639px) {
+  .ms-exec-terrain-theater__canvas {
+    min-height: 16rem;
+  }
+
+  .ms-exec-terrain-band {
+    left: 2%;
+    width: 46%;
+    padding: 0.25rem 0.4rem;
+  }
+
+  .ms-exec-terrain-annotation {
+    right: 2%;
+    max-width: 44%;
+    font-size: 9.5px;
+  }
+
+  .ms-exec-terrain-band__label {
+    font-size: 9px;
+  }
+
+  .ms-exec-terrain-band__price {
+    font-size: 8.5px;
+  }
+
+  /* On very small screens, hide secondary overlays from stack */
+  .ms-exec-terrain-theater__overlay-stack .ms-exec-terrain-overlay:not(:first-child):not(:last-child) {
+    display: none;
+  }
+
+  /* Path legend — single row layout on mobile */
+  .ms-exec-terrain-path-legend {
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .ms-exec-terrain-path-legend__item {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+/* ─── Focus mode — reduce noise, keep signal ─── */
+.ms-exec-terrain-theater--focus .ms-exec-terrain-band {
+  opacity: calc(0.2 + var(--ms-band-emphasis, 50) * 0.008);
+}
+
+.ms-exec-terrain-theater--focus .ms-exec-terrain-band--priority-1 {
+  opacity: 1 !important;
+}
+
+/* ─── Non-dominant paths — less visual weight ─── */
+.ms-exec-terrain-path:not(.ms-exec-terrain-path--dominant) {
+  opacity: 0.3;
+  stroke-width: 0.45;
+}
+
+.ms-exec-terrain-path--dominant {
+  opacity: 0.85;
+  stroke-width: 0.85;
+}
+
+/* ─── Path legend — cleaner ─── */
+.ms-exec-terrain-path-legend__item {
+  font-size: 10px;
+  padding: 0.3rem 0.6rem;
+}
+
+/* ─── Stage grid: always vertical on narrow screens ─── */
+@media (max-width: 1023.98px) {
+  .ms-exec-terrain-theater__stage {
+    grid-template-columns: 1fr !important;
+  }
+}

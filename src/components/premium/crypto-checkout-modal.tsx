@@ -98,8 +98,8 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
         setNote(
           pickLocale(
             locale,
-            isFounding ? "Founding access active." : "Premium access active.",
-            isFounding ? "Founding доступ активен." : "Премиум доступ активен.",
+            isFounding ? "Founding Access active." : "Premium access active.",
+            isFounding ? "Founding Access активен." : "Премиум доступ активен.",
           ),
         );
       }

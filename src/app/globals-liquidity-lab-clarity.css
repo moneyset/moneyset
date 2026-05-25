@@ -1,0 +1,286 @@
+/**
+ * Liquidity Lab — Clarity & Priority System
+ * Phase 4: Fix font sizes, add hierarchy, mobile 3D fix, regime styles, decision-first design.
+ */
+
+/* ─── Feature labels — readable at every size ─── */
+.ms-liq-feature__label {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+}
+
+.ms-liq-feature__read {
+  font-size: 9px;
+  line-height: 1.4;
+  color: var(--ms-text-secondary);
+  margin-top: 0.2rem;
+}
+
+/* ─── Feature visual hierarchy ─── */
+/* Priority-1: highest emphasis — must dominate */
+.ms-liq-feature--priority-1 {
+  opacity: 1 !important;
+  border-width: 1.5px;
+  z-index: 4;
+  backdrop-filter: blur(3px);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 70%, transparent);
+}
+
+.ms-liq-feature--priority-1 .ms-liq-feature__label {
+  font-size: 11px;
+  color: var(--ms-text-primary);
+}
+
+/* Priority-2: significant */
+.ms-liq-feature--priority-2 {
+  opacity: calc(0.72 + var(--ms-feature-emphasis, 50) * 0.003);
+}
+
+/* Background features fade further */
+.ms-liq-feature--bg {
+  opacity: calc(0.18 + var(--ms-feature-emphasis, 50) * 0.003);
+}
+
+/* Expanded state — tap to reveal */
+.ms-liq-feature--expanded {
+  z-index: 5 !important;
+  opacity: 1 !important;
+  backdrop-filter: blur(4px);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 82%, transparent);
+  cursor: default;
+}
+
+.ms-liq-feature--expanded .ms-liq-feature__label {
+  -webkit-line-clamp: unset;
+  white-space: normal;
+}
+
+.ms-liq-feature--expanded .ms-liq-feature__read {
+  -webkit-line-clamp: unset;
+  display: block;
+}
+
+/* Framing text shown only when expanded */
+.ms-liq-feature__framing {
+  display: none;
+  font-size: 9px;
+  line-height: 1.4;
+  color: var(--ms-text-tertiary);
+  margin-top: 0.25rem;
+  border-top: 1px solid color-mix(in srgb, var(--ms-border) 40%, transparent);
+  padding-top: 0.25rem;
+}
+
+.ms-liq-feature--expanded .ms-liq-feature__framing {
+  display: block;
+}
+
+/* ─── Mobile: disable 3D perspective transform on terrain ─── */
+@media (max-width: 767px) {
+  .ms-liq-theater__terrain {
+    transform: none !important;
+    /* Slightly taller for readability */
+    min-height: 17rem;
+    aspect-ratio: unset;
+  }
+}
+
+/* ─── Mobile: terrain height and feature baseline ─── */
+@media (max-width: 639px) {
+  .ms-liq-theater__terrain {
+    min-height: 15rem;
+  }
+
+  .ms-liq-feature {
+    padding: 0.25rem 0.35rem;
+  }
+
+  .ms-liq-feature__label {
+    font-size: 9.5px;
+  }
+
+  .ms-liq-feature__read {
+    font-size: 8.5px;
+    /* Hide on smallest screens unless expanded */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+  }
+
+  .ms-liq-feature--expanded .ms-liq-feature__read {
+    -webkit-line-clamp: unset;
+    display: block;
+  }
+}
+
+/* ─── Phenomena labels — legible ─── */
+.ms-liq-phenomenon__label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ms-text-tertiary);
+  line-height: 1.2;
+}
+
+/* ─── Metric improvements ─── */
+.ms-liq-metric__context {
+  font-size: 9px;
+  line-height: 1.35;
+  color: var(--ms-text-tertiary);
+  margin-top: 0.2rem;
+}
+
+/* ─── Decision block — BLUF for liquidity ─── */
+.ms-liq-decision-block {
+  border-radius: var(--ms-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 50%, transparent);
+  background: color-mix(in srgb, var(--ms-bg-surface) 28%, transparent);
+  overflow: hidden;
+  margin-bottom: var(--ms-block-gap, 1.25rem);
+}
+
+.ms-liq-decision-block__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--ms-border) 30%, transparent);
+  padding: 0.625rem 1rem;
+}
+
+.ms-liq-decision-block__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+@media (min-width: 480px) {
+  .ms-liq-decision-block__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .ms-liq-decision-block__grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.ms-liq-decision-block__cell {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--ms-border) 28%, transparent);
+  min-width: 0;
+}
+
+@media (min-width: 480px) {
+  .ms-liq-decision-block__cell:nth-child(odd) {
+    border-right: 1px solid color-mix(in srgb, var(--ms-border) 28%, transparent);
+  }
+
+  .ms-liq-decision-block__cell:nth-last-child(-n+2) {
+    border-bottom: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .ms-liq-decision-block__cell {
+    border-right: 1px solid color-mix(in srgb, var(--ms-border) 28%, transparent);
+    border-bottom: none;
+  }
+
+  .ms-liq-decision-block__cell:last-child {
+    border-right: none;
+  }
+}
+
+/* ─── Key reads block — inline, never hidden by default ─── */
+.ms-liq-key-reads {
+  border-radius: var(--ms-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 40%, transparent);
+  background: color-mix(in srgb, var(--ms-bg-surface) 22%, transparent);
+  overflow: hidden;
+}
+
+.ms-liq-key-reads__item {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--ms-border) 22%, transparent);
+}
+
+.ms-liq-key-reads__item:last-child {
+  border-bottom: none;
+}
+
+/* ─── Missing regime visual states ─── */
+.ms-liq-theater--thin .ms-liq-theater__fog {
+  opacity: calc(0.05 + var(--ms-liq-distortion, 20) * 0.002);
+}
+
+.ms-liq-theater--thin .ms-liq-terrain__ridge-layer {
+  opacity: 0.4;
+}
+
+.ms-liq-theater--compression .ms-liq-theater__gravity-well {
+  animation-duration: 5s;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--ms-warning) calc(var(--ms-liq-gravity, 40) * 0.16%), transparent) 0%,
+    transparent 68%
+  );
+}
+
+.ms-liq-theater--compression .ms-liq-terrain__contour {
+  opacity: 0.22;
+}
+
+.ms-liq-theater--decay .ms-liq-theater__atmosphere {
+  background: radial-gradient(
+    ellipse 95% 55% at 50% 100%,
+    color-mix(in srgb, var(--ms-warning) calc(var(--ms-liq-gravity, 40) * 0.1%), transparent),
+    transparent 62%
+  );
+}
+
+.ms-liq-theater--rotation .ms-liq-theater__gravity-well {
+  animation-duration: 4.5s;
+  left: 30%;
+}
+
+.ms-liq-theater--absorption .ms-liq-terrain__ridge-layer {
+  opacity: 0.9;
+  animation-duration: 4s;
+}
+
+.ms-liq-theater--absorption .ms-liq-theater__gravity-well {
+  animation-duration: 3.5s;
+}
+
+/* ─── Replay improvements ─── */
+.ms-liq-replay__tick {
+  font-size: 10px;
+  min-width: 2.5rem;
+}
+
+.ms-liq-replay__frame > div > p:first-child {
+  font-size: 11px;
+}
+
+.ms-liq-replay__frame > div > p:last-child {
+  font-size: 10px;
+}
+
+/* ─── Tap hint ─── */
+.ms-liq-tap-hint {
+  font-size: 10px;
+  color: var(--ms-text-tertiary);
+}
+
+/* ─── Metric glyphs responsive ─── */
+.ms-liq-glyphs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ms-space-3, 0.75rem);
+}

@@ -30,26 +30,26 @@ function metadataBaseUrl(): URL {
 export const metadata: Metadata = {
   metadataBase: metadataBaseUrl(),
   title: {
-    default: "MONEYSET",
+    default: "MONEYSET — Market Structure Before Consensus",
     template: "%s · MONEYSET",
   },
   description:
-    "Execution intelligence terminal — structural market cognition and institutional interpretation.",
+    "Institutional market structure intelligence. Understand conditions, scenarios, and invalidation before consensus forms. Not signals — structural interpretation.",
   applicationName: "MONEYSET",
-  keywords: ["MONEYSET", "market cognition", "execution", "regime", "scenarios"],
+  keywords: ["MONEYSET", "market structure", "execution intelligence", "institutional", "scenarios", "invalidation"],
   authors: [{ name: "MONEYSET" }],
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "/",
     siteName: "MONEYSET",
-    title: "MONEYSET",
-    description: "Execution intelligence — tactical market cognition, not signals.",
+    title: "MONEYSET — Market Structure Before Consensus",
+    description: "Institutional market structure intelligence. Not signals — structural interpretation and execution discipline.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "MONEYSET",
-    description: "Structural interpretation and execution discipline.",
+    title: "MONEYSET — Market Structure Before Consensus",
+    description: "Institutional market structure intelligence. Understand conditions, scenarios, and invalidation before consensus forms.",
   },
   robots: { index: true, follow: true },
 };

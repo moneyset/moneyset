@@ -94,7 +94,7 @@ export function CurrentMarketPosture() {
               )}
             </p>
             <Button type="button" variant="outline" size="sm" className="mt-2 h-8 px-2 text-[11px]" onClick={openUpgrade}>
-              {pickLocale(locale, "Unlock — $79", "Открыть — $79")}
+              {pickLocale(locale, "Founding Access — $149", "Founding Access — $149")}
             </Button>
           </div>
         )}

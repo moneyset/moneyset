@@ -1,6 +1,7 @@
 "use client";
 
 import { OperationalFeed } from "@/components/dashboard/operational-feed";
+import { MarketChangeIntelligenceFrame } from "@/components/ops/market-change-intelligence-frame";
 import { SurfaceBlufBlock } from "@/components/cognition/surface-bluf-block";
 import { SurfaceChrome } from "@/components/surfaces/surface-chrome";
 import { useSurfaceBluf } from "@/hooks/use-surface-bluf";
@@ -21,6 +22,7 @@ export default function OpsSurfacePage() {
         subtitle={sectionChromeSubtitle(locale, "ops")}
       />
       <SurfaceBlufBlock bluf={bluf} />
+      <MarketChangeIntelligenceFrame />
       <OperationalFeed />
     </div>
   );

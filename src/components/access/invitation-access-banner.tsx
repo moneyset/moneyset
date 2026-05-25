@@ -43,12 +43,12 @@ export function InvitationAccessBanner({ className }: { className?: string }) {
               {pickLocale(locale, "Invitation Access Expired", "Приглашение истекло")}
             </p>
             <p className="mt-0.5 text-[12px] text-ms-muted">
-              {pickLocale(locale, "Continue with Founding Membership", "Продолжить с Founding")}
-              <span className="tabular-nums text-ms-text"> · $79</span>
+              {pickLocale(locale, "Continue with Founding Access", "Продолжить с Founding Access")}
+              <span className="tabular-nums text-ms-text"> · $149</span>
             </p>
           </div>
           <Button type="button" variant="cognition" size="sm" className="shrink-0" onClick={openUpgrade}>
-            {pickLocale(locale, "Founding access", "Founding доступ")}
+            {pickLocale(locale, "Founding Access", "Founding Access")}
           </Button>
         </div>
       </div>

@@ -11,6 +11,7 @@ import { useExtendedCognitionAccess } from "@/hooks/use-extended-cognition-acces
 import type { AccessCapability } from "@/lib/access/capabilities";
 import type { EntitlementKey } from "@/lib/access/roles";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
+import { pickLocale } from "@/lib/i18n/cognition-dict";
 import {
   premiumGatePreviewExecution,
   premiumGatePreviewPosture,
@@ -64,7 +65,9 @@ export function PremiumGate({ children, onUnlock, className, preview = true, fea
       {preview ? (
         <div className="pointer-events-none absolute left-3 right-3 top-3 z-[1] sm:left-4 sm:right-4">
           <div className="ms-premium-gate__cognition-ribbon rounded-ms-md border border-ms-border/18 bg-ms-surface/32 px-2.5 py-2 backdrop-blur-[10px] sm:px-3 sm:py-2.5">
-            <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-ms-faint">{t("premium.reserved")}</p>
+            <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-ms-warning/70">
+              {pickLocale(locale, "Founding Access", "Founding Access")}
+            </p>
             <div className="mt-1.5 space-y-1 font-mono text-[9px] leading-snug text-ms-muted/75 sm:text-[9.5px]">
               <p className="ms-premium-gate__preview-line">{premiumGatePreviewPosture(locale)}</p>
               <p className="ms-premium-gate__preview-line">{premiumGatePreviewStructure(locale)}</p>
@@ -82,14 +85,14 @@ export function PremiumGate({ children, onUnlock, className, preview = true, fea
               <Lock className="size-3.5 sm:size-4" strokeWidth={1.35} aria-hidden />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="ms-data-label text-ms-muted">{t("gate.lockedTitle")}</p>
+              <p className="ms-data-label text-ms-warning/80">{t("gate.lockedTitle")}</p>
               <p className="mt-1 text-[11px] leading-snug text-ms-muted sm:text-[12px] sm:leading-relaxed">{t("gate.lockedBody")}</p>
             </div>
             <Button
               type="button"
-              variant="outline"
+              variant="cognition"
               size="sm"
-              className="shrink-0 border-ms-border/45 text-[11px] font-medium tracking-tight"
+              className="shrink-0 text-[11px] font-medium tracking-tight"
               onClick={onUnlock}
             >
               {t("gate.cta")}

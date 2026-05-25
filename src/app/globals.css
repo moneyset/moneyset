@@ -12,9 +12,13 @@
 @import "./globals-institutional-refinement.css";
 @import "./globals-telegram-institutional-intro.css";
 @import "./globals-entry-onboarding.css";
+@import "./globals-auth-registration.css";
 @import "./globals-production-polish.css";
 @import "./globals-cinematic-intro.css";
 @import "./globals-phase2-ui.css";
+@import "./globals-phase1-visual-premium.css";
+@import "./globals-chart-lab-clarity.css";
+@import "./globals-liquidity-lab-clarity.css";
 
 @theme inline {
   --font-sans: var(--font-geist-sans);

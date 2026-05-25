@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { telegramAuthEmail, telegramAuthPassword } from "@/lib/auth/telegram-credentials";
 import { verifyTelegramWebAppInitData } from "@/lib/auth/telegram-verify";
 import { roleFromProfile } from "@/lib/access/roles";
+import { isFounderTelegramId } from "@/lib/access/founder";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { env } from "@/lib/services/shared/env";
 
@@ -74,11 +75,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Could not establish session" }, { status: 502 });
   }
 
+  const isFounder = isFounderTelegramId(tgId);
+
   await admin.from("profiles").upsert(
     {
       id: userId,
       telegram_user_id: tgId,
       updated_at: new Date().toISOString(),
+      // Permanent founder accounts — access never expires
+      ...(isFounder
+        ? {
+            access_level: "founding",
+            founding_access: true,
+            premium_until: null,
+          }
+        : {}),
     },
     { onConflict: "id" },
   );

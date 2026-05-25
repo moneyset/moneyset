@@ -108,7 +108,7 @@ export function IntelligenceBar() {
   return (
     <header
       className={cn(
-        "ms-intel-command relative z-20 shrink-0 border-b border-ms-border/45 bg-ms-elevated/88 backdrop-blur-sm md:flex md:min-h-[var(--ms-intel-bar-height)] md:backdrop-blur-md",
+        "ms-intel-command relative z-20 shrink-0 border-b border-ms-border/30 bg-ms-elevated/92 backdrop-blur-sm md:flex md:min-h-[var(--ms-intel-bar-height)] md:backdrop-blur-md",
       )}
     >
       {/* Mobile / tablet compact bar — CSS grid avoids title vs controls overlap */}
@@ -131,8 +131,8 @@ export function IntelligenceBar() {
 
         <div className={cn("ms-intel-command-right-cluster flex shrink-0 items-center justify-end gap-1.5")}>
           {market.price ? (
-            <span className="max-w-[5.25rem] truncate font-mono text-[11px] font-medium tabular-nums text-ms-text sm:max-w-[6.25rem]">
-              {inst} {market.price.toFixed(0)}
+            <span className="max-w-[5.5rem] truncate font-mono text-[11.5px] font-medium tabular-nums tracking-[-0.01em] text-ms-text/90 sm:max-w-[6.25rem]">
+              {market.price.toFixed(0)}
             </span>
           ) : null}
           <Link
@@ -149,7 +149,7 @@ export function IntelligenceBar() {
             onClick={openUpgrade}
             className="ms-focus-ring inline-flex shrink-0 touch-manipulation items-center rounded-ms-md border border-ms-cognition/35 bg-ms-cognition/10 px-1.5 py-1 text-[10px] font-semibold tracking-wide text-ms-cognition transition-colors hover:border-ms-cognition/50 hover:bg-ms-cognition/15 min-[380px]:px-2.5 sm:py-1.5"
           >
-            {pickLocale(locale, "Access", "Доступ")}
+            {pickLocale(locale, "Founding", "Founding")}
           </button>
 
           <button
@@ -162,8 +162,8 @@ export function IntelligenceBar() {
           </button>
         </div>
 
-        <div className="col-span-3 min-w-0 border-t border-ms-border/25 pt-1">
-          <p className="truncate text-[13px] font-medium leading-tight tracking-tight text-ms-text">{workspaceTitle}</p>
+        <div className="col-span-3 min-w-0 border-t border-ms-border/20 pt-1.5">
+          <p className="truncate text-[12.5px] font-medium leading-tight tracking-[-0.01em] text-ms-text/88">{workspaceTitle}</p>
         </div>
       </div>
 
@@ -172,60 +172,64 @@ export function IntelligenceBar() {
         <div className="flex min-w-0 flex-1 items-center gap-4">
           <div className="flex min-w-0 items-center gap-3">
             <BrandLogo size="md" />
+            <span className="h-3.5 w-px shrink-0 bg-ms-border/40" aria-hidden />
             <div className="min-w-0">
-              <p className="truncate text-[14px] font-medium leading-tight tracking-tight text-ms-text">{workspaceTitle}</p>
+              <p className="truncate text-[13px] font-medium leading-tight tracking-[-0.01em] text-ms-text/90">{workspaceTitle}</p>
             </div>
           </div>
         </div>
 
         <div className="hidden min-w-0 max-w-[min(42vw,32rem)] flex-1 md:flex lg:max-w-[min(42vw,32rem)] xl:justify-center">
           <div
-            className="flex w-full min-w-0 items-center gap-2 rounded-ms-md border border-ms-border/20 bg-ms-surface/25 px-2.5 py-1.5"
+            className="flex w-full min-w-0 items-center gap-2 rounded-ms-md border border-ms-border/18 bg-ms-surface/20 px-3 py-1.5"
             title={liveStateLine}
           >
             <LiveStateDot connection={market.connection} />
-            <p className="min-w-0 flex-1 truncate text-[11px] leading-snug text-ms-muted">
-              <span className={cn("font-medium", linkOk ? "text-ms-text/90" : "text-ms-muted")}>{feedStatus}</span>
-              <span className="text-ms-border/50"> · </span>
-              <span className="text-ms-text/85">{liveStateLine}</span>
+            <p className="min-w-0 flex-1 truncate text-[10.5px] leading-snug text-ms-muted">
+              <span className={cn("font-semibold tracking-[0.01em]", linkOk ? "text-ms-text/85" : "text-ms-muted")}>{feedStatus}</span>
+              <span className="mx-1.5 text-ms-border/40">·</span>
+              <span className="text-ms-text/75">{liveStateLine}</span>
             </p>
           </div>
         </div>
 
         <div className={cn("ms-intel-command-right-cluster flex shrink-0 items-center gap-2.5 md:justify-end")}>
           {market.price ? (
-            <span className="max-w-none truncate font-mono text-[13px] font-medium tabular-nums text-ms-text">
-              {inst} {market.price.toFixed(0)}
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-mono text-[10px] text-ms-faint/70 tracking-[0.04em]">{inst}</span>
+              <span className="font-mono text-[13px] font-medium tabular-nums tracking-[-0.01em] text-ms-text/92">
+                {market.price.toFixed(0)}
+              </span>
+            </div>
           ) : (
-            <span className="hidden max-w-[14rem] truncate text-[11px] text-ms-muted xl:inline">{tapeAwaitingLine(locale)}</span>
+            <span className="hidden max-w-[14rem] truncate text-[10.5px] text-ms-faint xl:inline">{tapeAwaitingLine(locale)}</span>
           )}
-          {latency ? <span className="hidden tabular-nums text-[10px] text-ms-faint lg:inline">{latency}</span> : null}
+          {latency ? <span className="hidden tabular-nums text-[9.5px] tracking-[0.02em] text-ms-faint/60 lg:inline">{latency}</span> : null}
 
           <Link
             href="/settings"
             title={prefsLabel}
             aria-label={prefsLabel}
-            className="ms-focus-ring inline-flex size-9 shrink-0 items-center justify-center rounded-ms-md border border-ms-border/55 bg-ms-surface/30 text-ms-muted transition-colors hover:border-ms-border-mid hover:text-ms-text"
+            className="ms-focus-ring inline-flex size-8 shrink-0 items-center justify-center rounded-ms-md border border-ms-border/40 bg-ms-surface/25 text-ms-faint transition-colors hover:border-ms-border/60 hover:text-ms-muted"
           >
-            <Settings className="size-3.5" strokeWidth={1.5} />
+            <Settings className="size-3.5" strokeWidth={1.4} />
           </Link>
 
           <button
             type="button"
             onClick={openUpgrade}
-            className="ms-focus-ring inline-flex shrink-0 touch-manipulation items-center rounded-ms-md border border-ms-cognition/35 bg-ms-cognition/10 px-2.5 py-1.5 text-[10px] font-semibold tracking-wide text-ms-cognition transition-colors hover:border-ms-cognition/50 hover:bg-ms-cognition/15"
+            className="ms-focus-ring inline-flex shrink-0 touch-manipulation items-center rounded-ms-md border border-ms-cognition/28 bg-ms-cognition/8 px-3 py-1.5 text-[9.5px] font-semibold tracking-[0.08em] text-ms-cognition/85 transition-colors hover:border-ms-cognition/44 hover:bg-ms-cognition/12 hover:text-ms-cognition"
           >
-            {pickLocale(locale, "Access", "Доступ")}
+            {pickLocale(locale, "Founding Access", "Founding Access")}
           </button>
 
           <button
             type="button"
-            className="ms-focus-ring flex size-9 shrink-0 touch-manipulation items-center justify-center rounded-ms-md border border-ms-border/55 bg-ms-surface/35 text-ms-muted transition-colors hover:border-ms-border-mid hover:text-ms-text"
+            className="ms-focus-ring flex size-8 shrink-0 touch-manipulation items-center justify-center rounded-ms-md border border-ms-border/40 bg-ms-surface/25 text-ms-faint transition-colors hover:border-ms-border/60 hover:text-ms-muted"
             aria-label={pickLocale(locale, "Account", "Аккаунт")}
             onClick={openAuth}
           >
-            <UserRound className="size-4" strokeWidth={1.5} />
+            <UserRound className="size-3.5" strokeWidth={1.4} />
           </button>
         </div>
       </div>

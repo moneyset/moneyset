@@ -47,8 +47,22 @@ export function PlatformAccessGate({
       </div>
       <p className="mt-4 text-[13px] font-medium text-ms-text">{pickLocale(locale, titleEn, titleRu)}</p>
       <p className="mt-2 max-w-md text-[12px] leading-relaxed text-ms-muted">{pickLocale(locale, bodyEn, bodyRu)}</p>
+      <div className="mt-4 flex flex-wrap justify-center gap-2">
+        {[
+          pickLocale(locale, "What to do now", "Что делать сейчас"),
+          pickLocale(locale, "Where risk concentrates", "Где концентрируется риск"),
+          pickLocale(locale, "What breaks the view", "Что сломает прочтение"),
+        ].map((label) => (
+          <span
+            key={label}
+            className="rounded-full border border-ms-border/40 bg-ms-elevated/20 px-2.5 py-0.5 font-mono text-[10px] tracking-tight text-ms-faint"
+          >
+            {label}
+          </span>
+        ))}
+      </div>
       <Button type="button" variant="cognition" size="sm" className="mt-5" onClick={openUpgrade}>
-        {pickLocale(locale, "Unlock — $79", "Открыть — $79")}
+        {pickLocale(locale, "Founding Access — $149", "Founding Access — $149")}
       </Button>
     </div>
   );

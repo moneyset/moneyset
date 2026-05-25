@@ -27,7 +27,7 @@ export const BILLING_PRODUCTS: Record<BillingProductId, BillingProduct> = {
     id: "founding_access",
     label: "Founding Access",
     description: "Execution intelligence · institutional interpretation · early member layer",
-    priceUsd: 79,
+    priceUsd: 149,
     kind: "founding",
     subscriptionDays: null,
   },

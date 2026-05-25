@@ -53,7 +53,7 @@ export function useSurfaceBluf(surface: PrimarySurfaceId): SurfaceBlufSnapshot {
   return useMemo(() => {
     const baseRows: BlufRow[] = [
       {
-        labelKey: "marketState",
+        labelKey: "currentState",
         value: postureLabel(locale, posture.posture),
         tone: "cognition",
       },
@@ -134,7 +134,7 @@ export function useSurfaceBluf(surface: PrimarySurfaceId): SurfaceBlufSnapshot {
               tone: "warning",
             },
             {
-              labelKey: "marketState",
+              labelKey: "currentState",
               value: postureLabel(locale, posture.posture),
               tone: "cognition",
             },
@@ -159,7 +159,7 @@ export function useSurfaceBluf(surface: PrimarySurfaceId): SurfaceBlufSnapshot {
               tone: "cognition",
             },
             {
-              labelKey: "marketState",
+              labelKey: "currentState",
               value: postureLabel(locale, posture.posture),
               tone: "neutral",
             },

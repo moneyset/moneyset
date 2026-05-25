@@ -358,25 +358,25 @@ export function entryOnboardingCopy(locale: UiLocale): Readonly<{
         { label: "ПАМЯТЬ СЦЕНАРИЕВ", desc: "Как менялась позиция — реплей и сравнение прошлых состояний." },
       ] as const,
     ),
-    foundingTitle: pickLocale(locale, "Founding Access", "Founding-доступ"),
-    foundingPrice: pickLocale(locale, "$79", "$79"),
+    foundingTitle: pickLocale(locale, "Founding Access", "Founding Access"),
+    foundingPrice: pickLocale(locale, "$149", "$149"),
     foundingBullets: pickLocale(
       locale,
       [
-        "Full execution map and invalidation logic.",
-        "Scenario evolution and risk framing.",
-        "Agent consensus and deep interpretation.",
-        "Market memory, replay, and archive continuity.",
+        "Know what to do — action steps live with market structure.",
+        "Know when the thesis breaks — invalidation before the market confirms it.",
+        "Six specialist reads, agent consensus, and deep interpretation.",
+        "Market memory, scenario evolution, and replay continuity.",
       ] as const,
       [
-        "Полная карта исполнения и логика снятия.",
-        "Эволюция сценариев и рамка риска.",
-        "Консенсус агентов и глубокое прочтение.",
-        "Память рынка, реплей и непрерывность архива.",
+        "Знайте что делать — шаги действий живут со структурой рынка.",
+        "Знайте когда тезис ломается — инвалидация до подтверждения рынком.",
+        "Шесть прочтений специалистов, консенсус агентов и глубокая интерпретация.",
+        "Память рынка, эволюция сценариев и непрерывность реплея.",
       ] as const,
     ),
     enterCta: pickLocale(locale, "EXPLORE FREE WORKSPACE", "ОТКРЫТЬ БЕСПЛАТНОЕ ПОЛЕ"),
-    accessCta: pickLocale(locale, "UNLOCK FULL INTELLIGENCE", "ОТКРЫТЬ ПОЛНЫЙ ИНТЕЛЛЕКТ"),
+    accessCta: pickLocale(locale, "FOUNDING ACCESS — $149", "FOUNDING ACCESS — $149"),
     telegramLink: pickLocale(locale, "Open in Telegram", "Открыть в Telegram"),
     telegramHint: pickLocale(locale, "Awaiting Telegram session…", "Ожидание сессии Telegram…"),
   };
@@ -392,21 +392,21 @@ export function authSessionActionsCopy(locale: UiLocale): Readonly<{
     guestCta: pickLocale(locale, "Enter as guest", "Войти как гость"),
     foundingNote: pickLocale(
       locale,
-      "Founding access — execution map and institutional interpretation.",
-      "Founding — карта исполнения и институциональное прочтение.",
+      "Founding Access — execution map and institutional interpretation.",
+      "Founding Access — карта исполнения и институциональное прочтение.",
     ),
   };
 }
 
 export function authPageTitle(locale: UiLocale): string {
-  return pickLocale(locale, "AI Market Intelligence", "Рыночный интеллект ИИ");
+  return pickLocale(locale, "Market Structure Before Consensus", "Структура рынка до консенсуса");
 }
 
 export function authPageLead(locale: UiLocale): string {
   return pickLocale(
     locale,
-    "Secure session for this device. Cognition data stays local until you enable sync.",
-    "Сессия на этом устройстве. Данные прочтения — локально, пока не включите синхронизацию.",
+    "Session on this device. No feed, no noise — access control only.",
+    "Сессия на этом устройстве. Без ленты и шума — только контроль доступа.",
   );
 }
 
@@ -437,8 +437,8 @@ export function authPageTierEvaluation(locale: UiLocale): string {
 export function authModalPolicyNote(locale: UiLocale): string {
   return pickLocale(
     locale,
-    "Sign in with Google, email, or magic link. Sessions persist on this device. Password reset available by email.",
-    "Вход через Google, email или magic link. Сессия сохраняется на устройстве. Сброс пароля — по email.",
+    "Sign-in with Google, email, or magic link. Session persists on this device. Password reset by email.",
+    "Вход через Google, email или magic link. Сессия на устройстве. Сброс пароля — по email.",
   );
 }
 

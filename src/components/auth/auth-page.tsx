@@ -1,80 +1,135 @@
 "use client";
 
-import Link from "next/link";
+import { useMemo, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { useTelegramAuth } from "@/hooks/use-telegram-auth";
-import { cn } from "@/lib/utils";
+import { pickLocale } from "@/lib/i18n/cognition-dict";
+import { supabaseBrowser } from "@/lib/supabase/browser";
 import { useAuthStore } from "@/store/auth-store";
 import { useEntryStore } from "@/store/entry-store";
-import { useAccessStore } from "@/store/access-store";
-import { useExtendedCognitionAccess } from "@/hooks/use-extended-cognition-access";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
-import {
-  authPageLead,
-  authPageTierEvaluation,
-  authPageTierFree,
-  authPageTierPaid,
-  authPageTitle,
-  authPageWorkspaceCta,
-  authSessionActionsCopy,
-  entryOnboardingCopy,
-} from "@/lib/i18n/trust-surface";
+import { useAuthModalStore } from "@/store/auth-modal-store";
 
 export function AuthPage() {
   const locale = useUiPrefsStore((s) => s.uiLocale);
-  const entryCopy = entryOnboardingCopy(locale);
-  const actions = authSessionActionsCopy(locale);
   const completeEntry = useEntryStore((s) => s.completeEntry);
   const setGuest = useAuthStore((s) => s.setGuest);
-  const { signInWithTelegram, busy, error } = useTelegramAuth();
-  const paidPremium = useAccessStore((s) => s.tier === "premium");
-  const extended = useExtendedCognitionAccess();
+  const openAuth = useAuthModalStore((s) => s.openAuth);
+  const { signInWithTelegram, busy: telegramBusy, error: telegramError, hasInitData } = useTelegramAuth();
+  const [googleBusy, setGoogleBusy] = useState(false);
+  const sb = useMemo(() => (typeof window !== "undefined" ? supabaseBrowser() : null), []);
+  const inTelegram = typeof window !== "undefined" && Boolean(window.Telegram?.WebApp);
 
-  const continueGuest = () => {
+  const busy = telegramBusy || googleBusy;
+
+  const enterAsGuest = () => {
     setGuest();
     completeEntry("guest");
   };
 
-  return (
-    <div className="relative flex min-h-0 flex-1 flex-col justify-center bg-ms-canvas px-5 py-12 sm:px-8 sm:py-16">
-      <div className="mx-auto w-full max-w-md border border-ms-border/60 bg-ms-surface/40 px-5 py-8 sm:px-7 sm:py-9">
-        <p className="ms-data-label text-ms-faint">MONEYSET</p>
-        <h1 className="ms-headline mt-2 text-balance text-ms-text">{authPageTitle(locale)}</h1>
-        <p className="mt-1 text-[12px] text-ms-muted">{entryCopy.subheadline}</p>
-        <p className="mt-3 text-[12px] leading-relaxed text-ms-muted sm:text-[13px]">{authPageLead(locale)}</p>
+  const handleTelegram = async () => {
+    if (inTelegram && hasInitData) {
+      await signInWithTelegram();
+      return;
+    }
+    const bot = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME?.trim();
+    window.open(bot ? `https://t.me/${bot}` : "https://t.me", "_blank", "noopener,noreferrer");
+  };
 
-        <div className="mt-8 flex flex-col gap-2 sm:flex-row sm:items-stretch">
-          <Button
-            type="button"
-            variant="cognition"
-            className="sm:flex-1"
-            disabled={busy}
-            onClick={() => void signInWithTelegram()}
-          >
-            {actions.telegramCta}
-          </Button>
-          <Button type="button" variant="outline" className="sm:flex-1" disabled={busy} onClick={continueGuest}>
-            {actions.guestCta}
-          </Button>
+  const handleGoogle = async () => {
+    if (!sb) return;
+    setGoogleBusy(true);
+    try {
+      const authCallbackUrl =
+        typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : undefined;
+      await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: authCallbackUrl } });
+    } finally {
+      setGoogleBusy(false);
+    }
+  };
+
+  return (
+    <div className="ms-auth-page">
+      <div className="ms-auth-page__card">
+        {/* Identity */}
+        <div className="ms-auth-page__identity">
+          <p className="ms-auth-page__wordmark">MONEYSET</p>
+          <p className="ms-auth-page__tagline">
+            {pickLocale(locale, "Market Structure Before Consensus", "Структура рынка до консенсуса")}
+          </p>
         </div>
 
-        {error ? <p className="mt-3 text-[11px] text-ms-warning/90">{error}</p> : null}
+        {/* Separator */}
+        <div className="ms-auth-page__rule" aria-hidden />
 
-        <Link
-          href="/"
-          className={cn(
-            "ms-focus-ring mt-4 inline-flex w-full items-center justify-center rounded-ms-md border border-ms-border-mid/70 bg-ms-elevated/25 px-4 py-2.5",
-            "text-center font-mono text-[10px] uppercase tracking-[0.16em] text-ms-text transition-[border-color,background-color] duration-200 hover:border-ms-border-strong hover:bg-ms-elevated/35",
-          )}
+        {/* Auth methods */}
+        <div className="ms-auth-page__methods">
+          {/* Primary: Telegram */}
+          <button
+            type="button"
+            className="ms-auth-page__btn ms-auth-page__btn--primary ms-focus-ring"
+            disabled={busy}
+            onClick={() => void handleTelegram()}
+          >
+            <span className="ms-auth-page__btn-icon" aria-hidden>✈</span>
+            <span>
+              {inTelegram && hasInitData
+                ? pickLocale(locale, "Continue with Telegram", "Продолжить через Telegram")
+                : pickLocale(locale, "Open in Telegram", "Открыть в Telegram")}
+            </span>
+          </button>
+
+          {/* Secondary: Google */}
+          <button
+            type="button"
+            className="ms-auth-page__btn ms-auth-page__btn--secondary ms-focus-ring"
+            disabled={busy || !sb}
+            onClick={() => void handleGoogle()}
+          >
+            <span className="ms-auth-page__btn-icon" aria-hidden>G</span>
+            <span>{pickLocale(locale, "Continue with Google", "Продолжить через Google")}</span>
+          </button>
+
+          {/* Tertiary: Email */}
+          <button
+            type="button"
+            className="ms-auth-page__btn ms-auth-page__btn--tertiary ms-focus-ring"
+            disabled={busy}
+            onClick={openAuth}
+          >
+            <span>{pickLocale(locale, "Continue with Email", "Продолжить через Email")}</span>
+          </button>
+        </div>
+
+        {/* Error */}
+        {telegramError ? (
+          <p className="ms-auth-page__error">{telegramError}</p>
+        ) : null}
+
+        {/* Separator */}
+        <div className="ms-auth-page__divider">
+          <div className="ms-auth-page__divider-line" aria-hidden />
+          <span>{pickLocale(locale, "or", "или")}</span>
+          <div className="ms-auth-page__divider-line" aria-hidden />
+        </div>
+
+        {/* Guest entry */}
+        <button
+          type="button"
+          className="ms-auth-page__guest ms-focus-ring"
+          onClick={enterAsGuest}
         >
-          {authPageWorkspaceCta(locale)}
-        </Link>
+          {pickLocale(locale, "Enter free workspace", "Войти в бесплатное поле")}
+        </button>
 
-        <p className="mt-8 border-t border-ms-border/40 pt-5 text-[11px] leading-relaxed text-ms-faint sm:text-[12px]">
-          {paidPremium ? authPageTierPaid(locale) : extended ? authPageTierEvaluation(locale) : authPageTierFree(locale)}
+        {/* Trust note */}
+        <p className="ms-auth-page__note">
+          {pickLocale(
+            locale,
+            "Sessions persist on this device. No feed, no noise — access control only.",
+            "Сессия сохраняется на устройстве. Без ленты и шума — только контроль доступа.",
+          )}
         </p>
-        <p className="mt-3 text-[10px] leading-relaxed text-ms-faint">{actions.foundingNote}</p>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 /* ─── MONEYSET Entry Onboarding ─────────────────────────────────────────────
-   Institutional premium terminal. Six screens. Full dark canvas.
+   Institutional premium terminal. Five screens. Full dark canvas.
    ──────────────────────────────────────────────────────────────────────────── */
 
 .ms-ob {
@@ -7,9 +7,9 @@
   inset: 0;
   z-index: 58;
   display: grid;
-  grid-template-rows: 2.75rem 1fr auto;
+  grid-template-rows: 3rem 1fr auto;
   grid-template-columns: 1fr;
-  background: #050506;
+  background: #020204;
   padding:
     max(0.25rem, env(safe-area-inset-top))
     max(0rem, env(safe-area-inset-right))
@@ -18,15 +18,16 @@
   overflow: hidden;
 }
 
-/* Subtle radial ambient — not decorative noise */
+/* Atmospheric depth — institutional field, not decorative noise */
 .ms-ob::before {
   pointer-events: none;
   content: "";
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 60% 32% at 50% 0%, color-mix(in srgb, #c8ccd4 4%, transparent) 0%, transparent 60%),
-    radial-gradient(ellipse 100% 45% at 50% 110%, color-mix(in srgb, #121216 70%, transparent) 0%, transparent 55%);
+    radial-gradient(ellipse 70% 38% at 50% 5%, rgba(200, 204, 212, 0.025) 0%, transparent 62%),
+    radial-gradient(ellipse 100% 50% at 50% 112%, rgba(6, 6, 12, 0.7) 0%, transparent 52%),
+    radial-gradient(ellipse 100% 28% at 50% 0%, rgba(4, 4, 10, 0.55) 0%, transparent 55%);
   z-index: 0;
 }
 
@@ -43,20 +44,20 @@
 }
 
 .ms-ob__progress-tick {
-  width: 20px;
-  height: 2px;
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--ms-text) 14%, transparent);
-  transition: background 0.3s ease, width 0.3s ease;
+  width: 18px;
+  height: 1px;
+  border-radius: 1px;
+  background: rgba(200, 204, 212, 0.12);
+  transition: background 0.35s ease, width 0.35s ease;
 }
 
 .ms-ob__progress-tick--past {
-  background: color-mix(in srgb, var(--ms-text) 36%, transparent);
+  background: rgba(200, 204, 212, 0.3);
 }
 
 .ms-ob__progress-tick--active {
-  width: 32px;
-  background: color-mix(in srgb, var(--ms-text) 70%, transparent);
+  width: 28px;
+  background: rgba(220, 224, 230, 0.62);
 }
 
 /* ── Step counter ───────────────────────────────────────────────────────── */
@@ -111,67 +112,70 @@
 
 /* ── Screen 1 — Identity ────────────────────────────────────────────────── */
 .ms-ob__screen--identity {
-  padding-top: 0.75rem;
+  padding-top: 0.5rem;
+  justify-content: center;
+  min-height: 55vh;
+  gap: 0;
 }
 
-.ms-ob__logo-wrap {
-  width: min(36vw, 6.5rem);
-  aspect-ratio: 1 / 1.02;
-  flex-shrink: 0;
-}
-
-.ms-ob__logo {
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  filter: grayscale(1) contrast(1.04) drop-shadow(0 10px 32px rgba(0, 0, 0, 0.6));
-  opacity: 0.92;
-}
-
+/* Wordmark is the hero — no logo image */
 .ms-ob__wordmark {
-  margin: 1rem 0 0;
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.42em;
-  color: color-mix(in srgb, var(--ms-text) 38%, transparent);
+  margin: 0;
+  font-size: clamp(1rem, 4vw, 1.35rem);
+  font-weight: 500;
+  letter-spacing: 0.44em;
+  padding-left: 0.44em;
+  text-transform: uppercase;
+  color: rgba(228, 232, 238, 0.88);
   line-height: 1;
 }
 
+/* Thin rule under wordmark */
+.ms-ob__wordmark::after {
+  content: "";
+  display: block;
+  width: 2rem;
+  height: 1px;
+  background: rgba(200, 204, 212, 0.14);
+  margin: 1.5rem auto 0;
+}
+
 .ms-ob__tag {
-  margin: 1.4rem 0 0;
-  font-size: clamp(0.7rem, 2.8vw, 0.82rem);
-  font-weight: 500;
-  letter-spacing: 0.14em;
+  margin: 0.75rem 0 0;
+  font-size: clamp(0.65rem, 2.6vw, 0.78rem);
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  padding-left: 0.16em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--ms-text) 86%, transparent);
-  line-height: 1.35;
+  color: rgba(148, 154, 168, 0.65);
+  line-height: 1.5;
   max-width: 20rem;
 }
 
 .ms-ob__lead {
-  margin: 1.1rem 0 0;
-  font-size: clamp(0.88rem, 3.8vw, 1.1rem);
+  margin: 2rem 0 0;
+  font-size: clamp(0.82rem, 3.5vw, 1rem);
   font-weight: 400;
   letter-spacing: 0.01em;
-  color: var(--ms-text);
-  line-height: 1.45;
+  color: rgba(180, 184, 194, 0.82);
+  line-height: 1.55;
   max-width: 22rem;
 }
 
 .ms-ob__triad {
-  margin: 1.4rem 0 0;
+  margin: 1.75rem 0 0;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.55rem;
   font-size: 9px;
   font-weight: 500;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--ms-muted) 70%, transparent);
+  color: rgba(120, 126, 140, 0.52);
 }
 
 .ms-ob__triad-sep {
-  opacity: 0.35;
+  opacity: 0.3;
 }
 
 /* ── Screen 2 — Statement ───────────────────────────────────────────────── */
@@ -282,9 +286,10 @@
   margin-bottom: 0.5rem;
 }
 
-/* ── Screen 6 — Ready ───────────────────────────────────────────────────── */
+/* ── Screen 5 — Ready ───────────────────────────────────────────────────── */
 .ms-ob__screen--ready {
   gap: 0;
+  padding-top: 0.5rem;
 }
 
 .ms-ob__ready-label {
@@ -297,43 +302,78 @@
   line-height: 1;
 }
 
-.ms-ob__enter-cta {
+/* Auth button stack */
+.ms-ob__auth-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
   width: 100%;
   max-width: 18rem;
-  padding: 0.85rem 1.5rem;
-  border: 1px solid color-mix(in srgb, var(--ms-text) 30%, var(--ms-border));
-  background: color-mix(in srgb, var(--ms-text) 7%, transparent);
-  color: var(--ms-text);
+}
+
+.ms-ob__auth-btn {
+  width: 100%;
+  padding: 0.9rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
   font-size: 9px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   line-height: 1;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  border-radius: 2px;
+  transition: background 0.22s ease, border-color 0.22s ease, color 0.22s ease;
 }
 
-.ms-ob__enter-cta:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--ms-text) 12%, transparent);
-  border-color: color-mix(in srgb, var(--ms-text) 48%, var(--ms-border));
-}
-
-.ms-ob__enter-cta:disabled {
-  opacity: 0.5;
+.ms-ob__auth-btn:disabled {
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
+.ms-ob__auth-btn--primary {
+  border: 1px solid rgba(220, 224, 232, 0.28);
+  background: rgba(220, 224, 232, 0.07);
+  color: rgba(228, 232, 238, 0.92);
+}
+
+.ms-ob__auth-btn--primary:hover:not(:disabled) {
+  background: rgba(220, 224, 232, 0.12);
+  border-color: rgba(220, 224, 232, 0.42);
+  color: rgba(238, 242, 248, 1);
+}
+
+.ms-ob__auth-btn--secondary {
+  border: 1px solid rgba(200, 204, 212, 0.12);
+  background: transparent;
+  color: rgba(148, 154, 168, 0.72);
+}
+
+.ms-ob__auth-btn--secondary:hover:not(:disabled) {
+  border-color: rgba(200, 204, 212, 0.22);
+  color: rgba(180, 184, 196, 0.88);
+}
+
+.ms-ob__auth-btn-icon {
+  font-size: 11px;
+  line-height: 1;
+  opacity: 0.7;
+}
+
 .ms-ob__upgrade-cta {
-  margin-top: 0.6rem;
+  margin-top: 0.85rem;
   width: 100%;
   max-width: 18rem;
-  padding: 0.7rem 1.5rem;
+  padding: 0.65rem 1.5rem;
   background: transparent;
   border: none;
-  color: color-mix(in srgb, var(--ms-muted) 80%, transparent);
+  color: color-mix(in srgb, var(--ms-muted) 55%, transparent);
   font-size: 9px;
   font-weight: 500;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   line-height: 1;
   cursor: pointer;
@@ -341,7 +381,7 @@
 }
 
 .ms-ob__upgrade-cta:hover:not(:disabled) {
-  color: color-mix(in srgb, var(--ms-muted) 100%, transparent);
+  color: color-mix(in srgb, var(--ms-muted) 78%, transparent);
 }
 
 .ms-ob__upgrade-cta:disabled {
@@ -357,11 +397,11 @@
 }
 
 .ms-ob__telegram {
-  margin-top: 1.25rem;
+  margin-top: 0.6rem;
   font-size: 9px;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.1em;
-  color: color-mix(in srgb, var(--ms-faint) 90%, transparent);
+  color: color-mix(in srgb, var(--ms-faint) 70%, transparent);
   text-decoration: underline;
   text-underline-offset: 3px;
   background: none;
@@ -371,7 +411,7 @@
 }
 
 .ms-ob__telegram:hover:not(:disabled) {
-  color: color-mix(in srgb, var(--ms-muted) 90%, transparent);
+  color: color-mix(in srgb, var(--ms-muted) 80%, transparent);
 }
 
 /* ── Navigation bar ─────────────────────────────────────────────────────── */
@@ -383,45 +423,51 @@
   align-items: center;
   justify-content: space-between;
   padding:
-    0.75rem
-    max(1.5rem, env(safe-area-inset-right))
-    max(1.25rem, env(safe-area-inset-bottom))
-    max(1.5rem, env(safe-area-inset-left));
-  border-top: 1px solid color-mix(in srgb, var(--ms-border-subtle) 28%, transparent);
+    0.875rem
+    max(1.75rem, env(safe-area-inset-right))
+    max(1.5rem, env(safe-area-inset-bottom))
+    max(1.75rem, env(safe-area-inset-left));
+  border-top: 1px solid rgba(200, 204, 212, 0.065);
 }
 
 .ms-ob__nav-back {
   font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
+  font-weight: 400;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--ms-faint) 80%, transparent);
+  color: rgba(120, 126, 140, 0.42);
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.4rem 0;
-  transition: color 0.2s ease;
+  padding: 0.5rem 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  transition: color 0.25s ease;
 }
 
 .ms-ob__nav-back:hover {
-  color: color-mix(in srgb, var(--ms-muted) 80%, transparent);
+  color: rgba(148, 154, 168, 0.68);
 }
 
 .ms-ob__nav-next {
   font-size: 9px;
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--ms-text) 82%, transparent);
+  color: rgba(220, 224, 232, 0.78);
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.4rem 0;
-  transition: color 0.2s ease;
+  padding: 0.5rem 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  transition: color 0.25s ease;
 }
 
 .ms-ob__nav-next:hover {
-  color: var(--ms-text);
+  color: rgba(232, 236, 242, 0.96);
 }
 
 /* ── Mobile: tight vertical rhythm ─────────────────────────────────────── */

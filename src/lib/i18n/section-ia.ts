@@ -1,5 +1,6 @@
 /**
- * Phase 1 — information architecture: section purpose, chrome copy, BLUF labels.
+ * Phase 1+2 — information architecture: section purpose, chrome copy, BLUF labels.
+ * Every surface must answer: What is this? Why does it matter? What should I do?
  */
 
 import type { UiLocale } from "@/store/ui-prefs-store";
@@ -9,81 +10,66 @@ export type PrimarySurfaceId = "core" | "execution" | "scenarios" | "ops" | "map
 
 export function sectionTitle(locale: UiLocale, id: PrimarySurfaceId): string {
   const m: Record<PrimarySurfaceId, { en: string; ru: string }> = {
-    core: { en: "Core", ru: "Ядро" },
-    execution: { en: "Execution", ru: "Исполнение" },
-    scenarios: { en: "Scenarios", ru: "Сценарии" },
-    ops: { en: "Changes", ru: "Изменения" },
-    maps: { en: "Maps", ru: "Карты" },
-    agents: { en: "Agents", ru: "Агенты" },
+    core:      { en: "Core",       ru: "Ядро" },
+    execution: { en: "Execution",  ru: "Исполнение" },
+    scenarios: { en: "Scenarios",  ru: "Сценарии" },
+    ops:       { en: "Changes",    ru: "Изменения" },
+    maps:      { en: "Maps",       ru: "Карты" },
+    agents:    { en: "Agents",     ru: "Агенты" },
   };
   return pickLocale(locale, m[id].en, m[id].ru);
 }
 
-/** One-line purpose — visible in chrome and nav. */
+/** One-line definition — the clearest possible answer to "what is this section?" */
 export function sectionPurpose(locale: UiLocale, id: PrimarySurfaceId): string {
   const m: Record<PrimarySurfaceId, { en: string; ru: string }> = {
-    core: { en: "What is happening now.", ru: "Что происходит сейчас." },
-    execution: { en: "What should I do now.", ru: "Что делать сейчас." },
-    scenarios: { en: "What could happen next.", ru: "Что может произойти дальше." },
-    ops: { en: "What changed since the last read.", ru: "Что изменилось с прошлого прочтения." },
-    maps: { en: "Structural market geometry.", ru: "Структурная геометрия рынка." },
-    agents: { en: "Consensus and disagreement analysis.", ru: "Консенсус и расхождение прочтений." },
+    core:      { en: "What is happening now.",                    ru: "Что происходит сейчас." },
+    execution: { en: "What should I do now.",                     ru: "Что делать сейчас." },
+    scenarios: { en: "What could happen next.",                   ru: "Что может произойти дальше." },
+    ops:       { en: "What changed and why.",                     ru: "Что изменилось и почему." },
+    maps:      { en: "Structural market geometry.",               ru: "Структурная геометрия рынка." },
+    agents:    { en: "Where intelligence agrees or disagrees.",   ru: "Где прочтения сходятся или расходятся." },
   };
   return pickLocale(locale, m[id].en, m[id].ru);
 }
 
+/** Longer descriptive subtitle shown in surface chrome headers. */
 export function sectionChromeSubtitle(locale: UiLocale, id: PrimarySurfaceId): string {
   const m: Record<PrimarySurfaceId, { en: string; ru: string }> = {
     core: {
-      en: "Live market posture, risk, and the lead scenario — before you scroll.",
+      en: "Live market posture, risk, and the lead scenario — above the fold, before you scroll.",
       ru: "Живая поза, риск и ведущий сценарий — до прокрутки.",
     },
     execution: {
-      en: "Action bias, invalidation, and zones anchored to live structure.",
-      ru: "Уклон действия, снятие и зоны, привязанные к структуре.",
+      en: "Action bias, invalidation zones, and execution posture anchored to live structure.",
+      ru: "Уклон действия, зоны инвалидации и поза исполнения, привязанные к структуре.",
     },
     scenarios: {
       en: "Competing paths forward — ranked by structural advantage, not price targets.",
-      ru: "Конкурирующие пути — по структурному преимуществу, не по целям.",
+      ru: "Конкурирующие пути — по структурному преимуществу, не по ценовым целям.",
     },
     ops: {
-      en: "Material shifts in regime, pressure, participation, and posture.",
-      ru: "Существенные сдвиги режима, давления, участия и позы.",
+      en: "Material shifts in regime, pressure, participation, and posture — with the reason each change matters.",
+      ru: "Существенные сдвиги режима, давления, участия и позы — с объяснением важности каждого.",
     },
     maps: {
-      en: "Where structure, liquidity, and stress concentrate in the field.",
-      ru: "Где в поле сходятся структура, ликвидность и стресс.",
+      en: "Where structure, liquidity, and stress concentrate. Each layer shows how to apply it to your decision.",
+      ru: "Где в поле сходятся структура, ликвидность и стресс. Каждый слой — с объяснением применения.",
     },
     agents: {
-      en: "Specialist reads in tension — where agreement breaks and decisions sharpen.",
-      ru: "Специализированные прочтения в напряжении — где ломается согласие.",
+      en: "Six specialist reads in tension. Agreement strengthens conviction. Disagreement sharpens edge cases.",
+      ru: "Шесть прочтений в напряжении. Согласие усиливает убеждённость. Расхождение уточняет граничные случаи.",
     },
   };
   return pickLocale(locale, m[id].en, m[id].ru);
 }
 
 export function blufAriaLabel(locale: UiLocale): string {
-  return pickLocale(locale, "Bottom line up front", "Главное в начале");
-}
-
-export function blufLabel(locale: UiLocale, key: BlufLabelKey): string {
-  const m: Record<BlufLabelKey, { en: string; ru: string }> = {
-    marketState: { en: "Market state", ru: "Состояние рынка" },
-    risk: { en: "Risk", ru: "Риск" },
-    confidence: { en: "Confidence", ru: "Уверенность" },
-    primaryImplication: { en: "Primary implication", ru: "Главная импликация" },
-    leadPath: { en: "Lead path", ru: "Ведущий путь" },
-    pathWeight: { en: "Relative weight", ru: "Относительный вес" },
-    latestChange: { en: "Latest change", ru: "Последнее изменение" },
-    fieldRead: { en: "Field read", ru: "Прочтение поля" },
-    consensus: { en: "Consensus", ru: "Консенсус" },
-    disagreement: { en: "Key disagreement", ru: "Ключевое расхождение" },
-  };
-  return pickLocale(locale, m[key].en, m[key].ru);
+  return pickLocale(locale, "Current state and primary conclusion", "Текущее состояние и главный вывод");
 }
 
 export type BlufLabelKey =
-  | "marketState"
+  | "currentState"
   | "risk"
   | "confidence"
   | "primaryImplication"
@@ -94,15 +80,31 @@ export type BlufLabelKey =
   | "consensus"
   | "disagreement";
 
+export function blufLabel(locale: UiLocale, key: BlufLabelKey): string {
+  const m: Record<BlufLabelKey, { en: string; ru: string }> = {
+    currentState:       { en: "Current state",       ru: "Текущее состояние" },
+    risk:               { en: "Risk",                ru: "Риск" },
+    confidence:         { en: "Confidence",          ru: "Уверенность" },
+    primaryImplication: { en: "Primary implication", ru: "Главная импликация" },
+    leadPath:           { en: "Lead path",           ru: "Ведущий путь" },
+    pathWeight:         { en: "Relative weight",     ru: "Относительный вес" },
+    latestChange:       { en: "Latest change",       ru: "Последнее изменение" },
+    fieldRead:          { en: "Field read",          ru: "Прочтение поля" },
+    consensus:          { en: "Consensus level",     ru: "Уровень консенсуса" },
+    disagreement:       { en: "Key disagreement",    ru: "Ключевое расхождение" },
+  };
+  return pickLocale(locale, m[key].en, m[key].ru);
+}
+
 export function hierarchySectionLabel(
   locale: UiLocale,
   tier: "conclusion" | "reasoning" | "evidence" | "advanced",
 ): string {
   const m = {
-    conclusion: { en: "Conclusion", ru: "Вывод" },
-    reasoning: { en: "Reasoning", ru: "Обоснование" },
-    evidence: { en: "Evidence", ru: "Доказательная база" },
-    advanced: { en: "Advanced analysis", ru: "Углублённый анализ" },
+    conclusion: { en: "Conclusion",       ru: "Вывод" },
+    reasoning:  { en: "Why it matters",   ru: "Почему это важно" },
+    evidence:   { en: "Evidence",         ru: "Доказательная база" },
+    advanced:   { en: "Advanced detail",  ru: "Углублённый анализ" },
   } as const;
   return pickLocale(locale, m[tier].en, m[tier].ru);
 }

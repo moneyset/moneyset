@@ -16,19 +16,19 @@ import { useUiPrefsStore } from "@/store/ui-prefs-store";
 
 const STAGE_MS = {
   wordmark: 0,
-  tagline: 280,
-  loading: 640,
-  exit: 1100,
+  tagline: 320,
+  loading: 740,
+  exit: 1320,
 } as const;
 
 const STAGE_MS_REDUCED = {
   wordmark: 0,
   tagline: 120,
-  loading: 280,
-  exit: 580,
+  loading: 260,
+  exit: 560,
 } as const;
 
-const EXIT_S = 0.45;
+const EXIT_S = 0.52;
 const EXIT_REDUCED_S = 0.22;
 
 export function MoneysetCinematicIntro({ onExited }: { onExited: () => void }) {
@@ -76,7 +76,7 @@ export function MoneysetCinematicIntro({ onExited }: { onExited: () => void }) {
               className="ms-cinematic-intro__wordmark"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: reduce ? 0.2 : 0.38, ease: msEase }}
+              transition={{ duration: reduce ? 0.2 : 0.55, ease: msEase }}
             >
               MONEYSET
             </m.p>
@@ -87,9 +87,9 @@ export function MoneysetCinematicIntro({ onExited }: { onExited: () => void }) {
                 <m.p
                   key="tagline"
                   className="ms-cinematic-intro__tagline"
-                  initial={{ opacity: 0, y: 5 }}
+                  initial={{ opacity: 0, y: 7 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: reduce ? 0.18 : 0.36, ease: msEase }}
+                  transition={{ duration: reduce ? 0.18 : 0.44, ease: msEase }}
                 >
                   {copy.tagline}
                 </m.p>

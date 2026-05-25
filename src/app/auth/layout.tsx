@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Session",
-  description: "MONEYSET session — restrained access control.",
+  title: "Sign In",
+  description: "MONEYSET — secure session on this device. No feed, no noise.",
 };
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {

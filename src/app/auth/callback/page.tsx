@@ -43,18 +43,17 @@ export default function AuthCallbackPage() {
 
   if (state === "error") {
     return (
-      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-6 text-center">
-        <p className="text-[13px] font-medium text-ms-text">
-          Sign-in could not be completed
-          <span className="mx-2 text-ms-border/50">·</span>
-          <span className="text-ms-muted">Вход не удался</span>
+      <div className="flex min-h-[60dvh] flex-col items-center justify-center gap-4 px-6 text-center">
+        <p className="font-mono text-[9px] font-medium uppercase tracking-[0.22em] text-ms-faint">
+          MONEYSET
         </p>
-        <p className="max-w-xs text-[11px] leading-relaxed text-ms-faint">
+        <p className="text-[13px] font-medium text-ms-text">Sign-in could not be completed</p>
+        <p className="max-w-xs text-[11px] leading-relaxed text-ms-muted">
           The link may have expired or already been used. Please try signing in again.
         </p>
         <Link
           href="/"
-          className="mt-2 rounded-ms-md border border-ms-border/30 px-4 py-2 text-[11px] font-medium text-ms-muted transition-colors hover:bg-ms-elevated/20 hover:text-ms-text"
+          className="mt-2 rounded-ms-sm border border-ms-border/30 px-5 py-2.5 font-mono text-[9px] font-medium uppercase tracking-[0.18em] text-ms-muted transition-colors hover:border-ms-border/55 hover:bg-ms-elevated/20 hover:text-ms-text"
         >
           Back to MONEYSET
         </Link>
@@ -63,12 +62,12 @@ export default function AuthCallbackPage() {
   }
 
   return (
-    <div className="flex min-h-[40vh] items-center justify-center px-6 text-center">
-      <p className="text-[13px] text-ms-muted">
-        Completing sign-in
-        <span className="mx-2 text-ms-border/40">·</span>
-        <span className="text-[12px] text-ms-faint">Завершение входа…</span>
+    <div className="flex min-h-[60dvh] flex-col items-center justify-center gap-3 px-6 text-center">
+      <p className="font-mono text-[9px] font-medium uppercase tracking-[0.22em] text-ms-faint">
+        MONEYSET
       </p>
+      <p className="text-[13px] text-ms-muted">Completing sign-in…</p>
+      <p className="text-[11px] text-ms-faint">Завершение входа…</p>
     </div>
   );
 }

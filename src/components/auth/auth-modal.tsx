@@ -10,12 +10,14 @@ import { useT } from "@/lib/i18n/use-t";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
 import { supabaseBrowser } from "@/lib/supabase/browser";
 import { guestProfile } from "@/lib/access/roles";
+import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { useAuthStore } from "@/store/auth-store";
 import { useAccessStore } from "@/store/access-store";
 import { useSubscriptionStore } from "@/store/subscription-store";
 import { useEntryStore } from "@/store/entry-store";
 import { useShallow } from "zustand/react/shallow";
 import { authModalPolicyNote } from "@/lib/i18n/trust-surface";
+import { useTelegramAuth } from "@/hooks/use-telegram-auth";
 
 type AuthModalProps = {
   open: boolean;
@@ -51,30 +53,41 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   const t = useT();
   const locale = useUiPrefsStore((s) => s.uiLocale);
   const auth = useAuthStore(useShallow((s) => ({ status: s.status, user: s.user })));
-
   const sb = useMemo(() => supabaseBrowser(), []);
+  const { signInWithTelegram, busy: telegramBusy, hasInitData } = useTelegramAuth();
+  const inTelegram = typeof window !== "undefined" && Boolean(window.Telegram?.WebApp);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [emailExpanded, setEmailExpanded] = useState(false);
   const [note, setNote] = useState<string | null>(null);
 
+  const isBusy = busy || telegramBusy;
   const canEmail = isValidEmail(email);
   const canPassword = isValidPassword(password);
 
   const authCallbackUrl =
     typeof window === "undefined" ? undefined : `${window.location.origin}/auth/callback`;
 
+  const handleTelegram = async () => {
+    setNote(null);
+    if (inTelegram && hasInitData) {
+      const ok = await signInWithTelegram();
+      if (ok) onClose();
+      return;
+    }
+    // Outside Telegram — open the Mini App link
+    const bot = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME?.trim();
+    window.open(bot ? `https://t.me/${bot}` : "https://t.me", "_blank", "noopener,noreferrer");
+  };
+
   const doOAuth = async () => {
     setNote(null);
     if (!sb) return;
     setBusy(true);
     try {
-      await sb.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: authCallbackUrl,
-        },
-      });
+      await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: authCallbackUrl } });
     } catch (e) {
       setNote(friendlyAuthError(e instanceof Error ? e.message : "Auth error"));
     } finally {
@@ -84,8 +97,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
   const doMagic = async () => {
     setNote(null);
-    if (!sb) return;
-    if (!canEmail) return;
+    if (!sb || !canEmail) return;
     setBusy(true);
     try {
       const { error } = await sb.auth.signInWithOtp({
@@ -103,14 +115,10 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
   const doEmailSignIn = async () => {
     setNote(null);
-    if (!sb) return;
-    if (!canEmail || !canPassword) return;
+    if (!sb || !canEmail || !canPassword) return;
     setBusy(true);
     try {
-      const { error } = await sb.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
+      const { error } = await sb.auth.signInWithPassword({ email: email.trim(), password });
       if (error) throw error;
       onClose();
     } catch (e) {
@@ -122,8 +130,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
   const doSignUp = async () => {
     setNote(null);
-    if (!sb) return;
-    if (!canEmail || !canPassword) return;
+    if (!sb || !canEmail || !canPassword) return;
     setBusy(true);
     try {
       const { error } = await sb.auth.signUp({
@@ -142,13 +149,10 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
   const doResetPassword = async () => {
     setNote(null);
-    if (!sb) return;
-    if (!canEmail) return;
+    if (!sb || !canEmail) return;
     setBusy(true);
     try {
-      const { error } = await sb.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: authCallbackUrl,
-      });
+      const { error } = await sb.auth.resetPasswordForEmail(email.trim(), { redirectTo: authCallbackUrl });
       if (error) throw error;
       setNote("Password reset link sent. Check your email.");
     } catch (e) {
@@ -182,18 +186,20 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
       open={open}
       onClose={() => {
         setNote(null);
+        setEmailExpanded(false);
         onClose();
       }}
       title={t("auth.title")}
       description={t("auth.subtitle")}
     >
-      <div className="space-y-4">
+      <div className="space-y-3">
         {!sb ? (
           <div className="rounded-ms-xl border border-ms-border bg-ms-elevated/25 p-4 text-[13px] leading-relaxed text-ms-muted">
             {t("auth.missingConfig")}
           </div>
         ) : null}
 
+        {/* ── Signed-in state ── */}
         {auth.status === "signed_in" && auth.user ? (
           <div className="rounded-ms-xl border border-ms-border bg-ms-surface/35 p-4">
             <div className="flex items-center justify-between gap-3">
@@ -201,89 +207,148 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                 <p className="ms-data-label text-ms-faint">{t("auth.signedInAs")}</p>
                 <p className="mt-1 truncate font-mono text-[12px] text-ms-text">{auth.user.email}</p>
               </div>
-              <Button type="button" variant="outline" size="sm" onClick={doSignOut} disabled={!sb || busy}>
+              <Button type="button" variant="outline" size="sm" onClick={doSignOut} disabled={!sb || isBusy}>
                 {t("auth.signOut")}
               </Button>
             </div>
           </div>
         ) : (
-          <>
+          <div className="space-y-2">
+            {/* ── Primary: Telegram ── */}
+            <Button
+              type="button"
+              variant="cognition"
+              className="w-full justify-between"
+              disabled={isBusy}
+              onClick={() => void handleTelegram()}
+            >
+              <span className="flex items-center gap-2">
+                <span className="text-[14px]" aria-hidden>✈</span>
+                {inTelegram && hasInitData
+                  ? pickLocale(locale, "Continue with Telegram", "Продолжить через Telegram")
+                  : pickLocale(locale, "Open in Telegram", "Открыть в Telegram")}
+              </span>
+              <StatusPill accent="warning">
+                {pickLocale(locale, "Primary", "Основной")}
+              </StatusPill>
+            </Button>
+
+            {/* ── Secondary: Google ── */}
             <Button
               type="button"
               variant="outline"
               className="w-full justify-between"
-              onClick={doOAuth}
-              disabled={!sb || busy}
+              onClick={() => void doOAuth()}
+              disabled={!sb || isBusy}
             >
               <span className="flex items-center gap-2">
+                <span className="font-semibold" aria-hidden>G</span>
                 {t("auth.google")}
               </span>
               <StatusPill accent="neutral">OAuth</StatusPill>
             </Button>
 
-            <div className="flex items-center gap-3">
-              <div className="h-px flex-1 bg-ms-border" />
-              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-ms-faint">{t("auth.or")}</span>
-              <div className="h-px flex-1 bg-ms-border" />
-            </div>
-
-            <div className="rounded-ms-xl border border-ms-border bg-ms-elevated/15 p-4">
-              <label className="ms-data-label text-ms-faint">{t("auth.emailLabel")}</label>
-              <div className="mt-2 flex items-center gap-2 rounded-ms-md border border-ms-border bg-ms-surface/60 px-3 py-2">
-                <Mail className="size-4 text-ms-muted" strokeWidth={1.5} aria-hidden />
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t("auth.emailPlaceholder")}
-                  className="w-full bg-transparent text-[13px] text-ms-text outline-none placeholder:text-ms-faint"
-                  inputMode="email"
-                  autoComplete="email"
-                />
-              </div>
-
-              <label className="ms-data-label mt-3 block text-ms-faint">Password</label>
-              <div className="mt-2 flex items-center gap-2 rounded-ms-md border border-ms-border bg-ms-surface/60 px-3 py-2">
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="8+ characters"
-                  className="w-full bg-transparent text-[13px] text-ms-text outline-none placeholder:text-ms-faint"
-                  autoComplete="current-password"
-                />
-              </div>
-
-              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                <Button type="button" variant="outline" onClick={doMagic} disabled={!sb || busy || !canEmail}>
-                  {t("auth.sendMagic")}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={doEmailSignIn}
-                  disabled={!sb || busy || !canEmail || !canPassword}
+            {/* ── Tertiary: Email ── */}
+            <div className="rounded-ms-xl border border-ms-border/50 bg-ms-elevated/10">
+              <button
+                type="button"
+                className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-ms-elevated/20"
+                onClick={() => setEmailExpanded((v) => !v)}
+                aria-expanded={emailExpanded}
+              >
+                <span className="flex items-center gap-2 text-[12px] text-ms-muted">
+                  <Mail className="size-3.5" strokeWidth={1.5} aria-hidden />
+                  {pickLocale(locale, "Continue with Email", "Продолжить через Email")}
+                </span>
+                <span
+                  className="font-mono text-[10px] text-ms-faint transition-transform duration-200"
+                  style={{ transform: emailExpanded ? "rotate(180deg)" : "rotate(0deg)" }}
+                  aria-hidden
                 >
-                  {t("auth.emailSignIn")}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={doSignUp}
-                  disabled={!sb || busy || !canEmail || !canPassword}
-                >
-                  {t("auth.emailSignUp")}
-                </Button>
-                <Button type="button" variant="ghost" onClick={doResetPassword} disabled={!sb || busy || !canEmail}>
-                  Reset password
-                </Button>
-              </div>
+                  ↓
+                </span>
+              </button>
 
-              <div className="mt-3 flex items-start gap-2 rounded-ms-md border border-ms-border bg-ms-elevated/20 px-3 py-2 text-[11px] leading-relaxed text-ms-muted sm:text-[12px]">
-                <Shield className="mt-0.5 size-4 shrink-0 text-ms-warning/75" strokeWidth={1.5} aria-hidden />
-                <p>{authModalPolicyNote(locale)}</p>
-              </div>
+              {emailExpanded ? (
+                <div className="border-t border-ms-border/30 px-4 pb-4 pt-3">
+                  <label className="ms-data-label text-ms-faint">{t("auth.emailLabel")}</label>
+                  <div className="mt-2 flex items-center gap-2 rounded-ms-md border border-ms-border bg-ms-surface/60 px-3 py-2">
+                    <Mail className="size-4 text-ms-muted" strokeWidth={1.5} aria-hidden />
+                    <input
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder={t("auth.emailPlaceholder")}
+                      className="w-full bg-transparent text-[13px] text-ms-text outline-none placeholder:text-ms-faint"
+                      inputMode="email"
+                      autoComplete="email"
+                    />
+                  </div>
+
+                  <label className="ms-data-label mt-3 block text-ms-faint">
+                    {pickLocale(locale, "Password", "Пароль")}
+                  </label>
+                  <div className="mt-2 flex items-center gap-2 rounded-ms-md border border-ms-border bg-ms-surface/60 px-3 py-2">
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder={pickLocale(locale, "8+ characters", "8+ символов")}
+                      className="w-full bg-transparent text-[13px] text-ms-text outline-none placeholder:text-ms-faint"
+                      autoComplete="current-password"
+                    />
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={doMagic}
+                      disabled={!sb || isBusy || !canEmail}
+                      className="text-[11px]"
+                    >
+                      {t("auth.sendMagic")}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={doEmailSignIn}
+                      disabled={!sb || isBusy || !canEmail || !canPassword}
+                      className="text-[11px]"
+                    >
+                      {t("auth.emailSignIn")}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={doSignUp}
+                      disabled={!sb || isBusy || !canEmail || !canPassword}
+                      className="text-[11px]"
+                    >
+                      {t("auth.emailSignUp")}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={doResetPassword}
+                      disabled={!sb || isBusy || !canEmail}
+                      className="text-[11px]"
+                    >
+                      {pickLocale(locale, "Reset password", "Сброс пароля")}
+                    </Button>
+                  </div>
+
+                  <div className="mt-3 flex items-start gap-2 rounded-ms-md border border-ms-border bg-ms-elevated/20 px-3 py-2 text-[11px] leading-relaxed text-ms-muted sm:text-[12px]">
+                    <Shield className="mt-0.5 size-4 shrink-0 text-ms-warning/75" strokeWidth={1.5} aria-hidden />
+                    <p>{authModalPolicyNote(locale)}</p>
+                  </div>
+                </div>
+              ) : null}
             </div>
-          </>
+          </div>
         )}
 
         {note ? (
@@ -295,4 +360,3 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     </Modal>
   );
 }
-

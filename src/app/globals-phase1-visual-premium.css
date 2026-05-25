@@ -1,0 +1,315 @@
+/* ─── MONEYSET Phase 1 Visual Premium Polish ─────────────────────────────────
+   Objective: institutional intelligence terminal, not SaaS dashboard.
+   Covers: typography hierarchy, spacing rhythm, button system,
+           card surfaces, data labels, section separators, visual noise reduction.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TYPOGRAPHY — hierarchy and institutional precision
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Page / section titles — slightly tighter tracking for more precision */
+.ms-title,
+h1.ms-title {
+  font-size: var(--ms-text-md);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+  color: var(--ms-text-primary);
+}
+
+/* Section chrome titles — used in SurfaceChrome */
+.ms-surface-chrome__title {
+  font-size: var(--ms-text-lg);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+/* Data labels — the most pervasive element; reduce noise */
+.ms-data-label {
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.3;
+}
+
+/* Eyebrow / kicker monospace labels — used extensively across surfaces */
+.font-mono.text-ms-faint,
+.font-mono.text-\\[10px\\] {
+  letter-spacing: 0.12em;
+}
+
+/* Hero label — used on cognition surfaces */
+.ms-hero-label {
+  font-size: var(--ms-text-hero);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION HEADERS — cleaner, more intentional separation
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Surface chrome — the entry point for every major section */
+.ms-surface-chrome {
+  margin-bottom: var(--ms-block-gap);
+}
+
+/* BLUF block — Conclusion tier — highest visual priority */
+.ms-bluf-block {
+  margin-bottom: var(--ms-section-gap);
+}
+
+/* Section separator — reduce width of inline mono kickers */
+.ms-section-kicker {
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ms-text-faint);
+  opacity: 0.72;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BUTTON SYSTEM — deliberate, premium, consistent
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Unified focus ring — remove duplication from production-polish.css */
+.ms-focus-ring:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 1.5px var(--ms-bg-canvas), 0 0 0 3px color-mix(in srgb, var(--ms-cognition) 38%, transparent) !important;
+}
+
+/* Default button — more refined hover */
+.ms-btn-default {
+  border: 1px solid var(--ms-border-medium);
+  background: transparent;
+  color: var(--ms-text-secondary);
+  font-size: var(--ms-text-2xs);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  border-radius: var(--ms-radius-md);
+  padding: 0.45rem 0.875rem;
+  transition: border-color 200ms ease, color 200ms ease, background-color 200ms ease;
+  cursor: pointer;
+}
+
+.ms-btn-default:hover {
+  border-color: var(--ms-border-strong);
+  color: var(--ms-text-primary);
+}
+
+/* Cognition / access CTA — warm the tint slightly on hover */
+.ms-btn-access {
+  transition: all 240ms ease;
+}
+
+.ms-btn-access:hover {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ms-cognition) 18%, transparent);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CARD SYSTEM — consistent depth and hierarchy
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ms-surface-panel — raised card used for primary content blocks */
+.ms-surface-panel {
+  border: 1px solid var(--ms-border-medium) !important;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--ms-text-primary) 4%, transparent),
+    0 14px 40px -32px rgba(0, 0, 0, 0.52) !important;
+}
+
+[data-theme="light"] .ms-surface-panel {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.82),
+    0 10px 28px -20px rgba(18, 17, 16, 0.085) !important;
+}
+
+/* Signature surface — intelligence surfaces on each primary section */
+.ms-signature-surface:not(.ms-liq-theater) {
+  border-color: color-mix(in srgb, var(--ms-border-medium) 55%, transparent) !important;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--ms-text-primary) 3.5%, transparent),
+    0 16px 48px -34px rgba(0, 0, 0, 0.48) !important;
+}
+
+/* Inset panel — nested content blocks */
+.ms-surface-inset {
+  border-color: var(--ms-border-subtle) !important;
+}
+
+/* ─── Inline card pattern — standardize the pervasive border/bg inconsistency */
+
+/* Ops panels, agent panels, maps panels — unified treatment */
+[class*="rounded-ms-xl"][class*="border-ms-border"],
+[class*="rounded-ms-2xl"][class*="border-ms-border"] {
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ms-text-primary) 2.5%, transparent);
+}
+
+[data-theme="light"] [class*="rounded-ms-xl"][class*="border-ms-border"],
+[data-theme="light"] [class*="rounded-ms-2xl"][class*="border-ms-border"] {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   VISUAL NOISE REDUCTION — signal over decoration
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Reduce separator line opacity — they separate without competing */
+.border-ms-border\/10,
+.border-b.border-ms-border\/10,
+.border-t.border-ms-border\/10 {
+  --tw-border-opacity: 0.08;
+}
+
+/* Data labels competing with content — step back */
+.text-ms-faint {
+  opacity: 0.85;
+}
+
+/* Inline monospaced section headers — reduce uppercase weight */
+[class*="tracking-\\[0.16em\\]"],
+[class*="tracking-\\[0.18em\\]"] {
+  letter-spacing: 0.13em;
+}
+
+/* ─── Surface backgrounds — standardize opacity to reduce "layered" feel */
+
+/* The /6 through /20 range creates uneven depth — unify at /10 for panels */
+.bg-ms-surface\/6 {
+  background-color: color-mix(in srgb, var(--ms-bg-surface) 9%, transparent);
+}
+
+.bg-ms-elevated\/8 {
+  background-color: color-mix(in srgb, var(--ms-bg-elevated) 10%, transparent);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION SEPARATORS — institutional line work
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Horizontal rule between major page sections */
+.ms-section-rule {
+  height: 1px;
+  background: var(--ms-border-subtle);
+  margin: var(--ms-section-gap) 0;
+  border: none;
+}
+
+/* Vertical separator in header clusters */
+.ms-vr {
+  display: inline-block;
+  width: 1px;
+  align-self: stretch;
+  background: var(--ms-border-subtle);
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PREMIUM PERCEPTION — finishing touches
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Refined scrollbar — thinner, less intrusive */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ms-scrollbar-thumb);
+  border-radius: var(--ms-radius-pill);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Prevent layout shift on scrollbar appearance */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Text rendering — subpixel for macOS, auto for others */
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Selection color — subtle brand tint */
+::selection {
+  background: color-mix(in srgb, var(--ms-cognition) 22%, transparent);
+  color: var(--ms-text-primary);
+}
+
+/* ─── Workspace skeleton — loading state refinement */
+.ms-workspace-skeleton {
+  opacity: 0.7;
+}
+
+/* ─── BrandLogo in sidebar — consistent with header */
+.ms-sidebar-brand {
+  font-weight: 500;
+  letter-spacing: 0.24em;
+}
+
+/* ─── Upgrade / paywall gate — premium first impression */
+.ms-premium-gate__access-dock {
+  border-radius: var(--ms-radius-xl) !important;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--ms-text-primary) 3%, transparent),
+    var(--ms-cinematic-shadow) !important;
+}
+
+/* ─── Navigation active state — slightly more emphasis */
+.ms-nav-active {
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ms-cognition) 55%, transparent);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE — Premium feel on smaller viewports
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767.98px) {
+  /* Tighter section gap on mobile — less empty space, more content density */
+  :root {
+    --ms-section-gap: 1.625rem;
+    --ms-block-gap: 1rem;
+  }
+
+  /* Signature surfaces — less padding on mobile */
+  .ms-signature-surface:not(.ms-liq-theater) {
+    padding: var(--ms-space-4) var(--ms-space-3) !important;
+  }
+
+  /* Data labels — slightly larger on mobile for readability */
+  .ms-data-label {
+    font-size: 9px;
+  }
+
+  /* Cards — remove redundant top inset shadow on mobile (saves rendering) */
+  [class*="rounded-ms-xl"][class*="border-ms-border"],
+  [class*="rounded-ms-2xl"][class*="border-ms-border"] {
+    box-shadow: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .ms-cinematic-intro__loading-dot::after {
+    animation: none !important;
+  }
+}

@@ -1,6 +1,6 @@
 /* ─── MONEYSET Cinematic Intro ─────────────────────────────────────────────
-   Institutional launch splash. Text-only. Bloomberg/Bridgewater restraint.
-   Four stages: wordmark → tagline → loading → exit.
+   Institutional launch splash. Text-only. Bloomberg restraint meets
+   Apple-level polish. Four stages: wordmark → tagline → loading → exit.
    ──────────────────────────────────────────────────────────────────────────── */
 
 .ms-cinematic-intro {
@@ -12,7 +12,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: #040405;
+  background: #020204;
   pointer-events: auto;
   padding:
     max(1.25rem, env(safe-area-inset-top))
@@ -21,14 +21,40 @@
     max(1rem, env(safe-area-inset-left));
 }
 
-/* Barely-visible ambient gradient — not decorative, just depth */
+/* Deep atmospheric veil — depth without distraction */
 .ms-cinematic-intro__veil {
   pointer-events: none;
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 55% 35% at 50% 42%, rgba(200, 204, 212, 0.04) 0%, transparent 62%),
-    radial-gradient(ellipse 90% 50% at 50% 100%, rgba(12, 12, 18, 0.6) 0%, transparent 55%);
+    radial-gradient(ellipse 65% 45% at 50% 38%, rgba(180, 186, 200, 0.035) 0%, transparent 65%),
+    radial-gradient(ellipse 100% 55% at 50% 108%, rgba(6, 6, 12, 0.72) 0%, transparent 52%),
+    radial-gradient(ellipse 100% 30% at 50% 0%, rgba(6, 6, 14, 0.5) 0%, transparent 60%);
+}
+
+/* ── Corner mark — institutional terminal identifier ───────────────────────── */
+.ms-cinematic-intro::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  top: max(1.75rem, env(safe-area-inset-top));
+  left: max(1.75rem, env(safe-area-inset-left));
+  width: 5px;
+  height: 5px;
+  border-top: 1px solid rgba(200, 204, 212, 0.18);
+  border-left: 1px solid rgba(200, 204, 212, 0.18);
+}
+
+.ms-cinematic-intro::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  bottom: max(1.75rem, env(safe-area-inset-bottom));
+  right: max(1.75rem, env(safe-area-inset-right));
+  width: 5px;
+  height: 5px;
+  border-bottom: 1px solid rgba(200, 204, 212, 0.18);
+  border-right: 1px solid rgba(200, 204, 212, 0.18);
 }
 
 /* ── Center stage ──────────────────────────────────────────────────────────── */
@@ -46,83 +72,115 @@
 .ms-cinematic-intro__wordmark {
   margin: 0;
   font-family: var(--font-sans), system-ui, sans-serif;
-  font-size: clamp(1.1rem, 4.5vw, 1.5rem);
-  font-weight: 600;
-  letter-spacing: 0.42em;
-  /* right-pad to optically center the tracked word */
-  padding-left: 0.42em;
+  font-size: clamp(1rem, 4.2vw, 1.375rem);
+  font-weight: 500;
+  letter-spacing: 0.46em;
+  padding-left: 0.46em;
   text-transform: uppercase;
-  color: rgba(228, 230, 235, 0.92);
+  color: rgba(232, 234, 238, 0.94);
   line-height: 1;
+}
+
+/* Thin rule — separates wordmark from tagline */
+.ms-cinematic-intro__wordmark::after {
+  content: "";
+  display: block;
+  width: 2rem;
+  height: 1px;
+  background: rgba(228, 230, 235, 0.1);
+  margin: 1.25rem auto 0;
 }
 
 /* ── Tagline ───────────────────────────────────────────────────────────────── */
 .ms-cinematic-intro__tagline {
-  margin: 1.1rem 0 0;
+  margin: 0.55rem 0 0;
   max-width: 18rem;
   font-family: var(--font-sans), system-ui, sans-serif;
-  font-size: clamp(0.62rem, 2.4vw, 0.72rem);
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  padding-left: 0.2em;
+  font-size: clamp(0.58rem, 2.2vw, 0.67rem);
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  padding-left: 0.22em;
   text-transform: uppercase;
-  line-height: 1.55;
-  color: rgba(154, 160, 172, 0.72);
+  line-height: 1.6;
+  color: rgba(148, 154, 168, 0.65);
   text-wrap: balance;
 }
 
-/* ── Loading line ──────────────────────────────────────────────────────────── */
+/* ── Loading indicator — thin animated bar + monospaced label ──────────────── */
 .ms-cinematic-intro__loading {
   position: absolute;
   z-index: 2;
-  bottom: max(2.5rem, env(safe-area-inset-bottom));
+  bottom: max(2.75rem, env(safe-area-inset-bottom));
   left: 0;
   right: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6rem;
-  font-weight: 400;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(120, 126, 140, 0.55);
+  gap: 0.6rem;
 }
 
+/* Thin animated progress bar */
 .ms-cinematic-intro__loading-dot {
-  display: inline-block;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: rgba(120, 126, 140, 0.45);
-  animation: ms-cinematic-dot-pulse 0.9s ease-in-out infinite;
-  flex-shrink: 0;
+  display: block;
+  width: 2rem;
+  height: 1px;
+  border-radius: 1px;
+  background: rgba(120, 126, 140, 0.3);
+  position: relative;
+  overflow: hidden;
 }
 
-@keyframes ms-cinematic-dot-pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.85; }
+.ms-cinematic-intro__loading-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(180, 186, 200, 0.65);
+  animation: ms-cinematic-bar-sweep 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  transform-origin: left center;
+}
+
+@keyframes ms-cinematic-bar-sweep {
+  0%   { transform: scaleX(0); transform-origin: left center; }
+  45%  { transform: scaleX(1); transform-origin: left center; }
+  50%  { transform: scaleX(1); transform-origin: right center; }
+  100% { transform: scaleX(0); transform-origin: right center; }
+}
+
+/* Loading text */
+.ms-cinematic-intro__loading > span:last-child {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.56rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(110, 116, 132, 0.45);
 }
 
 /* ── Responsive ────────────────────────────────────────────────────────────── */
 @media (max-width: 380px) {
   .ms-cinematic-intro__wordmark {
-    letter-spacing: 0.32em;
-    padding-left: 0.32em;
+    letter-spacing: 0.34em;
+    padding-left: 0.34em;
+    font-size: 0.95rem;
   }
 
   .ms-cinematic-intro__tagline {
-    letter-spacing: 0.14em;
-    padding-left: 0.14em;
-    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    padding-left: 0.15em;
+    font-size: 0.6rem;
   }
 }
 
 /* ── Reduced motion ────────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .ms-cinematic-intro__loading-dot {
+  .ms-cinematic-intro__loading-dot::after {
     animation: none;
-    opacity: 0.55;
+    transform: scaleX(0.6);
+    opacity: 0.5;
+  }
+
+  .ms-cinematic-intro::before,
+  .ms-cinematic-intro::after {
+    display: none;
   }
 }
