@@ -14,15 +14,23 @@ export function AgentDebateEngine({ className }: { className?: string }) {
     <section className={cn("ms-agents-debate", className)} aria-label={pickLocale(locale, "Live debate", "Живой дебат")}>
       <header className="ms-agents-debate__header">
         <h3 className="text-[11px] font-semibold tracking-tight text-ms-text">
-          {pickLocale(locale, "Structural conflict surface", "Поверхность структурного конфликта")}
+          {pickLocale(locale, "Active disagreements", "Активные расхождения")}
         </h3>
         <p className="mt-1 text-[10px] leading-snug text-ms-faint">
-          {pickLocale(locale, "Operational fractures — not messaging.", "Оперативные разломы — не переписка.")}
+          {pickLocale(
+            locale,
+            "When specialist reads conflict on the same factor, they surface here. Use these to sharpen your edge cases.",
+            "Когда специализированные прочтения конфликтуют по одному фактору — они появляются здесь. Используйте для уточнения граничных случаев.",
+          )}
         </p>
       </header>
       {bundle.conflicts.length === 0 ? (
         <p className="mt-4 text-[11px] text-ms-muted">
-          {pickLocale(locale, "No elevated cross-agent fractures in capture window.", "Повышенных межагентных разломов в окне захвата нет.")}
+          {pickLocale(
+            locale,
+            "All reads are within normal variance — no significant disagreements detected.",
+            "Все прочтения в пределах нормального разброса — значимых расхождений не обнаружено.",
+          )}
         </p>
       ) : (
         <ul className="ms-agents-debate__list">
@@ -44,7 +52,13 @@ export function AgentDebateEngine({ className }: { className?: string }) {
                   </span>
                   {archetypeLabel(locale, c.agents[1])}
                 </span>
-                <span className="ms-agents-debate__severity">{c.severity}</span>
+                <span className="ms-agents-debate__severity">
+                  {c.severity === "fracture"
+                    ? pickLocale(locale, "Major conflict", "Крупный конфликт")
+                    : c.severity === "override"
+                      ? pickLocale(locale, "One read overriding", "Одно прочтение подавляет")
+                      : c.severity}
+                </span>
               </div>
               <p className="mt-2 text-[11px] leading-snug text-ms-text">{c.line}</p>
             </li>

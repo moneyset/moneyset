@@ -1,24 +1,26 @@
 "use client";
 
 import { OperationalFeed } from "@/components/dashboard/operational-feed";
+import { SurfaceBlufBlock } from "@/components/cognition/surface-bluf-block";
 import { SurfaceChrome } from "@/components/surfaces/surface-chrome";
-import { pickLocale } from "@/lib/i18n/cognition-dict";
+import { useSurfaceBluf } from "@/hooks/use-surface-bluf";
+import { sectionChromeSubtitle, sectionPurpose, sectionTitle } from "@/lib/i18n/section-ia";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
 
 export default function OpsSurfacePage() {
   const locale = useUiPrefsStore((s) => s.uiLocale);
+  const bluf = useSurfaceBluf("ops");
+
   return (
     <div className="ms-page ms-cognition-surface relative">
       <SurfaceChrome
         tone="support"
-        eyebrow={pickLocale(locale, "Workspace", "Рабочая область")}
-        title={pickLocale(locale, "Ops", "Операции")}
-        subtitle={pickLocale(
-          locale,
-          "Live structural evolution — timeline, execution drift, sessions, pressure, regime.",
-          "Живая структурная эволюция — шкала времени, исполнение, сессии, давление, режим.",
-        )}
+        eyebrow={sectionTitle(locale, "ops")}
+        title={sectionTitle(locale, "ops")}
+        purpose={sectionPurpose(locale, "ops")}
+        subtitle={sectionChromeSubtitle(locale, "ops")}
       />
+      <SurfaceBlufBlock bluf={bluf} />
       <OperationalFeed />
     </div>
   );

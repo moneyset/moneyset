@@ -16,7 +16,6 @@ import { InvitationAccessBanner } from "@/components/access/invitation-access-ba
 import { UpgradeModal } from "@/components/premium/upgrade-modal";
 import { useUpgradeModalStore } from "@/store/upgrade-modal-store";
 import { CommandPalette } from "@/components/layout/command-palette";
-import { CognitionOnboarding } from "@/components/onboarding/cognition-onboarding";
 import { CognitionSurfaceErrorBoundary } from "@/components/system/cognition-surface-error-boundary";
 import { cn } from "@/lib/utils";
 
@@ -57,7 +56,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       <MobileBottomNav />
       <UpgradeModal open={upgradeOpen} onClose={closeUpgrade} />
       <CommandPalette />
-      <CognitionOnboarding />
     </div>
   );
 }

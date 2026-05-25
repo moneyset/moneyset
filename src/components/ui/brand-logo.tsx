@@ -9,17 +9,17 @@ type BrandLogoProps = {
 };
 
 const sizes = {
-  sm: "text-[10px] tracking-[0.06em] sm:text-[11px] sm:tracking-[0.07em]",
-  md: "text-[11px] tracking-[0.07em] sm:text-xs sm:tracking-[0.08em]",
-  lg: "text-xs tracking-[0.09em] sm:text-sm sm:tracking-[0.1em]",
+  sm: "text-[9px] tracking-[0.22em] pl-[0.22em] sm:text-[10px]",
+  md: "text-[10px] tracking-[0.26em] pl-[0.26em] sm:text-[11px]",
+  lg: "text-[11px] tracking-[0.28em] pl-[0.28em] sm:text-xs sm:tracking-[0.28em]",
 };
 
-/** MONEYSET wordmark — compact tracking, sans. */
+/** MONEYSET wordmark — institutional tracking, all-caps presence. */
 export function BrandLogo({ className, href = "/", size = "md" }: BrandLogoProps) {
   const inner = (
     <span
       className={cn(
-        "inline-block font-semibold text-ms-muted transition-colors hover:text-ms-text",
+        "inline-block font-semibold uppercase text-ms-muted transition-colors hover:text-ms-text",
         sizes[size],
         className,
       )}

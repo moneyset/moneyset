@@ -7,6 +7,7 @@ import { useShallow } from "zustand/react/shallow";
 import { InterpretationLayer } from "@/components/intelligence/interpretation-blocks";
 import type { MapsTopologyCell, MapsTopologyLayer } from "@/lib/intelligence/maps-topology-view";
 import { deriveMapsTopologyBundle } from "@/lib/intelligence/maps-topology-view";
+import { hierarchySectionLabel } from "@/lib/i18n/section-ia";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { cn } from "@/lib/utils";
 import { useCognitionSimulationStore } from "@/store/cognition-simulation-store";
@@ -90,7 +91,7 @@ function TopologyLayerPanel({
       <p className="text-[10px] leading-snug text-ms-faint">{layer.synopsis}</p>
       <TopologyField cells={layer.cells} simTick={simTick} compact={compact} />
       <p className="mt-2 text-[9px] leading-snug text-ms-muted/90">
-        {pickLocale(locale, "Execution tie-in:", "Связь с исполнением:")}{" "}
+        {pickLocale(locale, "How to use this:", "Как использовать это:")}{" "}
         <span className="text-ms-text/88">{layer.executionImplication}</span>
       </p>
       <ul className="mt-2 space-y-1 border-t border-ms-border/10 pt-2">
@@ -125,8 +126,8 @@ export function MapsTopologyWorkspace({ className }: { className?: string }) {
 
   const synthesis = pickLocale(
     locale,
-    "Topology read: structural stability, liquidity density, and volatility envelope jointly constrain execution style.",
-    "Прочтение топологии: стабильность структуры, плотность ликвидности и конверт волатильности совместно задают стиль исполнения.",
+    "Six layers of market structure — where forces concentrate, where liquidity clusters, and how volatility behaves. Each layer includes a 'How to use this' line that connects it directly to your execution decisions.",
+    "Шесть слоёв рыночной структуры — где концентрируются силы, где кластеризуется ликвидность и как ведёт себя волатильность. Каждый слой содержит строку 'Как использовать это', которая напрямую связывает его с вашими решениями.",
   );
 
   const desktopGrid = (
@@ -154,8 +155,8 @@ export function MapsTopologyWorkspace({ className }: { className?: string }) {
           </span>
           {pickLocale(
             locale,
-            "Liquidity · participation · imbalance · volatility · evolution",
-            "Ликвидность · участие · дисбаланс · вола · эволюция",
+            "More layers — liquidity, participation, imbalance, volatility, evolution →",
+            "Больше слоёв — ликвидность, участие, дисбаланс, волатильность, эволюция →",
           )}
         </summary>
         <div className="space-y-5 border-t border-ms-border/15 p-3 pt-4">
@@ -178,7 +179,9 @@ export function MapsTopologyWorkspace({ className }: { className?: string }) {
     >
       <div className="ms-maps-workspace rounded-ms-2xl border border-ms-border/20 bg-ms-surface/6 p-4 sm:p-5 lg:p-6">
         <div className="rounded-ms-lg border border-ms-border/15 bg-ms-elevated/10 px-3 py-2.5 sm:px-4">
-          <p className="text-[10px] font-medium text-ms-cognition/90">{pickLocale(locale, "Field synthesis", "Сводка поля")}</p>
+          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-ms-faint">
+            {hierarchySectionLabel(locale, "evidence")} · {pickLocale(locale, "How to read this section", "Как читать этот раздел")}
+          </p>
           <p className="mt-1 text-[11px] leading-snug text-ms-muted">{synthesis}</p>
         </div>
 
@@ -188,11 +191,11 @@ export function MapsTopologyWorkspace({ className }: { className?: string }) {
         <p className="mt-6 text-[10px] leading-snug text-ms-faint">
           {pickLocale(
             locale,
-            "Maps are institutional spatial cognition — motion reflects live pressure drift, not decoration.",
-            "Карты — институциональное пространственное прочтение; движение отражает дрейф давления, не декор.",
+            "Cell movement reflects live pressure drift — not decoration. Apply each layer's 'How to use this' line to your active decision.",
+            "Движение ячеек отражает дрейф давления — не декор. Применяйте строку 'Как использовать это' к активному решению.",
           )}{" "}
           <Link href="/execution" className="text-ms-cognition/80 underline-offset-2 hover:underline">
-            {pickLocale(locale, "Execution", "Исполнение")}
+            {pickLocale(locale, "Go to Execution →", "Перейти к Исполнению →")}
           </Link>
         </p>
       </div>

@@ -180,11 +180,11 @@ export function OpsWorkspace({ className }: OpsWorkspaceProps) {
     <>
       <OpsPanel
         kicker="02"
-        title={pickLocale(locale, "Execution state evolution", "Эволюция исполнения")}
+        title={pickLocale(locale, "How your action posture is changing", "Как меняется поза действия")}
         hint={pickLocale(
           locale,
-          "How posture shifts affect sizing and invalidation discipline — not alerts.",
-          "Как поза влияет на объём и дисциплину инвалидации — не алерты.",
+          "Tracks how execution posture shifts affect sizing and invalidation — not trade alerts.",
+          "Отслеживает, как изменения позы влияют на объём и инвалидацию — не торговые алерты.",
         )}
         trail={<MicroTrail values={exec.stressSeries} />}
       >
@@ -204,11 +204,11 @@ export function OpsWorkspace({ className }: OpsWorkspaceProps) {
 
       <OpsPanel
         kicker="03"
-        title={pickLocale(locale, "Session transition layer", "Сессионный слой")}
+        title={pickLocale(locale, "Market session context", "Контекст рыночной сессии")}
         hint={pickLocale(
           locale,
-          "Desk session framing — liquidity and vol handoffs across UTC windows.",
-          "Сессии UTC — передачи ликвидности и волы.",
+          "How liquidity and volatility shift across the current trading session window.",
+          "Как ликвидность и волатильность изменяются в текущем торговом окне сессии.",
         )}
         trail={<MicroTrail values={temporal.volSeries} />}
       >
@@ -222,8 +222,12 @@ export function OpsWorkspace({ className }: OpsWorkspaceProps) {
 
       <OpsPanel
         kicker="04"
-        title={pickLocale(locale, "Pressure migration", "Миграция давления")}
-        hint={pickLocale(locale, "Spatial drift of stress, leverage, and coherence.", "Дрейф стресса, плеча, связности.")}
+        title={pickLocale(locale, "Where market pressure is shifting", "Куда смещается рыночное давление")}
+        hint={pickLocale(
+          locale,
+          "How stress and leverage are moving through the market — where pressure is building or easing.",
+          "Как стресс и плечо перемещаются по рынку — где давление нарастает, а где ослабевает.",
+        )}
         trail={<MicroTrail values={temporal.liquiditySeries} />}
       >
         <BulletList items={pressureLines} />
@@ -234,8 +238,12 @@ export function OpsWorkspace({ className }: OpsWorkspaceProps) {
 
       <OpsPanel
         kicker="05"
-        title={pickLocale(locale, "Participation evolution", "Эволюция участия")}
-        hint={pickLocale(locale, "Breadth, consensus, and crowding quality over the window.", "Ширина, сборка, скопление.")}
+        title={pickLocale(locale, "Market participation quality", "Качество рыночного участия")}
+        hint={pickLocale(
+          locale,
+          "Who is participating and whether participation quality is improving or deteriorating.",
+          "Кто участвует в рынке и улучшается ли качество участия или ухудшается.",
+        )}
         trail={<MicroTrail values={temporal.participationSeries} />}
       >
         <BulletList items={participationLines} />
@@ -243,8 +251,12 @@ export function OpsWorkspace({ className }: OpsWorkspaceProps) {
 
       <OpsPanel
         kicker="06"
-        title={pickLocale(locale, "Regime shift detection", "Детекция смены режима")}
-        hint={pickLocale(locale, "Major phase and volatility transitions.", "Фаза и волатильность.")}
+        title={pickLocale(locale, "Phase and volatility changes", "Изменения фазы и волатильности")}
+        hint={pickLocale(
+          locale,
+          "Whether the market regime has shifted — a new phase changes the context for all other reads.",
+          "Изменился ли рыночный режим — новая фаза меняет контекст всех остальных прочтений.",
+        )}
         trail={<MicroTrail values={stressTrail} />}
       >
         <p className="text-[10px] leading-relaxed text-ms-muted">{regimeLine}</p>
@@ -252,8 +264,12 @@ export function OpsWorkspace({ className }: OpsWorkspaceProps) {
 
       <OpsPanel
         kicker="07"
-        title={pickLocale(locale, "Catalyst impact", "Влияние катализаторов")}
-        hint={pickLocale(locale, "Macro and scenario deck shifts — compressed structural notes only.", "Макро и колода — только структурные ноты.")}
+        title={pickLocale(locale, "Recent catalysts", "Последние катализаторы")}
+        hint={pickLocale(
+          locale,
+          "How macro events and scenario shifts have affected the current structure — structural impact only.",
+          "Как макро-события и изменения сценариев повлияли на текущую структуру — только структурное воздействие.",
+        )}
       >
         {catalystEntries.length === 0 ? (
           <p className="text-[10px] leading-relaxed text-ms-muted">{catalystFallbackLine(locale)}</p>
@@ -297,13 +313,13 @@ export function OpsWorkspace({ className }: OpsWorkspaceProps) {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <h2 className="ms-title font-medium tracking-tight text-ms-muted/95">
-              {pickLocale(locale, "Operational evolution", "Операционная эволюция")}
+              {pickLocale(locale, "What changed since the last read", "Что изменилось с прошлого прочтения")}
             </h2>
             <p className="mt-1 max-w-xl text-[10px] leading-relaxed text-ms-faint sm:text-[11px]">
               {pickLocale(
                 locale,
-                "Structural timeline — material tape evolution only. Updates cluster when regime, pressure, participation, or execution posture moves.",
-                "Структурная шкала времени — только существенные изменения. Обновления при сдвиге режима, давления, участия или позы исполнения.",
+                "Material shifts only — regime, pressure, participation, or execution posture. Not system logs.",
+                "Только существенные сдвиги — режим, давление, участие или поза. Не системные логи.",
               )}
             </p>
           </div>
@@ -333,17 +349,21 @@ export function OpsWorkspace({ className }: OpsWorkspaceProps) {
         <div className="mt-5 space-y-[var(--ms-section-gap)]">
           <OpsPanel
             kicker="01"
-            title={pickLocale(locale, "Live structural timeline", "Живая структурная шкала")}
+            title={pickLocale(locale, "Change log", "Журнал изменений")}
             hint={pickLocale(
               locale,
-              "Important developments only — no orchestrator noise, no bootstrap chatter.",
-              "Только важное — без шума оркестратора и старта.",
+              "Material changes only — regime, pressure, participation, or posture. Newest first. The trail above shows how risk has moved.",
+              "Только существенные сдвиги — режим, давление, участие или поза. Сначала новое. Кривая показывает движение риска.",
             )}
             trail={<MicroTrail values={stressTrail} />}
           >
             {visibleStructural.length === 0 ? (
               <p className="text-[11px] text-ms-muted">
-                {pickLocale(locale, "Structural channel quiet — waiting for material handoff.", "Структурный канал тих — ждём смену.")}
+                {pickLocale(
+                  locale,
+                  "No material changes to report — structure is within normal parameters.",
+                  "Существенных изменений нет — структура в пределах нормы.",
+                )}
               </p>
             ) : (
               <div className="relative border-l border-ms-border/15 pl-1">
@@ -373,7 +393,7 @@ export function OpsWorkspace({ className }: OpsWorkspaceProps) {
             <details className="group rounded-ms-xl border border-ms-border/16 bg-ms-surface/8">
               <summary className="ms-focus-ring cursor-pointer list-none px-4 py-3 text-[11px] font-medium text-ms-muted marker:content-none [&::-webkit-details-marker]:hidden">
                 <span className="flex items-center justify-between gap-2">
-                  {pickLocale(locale, "Evolution layers", "Слои эволюции")}
+                  {pickLocale(locale, "Deeper context — posture, session, pressure, participation, regime, catalysts", "Детальный контекст — поза, сессия, давление, участие, режим, катализаторы")}
                   <span className="font-mono text-[10px] text-ms-faint group-open:hidden">+</span>
                   <span className="hidden font-mono text-[10px] text-ms-faint group-open:inline">−</span>
                 </span>

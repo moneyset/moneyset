@@ -25,34 +25,37 @@ import { useShellStore } from "@/store/shell-store";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n/use-t";
 import type { I18nKey } from "@/lib/i18n/strings";
+import { sectionPurpose, type PrimarySurfaceId } from "@/lib/i18n/section-ia";
+import { useUiPrefsStore } from "@/store/ui-prefs-store";
 
-type NavItem = { href: string; labelKey: I18nKey; icon: LucideIcon };
+type NavItem = { href: string; labelKey: I18nKey; icon: LucideIcon; surfaceId?: PrimarySurfaceId };
 
 export function AppSidebar({ className }: { className?: string }) {
   const pathname = usePathname();
   const collapsed = useShellStore((s) => s.sidebarCollapsed);
   const setMobileNavOpen = useShellStore((s) => s.setMobileNavOpen);
   const t = useT();
+  const locale = useUiPrefsStore((s) => s.uiLocale);
 
   const surfaces: NavItem[] = [
-    { href: "/", labelKey: "nav.core", icon: Orbit },
-    { href: "/execution", labelKey: "nav.execution", icon: Target },
-    { href: "/scenarios", labelKey: "nav.scenarios", icon: Binary },
-    { href: "/ops", labelKey: "nav.ops", icon: ScrollText },
-    { href: "/agents", labelKey: "nav.agents", icon: Radio },
+    { href: "/", labelKey: "nav.core", icon: Orbit, surfaceId: "core" },
+    { href: "/execution", labelKey: "nav.execution", icon: Target, surfaceId: "execution" },
+    { href: "/scenarios", labelKey: "nav.scenarios", icon: Binary, surfaceId: "scenarios" },
+    { href: "/ops", labelKey: "nav.ops", icon: ScrollText, surfaceId: "ops" },
+    { href: "/agents", labelKey: "nav.agents", icon: Radio, surfaceId: "agents" },
     { href: "/macro", labelKey: "nav.macro", icon: Globe2 },
     { href: "/cross-asset", labelKey: "nav.crossAsset", icon: Link2 },
     { href: "/risk-radar", labelKey: "nav.riskRadar", icon: Radar },
     { href: "/sentiment", labelKey: "nav.sentiment", icon: Waypoints },
-    { href: "/maps", labelKey: "nav.maps", icon: Map },
+    { href: "/maps", labelKey: "nav.maps", icon: Map, surfaceId: "maps" },
     { href: "/labs", labelKey: "nav.labs", icon: FlaskConical },
     { href: "/replay", labelKey: "nav.replay", icon: History },
     { href: "/memory", labelKey: "nav.memory", icon: Archive },
   ];
 
-  const secondary: { href: string; label: string; icon: LucideIcon }[] = [
-    { href: "/journal", label: "Journal", icon: BookOpen },
-    { href: "/settings", label: "Settings", icon: Settings },
+  const secondary: { href: string; labelKey: I18nKey; icon: LucideIcon }[] = [
+    { href: "/journal", labelKey: "nav.journal", icon: BookOpen },
+    { href: "/settings", labelKey: "nav.settings", icon: Settings },
   ];
 
   return (
@@ -80,7 +83,7 @@ export function AppSidebar({ className }: { className?: string }) {
             collapsed && "md:sr-only",
           )}
         >
-          Surfaces
+          {t("nav.surfaces")}
         </p>
         {surfaces.map((item) => {
           const Icon = item.icon;
@@ -101,7 +104,14 @@ export function AppSidebar({ className }: { className?: string }) {
               )}
             >
               <Icon className="size-4 shrink-0 text-ms-cognition" strokeWidth={1.5} aria-hidden />
-              <span className={cn("truncate", collapsed && "md:sr-only")}>{t(item.labelKey)}</span>
+              <span className={cn("min-w-0 truncate", collapsed && "md:sr-only")}>
+                <span className="block truncate">{t(item.labelKey)}</span>
+                {item.surfaceId && !collapsed ? (
+                  <span className="block truncate text-[10px] font-normal leading-snug text-ms-faint">
+                    {sectionPurpose(locale, item.surfaceId)}
+                  </span>
+                ) : null}
+              </span>
             </Link>
           );
         })}
@@ -122,7 +132,7 @@ export function AppSidebar({ className }: { className?: string }) {
               )}
             >
               <Icon className="size-4 shrink-0 text-ms-cognition" strokeWidth={1.5} aria-hidden />
-              <span className={cn("truncate", collapsed && "md:sr-only")}>{item.label}</span>
+              <span className={cn("truncate", collapsed && "md:sr-only")}>{t(item.labelKey)}</span>
             </Link>
           );
         })}

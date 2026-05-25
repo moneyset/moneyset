@@ -21,7 +21,7 @@ export function workspaceTitleFromPath(pathname: string | null, locale: UiLocale
     { prefix: "/journal", en: "Journal", ru: "Журнал" },
     { prefix: "/execution", en: "Execution", ru: "Исполнение" },
     { prefix: "/scenarios", en: "Scenarios", ru: "Сценарии" },
-    { prefix: "/ops", en: "Ops", ru: "Операции" },
+    { prefix: "/ops", en: "Changes", ru: "Изменения" },
     { prefix: "/agents", en: "Agents", ru: "Агенты" },
     { prefix: "/macro", en: "Macro intelligence", ru: "Макро-интеллект" },
     { prefix: "/cross-asset", en: "Cross-asset intelligence", ru: "Кросс-активный интеллект" },

@@ -30,10 +30,14 @@ export function AgentConvictionPhysics({ className }: { className?: string }) {
     <section className={cn("ms-agents-physics", className)} aria-label={pickLocale(locale, "Conviction physics", "Физика убеждённости")}>
       <header className="mb-4">
         <h3 className="text-[11px] font-semibold tracking-tight text-ms-text">
-          {pickLocale(locale, "Market psychology physics", "Физика рыночной психологии")}
+          {pickLocale(locale, "Read stability", "Устойчивость прочтений")}
         </h3>
         <p className="mt-1 text-[10px] leading-snug text-ms-faint">
-          {pickLocale(locale, "Inertia · decay · escalation — no instant flips.", "Инерция · распад · эскалация — без мгновенных переворотов.")}
+          {pickLocale(
+            locale,
+            "How stable the current consensus is — and how quickly reads can shift.",
+            "Насколько устойчив текущий консенсус — и как быстро прочтения могут измениться.",
+          )}
         </p>
       </header>
       <div className="space-y-3">

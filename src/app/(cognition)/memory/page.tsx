@@ -26,8 +26,8 @@ export default function MemoryPage() {
         capability="marketMemory"
         titleEn="Market memory"
         titleRu="Память рынка"
-        bodyEn="Historical similarity, pattern recall, and scenario references — Founding and invitation access."
-        bodyRu="Историческое сходство, паттерны и ссылки на сценарии — Founding и приглашения."
+        bodyEn="See how similar structures resolved historically — recall prior scenarios and track how the current read compares to past turning points."
+        bodyRu="Как похожие структуры разрешались исторически — вызывайте предыдущие сценарии и сравнивайте текущее прочтение с прошлыми переломными моментами."
       >
         <>
           <StrategyMemoryWorkspace />

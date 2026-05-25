@@ -8,6 +8,7 @@ import { useExecutionSurface } from "@/hooks/use-execution-surface";
 import { executionSessionDeskStrip, utcSessionAmbientBarClass } from "@/lib/cognition/session-visual";
 import { formatPriceRange } from "@/lib/execution/derive-execution-layer";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
+import { hierarchySectionLabel } from "@/lib/i18n/section-ia";
 import { cn } from "@/lib/utils";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
 
@@ -42,15 +43,19 @@ export function ExecutionTacticalWorkspace({ className }: { className?: string }
         </div>
       </header>
 
-      <ExecutionMapLayer className="mb-5" />
       <ExecutionTacticalTheater />
+
+      <p className="mb-3 font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-ms-faint">
+        {hierarchySectionLabel(locale, "evidence")} · {pickLocale(locale, "Execution map", "Карта исполнения")}
+      </p>
+      <ExecutionMapLayer className="mb-5" />
 
       <details className="group mt-6 max-lg:hidden rounded-ms-lg border border-ms-border/20 bg-ms-surface/6">
         <summary className="ms-focus-ring cursor-pointer list-none px-4 py-3 text-[11px] font-medium text-ms-muted [&::-webkit-details-marker]:hidden">
           <span className="mr-1.5 inline-block text-ms-faint transition-transform group-open:rotate-90" aria-hidden>
             ›
           </span>
-          {pickLocale(locale, "Structural rail — compressed reference", "Структурный рейл — сжатая справка")}
+          {pickLocale(locale, "Advanced analysis — structural rail", "Углублённый анализ — структурный рейл")}
         </summary>
         <div className="border-t border-ms-border/12 px-4 pb-4 pt-3">
           <ExecutionStructuralRail

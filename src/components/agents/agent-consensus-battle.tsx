@@ -29,13 +29,26 @@ export function AgentConsensusBattle({ className }: { className?: string }) {
   return (
     <section
       className={cn("ms-consensus-battle", networkStress >= 65 && "ms-consensus-battle--hot", className)}
-      aria-label={pickLocale(locale, "Consensus battle", "Битва консенсуса")}
+      aria-label={pickLocale(locale, "Specialist read influence and consensus", "Влияние и консенсус прочтений")}
       style={{ "--ms-battle-intensity": battleIntensity } as CSSProperties}
     >
       <div className="ms-consensus-battle__field" aria-hidden />
       <header className="ms-consensus-battle__header">
-        <p className="ms-data-label text-ms-faint">{pickLocale(locale, "Probability fragmentation", "Фрагментация вероятности")}</p>
-        <p className="ms-consensus-battle__fragmentation tabular-nums">{Math.round(fragmentation)}</p>
+        <div>
+          <p className="ms-data-label text-ms-faint">
+            {pickLocale(locale, "Conviction spread", "Разброс убеждённости")}
+          </p>
+          <p className="mt-0.5 text-[9px] leading-snug text-ms-faint/80">
+            {pickLocale(
+              locale,
+              "How split the specialist reads are — 0 = unified, 100 = fully fragmented",
+              "Насколько расходятся прочтения — 0 = единство, 100 = полная фрагментация",
+            )}
+          </p>
+        </div>
+        <p className="ms-consensus-battle__fragmentation tabular-nums">
+          {Math.round(fragmentation)}<span className="text-[0.55em] opacity-60">/100</span>
+        </p>
       </header>
 
       <div className="ms-consensus-battle__lanes">
@@ -71,8 +84,8 @@ export function AgentConsensusBattle({ className }: { className?: string }) {
         <p className="ms-consensus-battle__duel-read">
           {pickLocale(
             locale,
-            `Conviction delta ${Math.abs(top.conviction - challenger.conviction)} — structural conflict live.`,
-            `Дельта убеждённости ${Math.abs(top.conviction - challenger.conviction)} — структурный конфликт в эфире.`,
+            `These two reads diverge by ${Math.abs(top.conviction - challenger.conviction)} points — the dominant disagreement in the current structure.`,
+            `Эти два прочтения расходятся на ${Math.abs(top.conviction - challenger.conviction)} пунктов — ключевое расхождение в текущей структуре.`,
           )}
         </p>
       </div>

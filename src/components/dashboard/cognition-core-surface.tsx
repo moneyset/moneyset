@@ -6,9 +6,11 @@ import { useShallow } from "zustand/react/shallow";
 
 import { DecisionLayerPanel } from "@/components/intelligence/decision-layer-panel";
 import { CurrentMarketPosture } from "@/components/intelligence/current-market-posture";
+import { SurfaceBlufBlock } from "@/components/cognition/surface-bluf-block";
 import { ExecutionInterpretationBridge } from "@/components/execution/execution-interpretation-bridge";
 import { PremiumExecutionLayer } from "@/components/dashboard/premium-execution-layer";
 import { useExtendedCognitionAccess } from "@/hooks/use-extended-cognition-access";
+import { useSurfaceBluf } from "@/hooks/use-surface-bluf";
 import { SurfaceChrome } from "@/components/surfaces/surface-chrome";
 import { useExecutionSurface } from "@/hooks/use-execution-surface";
 import {
@@ -21,6 +23,7 @@ import {
 } from "@/lib/i18n/cognition-dict";
 import { executionSessionDeskStrip } from "@/lib/cognition/session-visual";
 import { marketFeedStatusLabel } from "@/lib/i18n/trust-surface";
+import { sectionChromeSubtitle, sectionPurpose, sectionTitle } from "@/lib/i18n/section-ia";
 import { cn } from "@/lib/utils";
 import { useAiCognitionStore } from "@/store/ai-cognition-store";
 import { useCognitionSimulationStore } from "@/store/cognition-simulation-store";
@@ -35,23 +38,21 @@ function StateField({ label, children }: { label: string; children: ReactNode })
   );
 }
 
-const DEEP_LINKS: { href: string; en: string; ru: string }[] = [
-  { href: "/execution", en: "Execution", ru: "Исполнение" },
-  { href: "/scenarios", en: "Scenarios", ru: "Сценарии" },
-  { href: "/ops", en: "Ops", ru: "Операции" },
-  { href: "/labs", en: "Labs", ru: "Лаборатории" },
-  { href: "/maps", en: "Maps", ru: "Карты" },
-  { href: "/agents", en: "Agents", ru: "Агенты" },
-  { href: "/macro", en: "Macro intelligence", ru: "Макро-интеллект" },
-  { href: "/risk-radar", en: "Risk Radar", ru: "Risk Radar" },
-  { href: "/cross-asset", en: "Cross-asset intelligence", ru: "Кросс-активный интеллект" },
-  { href: "/sentiment", en: "Sentiment intelligence", ru: "Интеллект настроений" },
-  { href: "/replay", en: "Replay Studio", ru: "Replay Studio" },
-  { href: "/memory", en: "Strategy memory", ru: "Память стратегии" },
+const DEEP_LINKS: { href: string; en: string; ru: string; purposeEn: string; purposeRu: string }[] = [
+  { href: "/execution", en: "Execution", ru: "Исполнение", purposeEn: "What to do now", purposeRu: "Что делать" },
+  { href: "/scenarios", en: "Scenarios", ru: "Сценарии", purposeEn: "What could happen next", purposeRu: "Что дальше" },
+  { href: "/ops", en: "Changes", ru: "Изменения", purposeEn: "What changed", purposeRu: "Что изменилось" },
+  { href: "/maps", en: "Maps", ru: "Карты", purposeEn: "Market geometry", purposeRu: "Геометрия" },
+  { href: "/agents", en: "Agents", ru: "Агенты", purposeEn: "Consensus vs disagreement", purposeRu: "Консенсус" },
+  { href: "/labs", en: "Labs", ru: "Лаборатории", purposeEn: "Deep modules", purposeRu: "Модули" },
+  { href: "/macro", en: "Macro", ru: "Макро", purposeEn: "Macro layer", purposeRu: "Макро" },
+  { href: "/risk-radar", en: "Risk", ru: "Риск", purposeEn: "Risk topology", purposeRu: "Риск" },
+  { href: "/memory", en: "Memory", ru: "Память", purposeEn: "Archive", purposeRu: "Архив" },
 ];
 
 export function CognitionCoreSurface() {
   const locale = useUiPrefsStore((s) => s.uiLocale);
+  const bluf = useSurfaceBluf("core");
   const extended = useExtendedCognitionAccess();
   const cognitionMode = useUiPrefsStore((s) => s.cognitionMode);
   const compact = cognitionMode === "compressed";
@@ -129,26 +130,20 @@ export function CognitionCoreSurface() {
   return (
     <div className={cn("ms-page ms-cognition-surface relative", compact && "ms-density-dense")}>
       <div className="mb-3 lg:hidden">
-        <p className="text-[12px] font-semibold text-ms-text">{pickLocale(locale, "Core", "Ядро")}</p>
-        <p className="mt-0.5 text-[12px] leading-snug text-ms-muted">
-          {pickLocale(locale, "Execution-first command view", "Командный срез с фокусом на исполнение")}
-        </p>
+        <p className="text-[12px] font-semibold text-ms-text">{sectionTitle(locale, "core")}</p>
+        <p className="mt-0.5 text-[12px] leading-snug text-ms-cognition/90">{sectionPurpose(locale, "core")}</p>
       </div>
 
       <div className="mb-[var(--ms-section-gap)] hidden lg:block">
         <SurfaceChrome
-          eyebrow={pickLocale(locale, "Surface", "Поверхность")}
-          title={pickLocale(locale, "Core", "Ядро")}
-          subtitle={pickLocale(locale, "Operational command", "Оперативное командование")}
+          eyebrow={sectionTitle(locale, "core")}
+          title={sectionTitle(locale, "core")}
+          purpose={sectionPurpose(locale, "core")}
+          subtitle={sectionChromeSubtitle(locale, "core")}
         />
-        <p className="mt-4 text-[13px] leading-relaxed text-ms-muted">
-          {pickLocale(
-            locale,
-            "Posture first · execution center · supporting structure on the flanks",
-            "Поза сверху · исполнение в центре · структура по флангам",
-          )}
-        </p>
       </div>
+
+      <SurfaceBlufBlock bluf={bluf} />
 
       <DecisionLayerPanel />
 
@@ -191,6 +186,7 @@ export function CognitionCoreSurface() {
               <Link
                 href={item.href}
                 className="text-[12px] font-medium text-ms-muted transition-colors hover:text-ms-text"
+                title={pickLocale(locale, item.purposeEn, item.purposeRu)}
               >
                 {pickLocale(locale, item.en, item.ru)}
               </Link>

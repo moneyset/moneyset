@@ -2,9 +2,11 @@
 
 import dynamic from "next/dynamic";
 
+import { SurfaceBlufBlock } from "@/components/cognition/surface-bluf-block";
 import { SurfaceChrome } from "@/components/surfaces/surface-chrome";
 import { WorkspaceSkeleton } from "@/components/ui/workspace-skeleton";
-import { pickLocale } from "@/lib/i18n/cognition-dict";
+import { useSurfaceBluf } from "@/hooks/use-surface-bluf";
+import { sectionChromeSubtitle, sectionPurpose, sectionTitle } from "@/lib/i18n/section-ia";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
 
 const MapsTopologyWorkspace = dynamic(
@@ -21,35 +23,26 @@ const ExecutionMapLayer = dynamic(
 
 export default function MapsSurfacePage() {
   const locale = useUiPrefsStore((s) => s.uiLocale);
+  const bluf = useSurfaceBluf("maps");
 
   return (
     <div className="ms-page ms-cognition-surface relative">
       <SurfaceChrome
         tone="support"
-        eyebrow={pickLocale(locale, "Surface", "Поверхность")}
-        title={pickLocale(locale, "Maps", "Карты")}
-        subtitle={pickLocale(
-          locale,
-          "Structural topology intelligence — spatial execution cognition, not retail heatmaps.",
-          "Интеллект структурной топологии — пространственное прочтение исполнения, не ритейл-теплокарты.",
-        )}
+        eyebrow={sectionTitle(locale, "maps")}
+        title={sectionTitle(locale, "maps")}
+        purpose={sectionPurpose(locale, "maps")}
+        subtitle={sectionChromeSubtitle(locale, "maps")}
       />
+      <SurfaceBlufBlock bluf={bluf} />
       <MapsTopologyWorkspace />
 
       <section className="mt-6" aria-labelledby="maps-exec-map-heading">
         <h2 id="maps-exec-map-heading" className="sr-only">
-          {pickLocale(locale, "Execution mapping", "Картирование исполнения")}
+          {sectionTitle(locale, "execution")}
         </h2>
         <ExecutionMapLayer />
       </section>
-
-      <p className="mt-4 text-[10px] leading-snug text-ms-faint">
-        {pickLocale(
-          locale,
-          "Topology fields update with lattice drivers; tape-anchored lanes appear when mark/last anchors zones.",
-          "Поля топологии следуют за драйверами решётки; полосы по ленте — при привязке метки/последней к зонам.",
-        )}
-      </p>
     </div>
   );
 }

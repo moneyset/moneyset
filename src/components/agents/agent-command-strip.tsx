@@ -43,7 +43,7 @@ export function AgentCommandStrip({ className }: { className?: string }) {
     },
     {
       label: pickLocale(locale, "Network stress", "Стресс сети"),
-      value: `${networkStress}`,
+      value: `${networkStress}\u202f/\u202f100`,
       tense: networkStress >= 72 ? "critical" : networkStress >= 52 ? "elevated" : "calm",
     },
   ];
@@ -51,7 +51,7 @@ export function AgentCommandStrip({ className }: { className?: string }) {
   return (
     <header className={cn("ms-agents-command", className)}>
       <div className="ms-agents-command__headline">
-        <p className="ms-agents-command__tag">{pickLocale(locale, "Cognition tension", "Напряжение прочтения")}</p>
+        <p className="ms-agents-command__tag">{pickLocale(locale, "Agent read tension", "Напряжение прочтений")}</p>
         <h2 className="ms-agents-command__title">{tension.headline}</h2>
         <p className="ms-agents-command__structural line-clamp-2">{tension.structural}</p>
       </div>

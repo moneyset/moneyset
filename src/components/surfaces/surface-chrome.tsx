@@ -11,12 +11,14 @@ type SurfaceChromeProps = {
   eyebrow: string;
   title: string;
   subtitle?: string;
+  /** One-line section purpose — IA Phase 1. */
+  purpose?: string;
   className?: string;
   /** `support` = secondary surfaces visually recede (desktop hierarchy). */
   tone?: "primary" | "support";
 };
 
-export function SurfaceChrome({ eyebrow, title, subtitle, className, tone = "primary" }: SurfaceChromeProps) {
+export function SurfaceChrome({ eyebrow, title, subtitle, purpose, className, tone = "primary" }: SurfaceChromeProps) {
   const locale = useUiPrefsStore((s) => s.uiLocale);
   const settingsLabel = pickLocale(locale, "Settings", "Настройки");
 
@@ -49,6 +51,9 @@ export function SurfaceChrome({ eyebrow, title, subtitle, className, tone = "pri
             {title}
           </h2>
           {subtitle ? <p className="max-w-2xl text-[12px] leading-relaxed text-ms-muted">{subtitle}</p> : null}
+          {purpose ? (
+            <p className="max-w-2xl text-[13px] font-medium leading-snug text-ms-cognition/90">{purpose}</p>
+          ) : null}
         </div>
         {action}
       </div>
@@ -61,7 +66,12 @@ export function SurfaceChrome({ eyebrow, title, subtitle, className, tone = "pri
       eyebrow={eyebrow}
       title={title}
       description={
-        subtitle ? <p className="max-w-2xl text-[12px] leading-relaxed text-ms-muted">{subtitle}</p> : undefined
+        subtitle || purpose ? (
+          <div className="space-y-1.5">
+            {purpose ? <p className="max-w-2xl text-[13px] font-medium leading-snug text-ms-cognition/90">{purpose}</p> : null}
+            {subtitle ? <p className="max-w-2xl text-[12px] leading-relaxed text-ms-muted">{subtitle}</p> : null}
+          </div>
+        ) : undefined
       }
       action={action}
       className={cn("mb-[var(--ms-block-gap)] lg:mb-[var(--ms-section-gap)]", className)}

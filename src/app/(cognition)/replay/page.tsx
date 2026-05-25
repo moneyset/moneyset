@@ -34,8 +34,8 @@ export default function ReplayStudioPage() {
         capability="replayStudio"
         titleEn="Replay Studio"
         titleRu="Replay Studio"
-        bodyEn="Full temporal replay and structural recall — Founding and invitation access."
-        bodyRu="Полный временной реплей — Founding и приглашения."
+        bodyEn="Step through past market states — see how structure, posture, and scenarios evolved over time to sharpen your pattern recognition."
+        bodyRu="Пройдите через прошлые состояния рынка — как менялись структура, поза и сценарии, чтобы укрепить распознавание паттернов."
       >
         <ReplayStudioWorkspace />
       </PlatformAccessGate>

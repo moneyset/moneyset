@@ -9,6 +9,7 @@ import { useT } from "@/lib/i18n/use-t";
 import { useLocale } from "@/lib/i18n/use-t";
 import { cn } from "@/lib/utils";
 import { useUpgradeModalStore } from "@/store/upgrade-modal-store";
+import { hierarchySectionLabel } from "@/lib/i18n/section-ia";
 import type { PictureChangeKind } from "@/lib/intelligence/decision-layer-engine";
 
 function pictureGlyph(kind: PictureChangeKind): string {
@@ -30,19 +31,25 @@ export function DecisionLayerPanel({ className }: { className?: string }) {
   return (
     <section
       className={cn(
-        "mb-6 min-w-0 overflow-hidden rounded-ms-xl border border-ms-cognition/25 bg-gradient-to-b from-ms-cognition/[0.07] via-ms-surface/20 to-ms-elevated/12",
+        "mb-6 min-w-0 overflow-hidden rounded-ms-xl border border-ms-border/35 bg-ms-surface/20",
         className,
       )}
       aria-label={t("decision.aria")}
     >
-      <div className="border-b border-ms-border/20 px-4 py-4 sm:px-5 sm:py-5">
-        <p className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-ms-cognition/80">
+      <header className="border-b border-ms-border/20 px-4 py-2.5 sm:px-5">
+        <p className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-ms-faint">
+          {hierarchySectionLabel(locale, "reasoning")}
+        </p>
+      </header>
+
+      <div className="border-b border-ms-border/15 px-4 py-4 sm:px-5 sm:py-5">
+        <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-ms-faint">
           {t("decision.marketPosture")}
         </p>
-        <h1 className="mt-3 text-pretty text-[clamp(1.35rem,4.2vw,2rem)] font-semibold leading-[1.12] tracking-[-0.02em] text-ms-text">
+        <p className="mt-2 text-pretty text-[15px] font-semibold leading-snug tracking-tight text-ms-text sm:text-[16px]">
           {displayHeadline}
-        </h1>
-        <p className="mt-3 max-w-4xl text-pretty text-[13px] leading-relaxed text-ms-muted sm:text-[14px]">
+        </p>
+        <p className="mt-2 max-w-4xl text-pretty text-[12px] leading-relaxed text-ms-muted sm:text-[13px]">
           {decision.subline}
         </p>
       </div>

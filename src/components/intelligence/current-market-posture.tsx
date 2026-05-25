@@ -12,6 +12,7 @@ import {
   postureLabel,
   riskLevelLabel,
 } from "@/lib/intelligence/market-posture-engine";
+import { hierarchySectionLabel } from "@/lib/i18n/section-ia";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { cn } from "@/lib/utils";
 import { useUpgradeModalStore } from "@/store/upgrade-modal-store";
@@ -53,7 +54,7 @@ export function CurrentMarketPosture() {
     >
       <header className="border-b border-ms-border/30 px-4 py-3 sm:px-5 sm:py-3.5">
         <p className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-ms-faint sm:text-[11px]">
-          {pickLocale(locale, "Current Market Posture", "Текущая рыночная поза")}
+          {hierarchySectionLabel(locale, "evidence")} · {pickLocale(locale, "Current Market Posture", "Текущая рыночная поза")}
         </p>
       </header>
 
@@ -85,15 +86,15 @@ export function CurrentMarketPosture() {
           </>
         ) : (
           <div className="sm:col-span-2 lg:col-span-3">
-            <p className="text-[11px] leading-snug text-ms-faint">
+            <p className="text-[11px] leading-snug text-ms-muted">
               {pickLocale(
                 locale,
-                "Acceptance and risk zones are part of Founding execution intelligence.",
-                "Зоны принятия и риска — в Founding execution intelligence.",
+                "Price zones show where the market accepts position and where risk concentrates — visible with full access.",
+                "Ценовые зоны показывают, где рынок принимает позицию и где концентрируется риск — открываются при полном доступе.",
               )}
             </p>
-            <Button type="button" variant="ghost" size="sm" className="mt-2 h-8 px-2 text-[11px]" onClick={openUpgrade}>
-              {pickLocale(locale, "Founding access", "Founding доступ")}
+            <Button type="button" variant="outline" size="sm" className="mt-2 h-8 px-2 text-[11px]" onClick={openUpgrade}>
+              {pickLocale(locale, "Unlock — $79", "Открыть — $79")}
             </Button>
           </div>
         )}
@@ -113,14 +114,18 @@ export function CurrentMarketPosture() {
         </ul>
         {!canDeep ? (
           <p className="mt-2 text-[11px] text-ms-faint">
-            {pickLocale(locale, "Deep interpretation reserved for full access.", "Глубокое прочтение — при полном доступе.")}
+            {pickLocale(
+              locale,
+              "Additional context available with full access — see what drives this posture.",
+              "Дополнительный контекст открывается при полном доступе — что формирует эту позу.",
+            )}
           </p>
         ) : null}
       </div>
 
       <div className="border-t border-ms-border/25 px-4 py-4 sm:px-5">
         <p className="ms-data-label text-ms-faint">
-          {pickLocale(locale, "Execution implication", "Импликация для исполнения")}
+          {pickLocale(locale, "What this means for decisions", "Что это означает для решений")}
         </p>
         <p className="mt-2 text-pretty text-[13px] leading-relaxed text-ms-text sm:text-[14px]">
           {posture.executionImplication}

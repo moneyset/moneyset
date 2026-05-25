@@ -298,9 +298,13 @@ export function cognitionEntrySkip(locale: UiLocale): string {
   return pickLocale(locale, "Continue", "Продолжить");
 }
 
-export function cinematicIntroCopy(locale: UiLocale): Readonly<{ tagline: string }> {
+export function cinematicIntroCopy(locale: UiLocale): Readonly<{
+  tagline: string;
+  loadingLine: string;
+}> {
   return {
-    tagline: pickLocale(locale, "Institutional Market Intelligence", "Институциональный рыночный интеллект"),
+    tagline: pickLocale(locale, "Market Structure Before Consensus", "Структура рынка до консенсуса"),
+    loadingLine: pickLocale(locale, "Preparing market state", "Подготовка состояния рынка"),
   };
 }
 
@@ -502,22 +506,34 @@ export function cognitionOnboardingPrefsHint(locale: UiLocale): string {
 }
 
 export function premiumGatePreviewPosture(locale: UiLocale): string {
-  return pickLocale(locale, "Posture: measured → reactive window (tape-linked).", "Позиция: мера → реактивное окно (по ленте).");
+  return pickLocale(
+    locale,
+    "Action posture and directional bias — what the structure supports now.",
+    "Поза действия и направленный уклон — что поддерживает структура сейчас.",
+  );
 }
 
 export function premiumGatePreviewStructure(locale: UiLocale): string {
-  return pickLocale(locale, "Structure: reclaim shelf compressed vs acceptance core.", "Структура: полка откупа сжата к ядру принятия.");
+  return pickLocale(
+    locale,
+    "Key price zones identified — where to act and where risk concentrates.",
+    "Ключевые ценовые зоны определены — где действовать и где концентрируется риск.",
+  );
 }
 
 export function premiumGatePreviewScenario(locale: UiLocale): string {
-  return pickLocale(locale, "Scenario book: base path sponsorship drifting.", "Колода сценариев: спонсорство базового пути дрейфует.");
+  return pickLocale(
+    locale,
+    "Lead scenario active — tracking what would strengthen or break it.",
+    "Ведущий сценарий активен — отслеживаем, что укрепит или сломает его.",
+  );
 }
 
 export function premiumGatePreviewExecution(locale: UiLocale): string {
   return pickLocale(
     locale,
-    "Execution map · rails · memory — resolution gated; geometry only in preview.",
-    "Карта · рейлы · память — деталь за доступом; в превью только геометрия.",
+    "Full execution map and invalidation logic — what changes the read.",
+    "Полная карта исполнения и логика снятия — что меняет прочтение.",
   );
 }
 

@@ -109,6 +109,38 @@ export function ScenariosWorkspace({ className }: ScenariosWorkspaceProps) {
     return rotationEngineSummary(locale, book, primary, secondary);
   }, [locale, book, primary, secondary]);
 
+  const probabilityStructure = visible.length > 0 ? (
+    <div className="rounded-ms-xl border border-ms-border/18 bg-ms-surface/12 px-3 py-3 sm:px-4">
+      <p className="ms-data-label text-ms-faint">
+        {pickLocale(locale, "Path weight structure", "Структура весов путей")}
+      </p>
+      <ul className="mt-2 space-y-2">
+        {visible.slice(0, 3).map((card, i) => (
+          <li key={card.id} className="space-y-1">
+            <div className="flex items-center justify-between gap-2 text-[11px]">
+              <span className="truncate font-medium text-ms-text/90">
+                {i === 0
+                  ? pickLocale(locale, "Lead", "Ведущий")
+                  : i === 1
+                    ? pickLocale(locale, "Alternate", "Альтернатива")
+                    : pickLocale(locale, "Tail", "Хвост")}
+                {" · "}
+                {scenarioTitle(locale, card.id)}
+              </span>
+              <span className="shrink-0 font-mono tabular-nums text-ms-muted">{card.probabilityPct}%</span>
+            </div>
+            <div className="h-1 overflow-hidden rounded-full bg-ms-border/25">
+              <div
+                className="h-full rounded-full bg-ms-cognition/70"
+                style={{ width: `${Math.min(100, card.probabilityPct)}%` }}
+              />
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  ) : null;
+
   const secondarySection = (
     <section aria-labelledby="sc-secondary-path">
       <SectionHeader
@@ -278,11 +310,11 @@ export function ScenariosWorkspace({ className }: ScenariosWorkspaceProps) {
     <section aria-labelledby="sc-primary-path">
       <SectionHeader
         kicker={pickLocale(locale, "01", "01")}
-        title={pickLocale(locale, "Primary path", "Основной путь")}
+        title={pickLocale(locale, "Lead path", "Ведущий путь")}
         hint={pickLocale(
           locale,
-          "Dominant structural trajectory — execution implication is binding context, not a bet.",
-          "Доминантная траектория — импликация для исполнения как контекст, не ставка.",
+          "Highest structural weight in the deck — what the market is leaning toward now.",
+          "Наибольший структурный вес — куда рынок склоняется сейчас.",
         )}
       />
       <div className="relative overflow-hidden rounded-ms-xl border border-ms-border/28 bg-ms-surface/28 shadow-ms-xs">
@@ -319,9 +351,15 @@ export function ScenariosWorkspace({ className }: ScenariosWorkspaceProps) {
       <p className="max-w-2xl text-[11px] leading-relaxed text-ms-muted sm:text-[12px]">
         {pickLocale(
           locale,
-          "Competing structural paths evolve together. The deck ranks relative structural advantage — not point forecasts or retail certainty.",
-          "Пути конкурируют. Колода упорядочивает относительное преимущество — не точечный прогноз и не «уверенность в процентах».",
+          "Possible paths forward — ranked by structural weight. Probability reflects relative advantage inside the deck, not a price forecast.",
+          "Возможные пути — по структурному весу. Вероятность отражает относительное преимущество в колоде, не прогноз цены.",
         )}
+      </p>
+
+      {probabilityStructure}
+
+      <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-ms-faint">
+        {pickLocale(locale, "Reasoning · path cards", "Обоснование · карточки путей")}
       </p>
 
       <ExecutionInterpretationBridge />

@@ -93,7 +93,7 @@ export function UpgradeModal({ open, onClose }: UpgradeModalProps) {
                 onClose();
               }}
             >
-              {pickLocale(locale, "Founding · $79", "Founding · $79")}
+              {pickLocale(locale, "Unlock full access — $79", "Открыть полный доступ — $79")}
             </Button>
             <Button type="button" variant="ghost" className="w-full" onClick={onClose}>
               {t("upgrade.close")}

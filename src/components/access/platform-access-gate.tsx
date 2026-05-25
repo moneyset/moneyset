@@ -48,7 +48,7 @@ export function PlatformAccessGate({
       <p className="mt-4 text-[13px] font-medium text-ms-text">{pickLocale(locale, titleEn, titleRu)}</p>
       <p className="mt-2 max-w-md text-[12px] leading-relaxed text-ms-muted">{pickLocale(locale, bodyEn, bodyRu)}</p>
       <Button type="button" variant="cognition" size="sm" className="mt-5" onClick={openUpgrade}>
-        {pickLocale(locale, "Founding access · $79", "Founding · $79")}
+        {pickLocale(locale, "Unlock — $79", "Открыть — $79")}
       </Button>
     </div>
   );

@@ -10,6 +10,7 @@ export type WorldSurfaceChromeProps = {
   eyebrow?: string;
   title: string;
   subtitle?: string;
+  purpose?: string;
   actions?: ReactNode;
   className?: string;
 };
@@ -20,6 +21,7 @@ export function WorldSurfaceChrome({
   eyebrow,
   title,
   subtitle,
+  purpose,
   actions,
   className,
 }: WorldSurfaceChromeProps) {
@@ -29,6 +31,7 @@ export function WorldSurfaceChrome({
       <div className="ms-world-chrome__copy">
         {eyebrow ? <p className="ms-world-chrome__eyebrow">{eyebrow}</p> : null}
         <h1 className="ms-world-chrome__title">{title}</h1>
+        {purpose ? <p className="mt-1 text-[13px] font-medium leading-snug text-ms-cognition/90">{purpose}</p> : null}
         {subtitle ? <p className="ms-world-chrome__subtitle">{subtitle}</p> : null}
       </div>
       {actions ? <div className="ms-world-chrome__actions">{actions}</div> : null}
