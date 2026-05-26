@@ -5,6 +5,7 @@ import { useMemo, useState, type CSSProperties } from "react";
 
 import { CognitionPrimaryState } from "@/components/cognition/cognition-primary-state";
 import { useExecutionTerrain } from "@/hooks/use-execution-terrain";
+import { useMapFocus } from "@/hooks/use-map-focus";
 import type { ScenarioPathLane, TerrainBand, TerrainLayerKind } from "@/lib/execution/execution-terrain-engine";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { cn } from "@/lib/utils";
@@ -154,7 +155,7 @@ export function ExecutionTerrainTheater({ className }: { className?: string }) {
   const [focusMode, setFocusMode]         = useState(false);
   const [terrainMode, setTerrainMode]     = useState(true);
   const [replayOpen, setReplayOpen]       = useState(false);
-  const [expandedBandId, setExpandedBandId] = useState<string | null>(null);
+  const { activeId: expandedBandId, toggle: toggleBand, containerRef: mapContainerRef } = useMapFocus<string>();
 
   const theaterStyle = useMemo(
     () =>
@@ -189,9 +190,6 @@ export function ExecutionTerrainTheater({ className }: { className?: string }) {
 
   const zoneCtx = useZoneContext(locale, bundle);
 
-  const toggleBand = (id: string) =>
-    setExpandedBandId((prev) => (prev === id ? null : id));
-
   // Metric context strings
   const continuationCtx = bundle.continuationQuality >= 65
     ? pickLocale(locale, "Strong continuation signal", "Сильный сигнал продолжения")
@@ -213,6 +211,7 @@ export function ExecutionTerrainTheater({ className }: { className?: string }) {
 
   return (
     <section
+      ref={mapContainerRef}
       className={cn(
         "ms-exec-terrain-theater",
         terrainMode && "ms-exec-terrain-theater--mode-on",
@@ -240,7 +239,7 @@ export function ExecutionTerrainTheater({ className }: { className?: string }) {
           <button
             type="button"
             className={cn("ms-exec-terrain-toggle", focusMode && "ms-exec-terrain-toggle--on")}
-            onClick={() => { setFocusMode((v) => !v); setExpandedBandId(null); }}
+            onClick={() => { setFocusMode((v) => !v); }}
             aria-pressed={focusMode}
           >
             {pickLocale(locale, "Focus", "Фокус")}

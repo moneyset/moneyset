@@ -83,8 +83,13 @@ export function TelegramSettingsCard() {
               : "High-signal updates without spam. Link required for commands and rare alerts."}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <StatusPill accent={tg.status === "linked" ? "warning" : "neutral"}>{tg.status}</StatusPill>
-            {tg.chatId ? <StatusPill accent="neutral">chat {tg.chatId}</StatusPill> : null}
+            <StatusPill accent={tg.status === "linked" ? "warning" : "neutral"}>
+              {tg.status === "linked"
+                ? (uiLocale === "ru" ? "Подключён" : "Connected")
+                : tg.status === "pending"
+                  ? (uiLocale === "ru" ? "Ожидание" : "Pending")
+                  : (uiLocale === "ru" ? "Не подключён" : "Not linked")}
+            </StatusPill>
           </div>
         </div>
         <MessageSquareText className="size-5 text-ms-cognition/85" strokeWidth={1.5} aria-hidden />

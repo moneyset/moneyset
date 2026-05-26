@@ -166,7 +166,9 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     useAccessStore.getState().setProfile(guestProfile());
     useAccessStore.setState({ trialEndsAtTs: null, trialStarted: false });
     useSubscriptionStore.getState().setFree();
-    useEntryStore.getState().resetEntry();
+    // Do NOT reset entry — user already completed onboarding; don't force them through it again.
+    // Only set entryMode to guest so they can re-auth without the onboarding overlay.
+    useEntryStore.setState({ entryMode: "guest" });
   };
 
   const doSignOut = async () => {
@@ -205,7 +207,11 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="ms-data-label text-ms-faint">{t("auth.signedInAs")}</p>
-                <p className="mt-1 truncate font-mono text-[12px] text-ms-text">{auth.user.email}</p>
+                <p className="mt-1 truncate font-mono text-[12px] text-ms-text">
+                  {auth.user.email
+                    ? auth.user.email.replace(/^(.{2})(.*)(@.*)$/, (_, a, b, c) => `${a}${"•".repeat(b.length)}${c}`)
+                    : pickLocale(locale, "Telegram session", "Telegram сессия")}
+                </p>
               </div>
               <Button type="button" variant="outline" size="sm" onClick={doSignOut} disabled={!sb || isBusy}>
                 {t("auth.signOut")}
@@ -245,7 +251,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                 <span className="font-semibold" aria-hidden>G</span>
                 {t("auth.google")}
               </span>
-              <StatusPill accent="neutral">OAuth</StatusPill>
+              <StatusPill accent="neutral">{pickLocale(locale, "Secure", "Безопасно")}</StatusPill>
             </Button>
 
             {/* ── Tertiary: Email ── */}

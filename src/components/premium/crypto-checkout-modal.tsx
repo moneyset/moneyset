@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ExternalLink, Lock, Shield } from "lucide-react";
+import { ExternalLink, Shield } from "lucide-react";
 
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
@@ -50,7 +50,6 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
   const [poll, setPoll] = useState<InvoiceStatusResult | null>(null);
   const [note, setNote] = useState<string | null>(null);
 
-  const canUpgrade = sub.tier !== "premium" || sub.status !== "active";
 
   const invoiceId = useMemo(() => {
     if (invoice && invoice.ok) return invoice.invoiceId;
@@ -157,107 +156,164 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
     // eslint-disable-next-line react-hooks/exhaustive-deps -- poll while modal open
   }, [open, invoiceId, orderIdForPoll]);
 
+  const paid = poll?.ok && poll.status === "paid";
+  const confirming = poll?.ok && (poll.status === "confirming" || poll.status === "unpaid");
+  const hasInvoice = Boolean(invoiceId);
+
+  const planLabel = productId === "founding_access"
+    ? pickLocale(locale, "Founding Access", "Founding Access")
+    : (product?.label ?? "Premium");
+
   return (
     <Modal
       open={open}
       onClose={() => onClose()}
-      title={pickLocale(locale, "Crypto invoice", "Крипто-счёт")}
+      title={pickLocale(locale, "Complete your access", "Оформление доступа")}
       description={pickLocale(
         locale,
-        "Pay in USDT (TRC-20) via NOWPayments.",
-        "Оплата USDT (TRC-20) через NOWPayments.",
+        "Pay in USDT via NOWPayments — settlement is automatic.",
+        "Оплата USDT через NOWPayments — зачисление автоматическое.",
       )}
     >
       <div className="space-y-4">
+        {/* Order summary */}
         <div className="rounded-ms-xl border border-ms-border bg-ms-surface/35 p-4">
-          <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="ms-data-label text-ms-faint">Plan</p>
-              <p className="mt-1 text-[13px] font-semibold text-ms-text">{product?.label ?? "Premium"}</p>
-              <p className="mt-1 text-[12px] text-ms-muted">{product?.description ?? ""}</p>
-              <p className="mt-1 font-mono text-[11px] tabular-nums text-ms-faint">
-                ${product?.priceUsd ?? "—"} USD
-              </p>
+              <p className="ms-data-label text-ms-faint">{pickLocale(locale, "You are purchasing", "Вы покупаете")}</p>
+              <p className="mt-1 text-[14px] font-semibold text-ms-text">{planLabel}</p>
+              {productId === "founding_access" && (
+                <p className="mt-1 text-[12px] text-ms-muted">
+                  {pickLocale(locale, "Lifetime access · no renewal", "Пожизненный доступ · без продления")}
+                </p>
+              )}
             </div>
-            <StatusPill accent={sub.status === "active" ? "warning" : "neutral"}>{sub.status}</StatusPill>
+            <div className="text-right">
+              <p className="font-mono text-[20px] font-semibold tabular-nums text-ms-text">
+                ${product?.priceUsd ?? "—"}
+              </p>
+              <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-ms-faint">USD</p>
+            </div>
           </div>
-          <div className="mt-4 flex flex-wrap items-center gap-2">
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             <StatusPill accent="neutral">USDT · TRC-20</StatusPill>
+            {paid && <StatusPill accent="warning">{pickLocale(locale, "Payment received", "Оплата получена")}</StatusPill>}
+            {confirming && !paid && <StatusPill accent="neutral">{pickLocale(locale, "Awaiting confirmation", "Ожидаем подтверждения")}</StatusPill>}
           </div>
         </div>
 
+        {/* Action zone */}
         <div className="rounded-ms-xl border border-ms-border bg-ms-elevated/20 p-4">
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Button type="button" variant="outline" className="flex-1" disabled={!canUpgrade || busy || !signedIn} onClick={create}>
-              Create invoice
-            </Button>
-            <Button type="button" variant="outline" className="flex-1" disabled={!invoiceId || busy} onClick={() => void check()}>
-              Check status
-            </Button>
-          </div>
-
-          {invoice && invoice.ok ? (
-            <div className="mt-4 space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="ms-data-label text-ms-faint">Invoice</p>
-                <StatusPill accent="neutral">
-                  {invoice.provider} · {invoice.status}
-                </StatusPill>
-              </div>
-              <div className="rounded-ms-lg border border-ms-border bg-ms-surface/45 px-3 py-2">
-                <p className="font-mono text-[11px] text-ms-text">{invoice.invoiceId}</p>
-              </div>
-
-              {invoice.paymentUrl ? (
+          {!hasInvoice ? (
+            <>
+              <p className="mb-3 text-[12px] leading-relaxed text-ms-muted">
+                {signedIn
+                  ? pickLocale(
+                      locale,
+                      "Tap below to generate a USDT payment address. You will be redirected to NOWPayments to complete the transfer.",
+                      "Нажмите ниже для генерации адреса USDT. Вы будете перенаправлены на NOWPayments для перевода.",
+                    )
+                  : pickLocale(locale, "Sign in first to create a payment invoice.", "Войдите, чтобы создать счёт.")}
+              </p>
+              <Button
+                type="button"
+                variant="cognition"
+                className="w-full"
+                disabled={busy || !signedIn}
+                onClick={create}
+              >
+                {busy
+                  ? pickLocale(locale, "Preparing invoice…", "Готовим счёт…")
+                  : pickLocale(locale, "Generate USDT invoice", "Создать счёт USDT")}
+              </Button>
+              {!signedIn && (
+                <p className="mt-3 text-center text-[11px] text-ms-muted">
+                  <button type="button" onClick={openAuth} className="text-ms-cognition/80 hover:text-ms-cognition">
+                    {pickLocale(locale, "Sign in →", "Войти →")}
+                  </button>
+                </p>
+              )}
+            </>
+          ) : (
+            <div className="space-y-3">
+              {/* Payment URL */}
+              {invoice && invoice.ok && invoice.paymentUrl ? (
                 <a
                   href={invoice.paymentUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="ms-focus-ring inline-flex items-center gap-2 rounded-ms-md border border-ms-border bg-ms-surface/60 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.14em] text-ms-text hover:border-ms-border-mid"
+                  className="ms-focus-ring flex w-full items-center justify-center gap-2 rounded-ms-lg border border-ms-cognition/40 bg-ms-cognition/8 px-4 py-3 text-[13px] font-medium text-ms-text hover:border-ms-cognition/60 hover:bg-ms-cognition/12 transition-colors"
                 >
                   <ExternalLink className="size-4" strokeWidth={1.5} />
-                  Open payment page
+                  {pickLocale(locale, "Open payment page", "Открыть страницу оплаты")}
                 </a>
               ) : (
-                <div className="rounded-ms-lg border border-dashed border-ms-border bg-ms-elevated/15 px-3 py-3 text-[12px] text-ms-muted">
+                <div className="rounded-ms-lg border border-dashed border-ms-border bg-ms-elevated/15 px-4 py-3 text-center text-[12px] text-ms-muted">
                   {pickLocale(
                     locale,
-                    "Payment link is being prepared. Use Check status after a moment.",
-                    "Ссылка готовится. Нажмите «Проверить статус» через минуту.",
+                    "Payment page is loading — use 'Check status' in a moment.",
+                    "Страница загружается — нажмите 'Проверить' через момент.",
                   )}
                 </div>
               )}
-            </div>
-          ) : null}
 
-          {poll && poll.ok ? (
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-ms-lg border border-ms-border bg-ms-surface/45 px-3 py-2">
+              {/* Poll status */}
               <div className="flex items-center gap-2">
-                <Lock className="size-4 text-ms-muted" strokeWidth={1.5} />
-                <p className="text-[12px] text-ms-muted">Status</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  disabled={busy}
+                  onClick={() => void check()}
+                >
+                  {busy
+                    ? pickLocale(locale, "Checking…", "Проверяем…")
+                    : pickLocale(locale, "Check payment status", "Проверить статус")}
+                </Button>
+                {poll?.ok && (
+                  <StatusPill accent={paid ? "warning" : "neutral"}>
+                    {paid
+                      ? pickLocale(locale, "Paid", "Оплачено")
+                      : poll.status === "confirming"
+                        ? pickLocale(locale, "Confirming", "Подтверждается")
+                        : poll.status === "expired"
+                          ? pickLocale(locale, "Expired", "Истёк")
+                          : pickLocale(locale, "Awaiting", "Ожидание")}
+                  </StatusPill>
+                )}
               </div>
-              <StatusPill accent={poll.status === "paid" ? "warning" : "neutral"}>{poll.status}</StatusPill>
+
+              {/* Waiting hint */}
+              {hasInvoice && !paid && (
+                <p className="text-[11px] leading-relaxed text-ms-faint">
+                  {pickLocale(
+                    locale,
+                    "Status checks automatically every 12 seconds. Access activates immediately after confirmation.",
+                    "Статус проверяется каждые 12 сек. Доступ активируется сразу после подтверждения.",
+                  )}
+                </p>
+              )}
             </div>
-          ) : null}
+          )}
 
           {note ? (
-            <div className="mt-4 rounded-ms-lg border border-ms-border bg-ms-elevated/20 px-3 py-2 text-[12px] text-ms-muted">
+            <div className={`mt-4 rounded-ms-lg border px-3 py-2 text-[12px] ${paid ? "border-ms-warning/40 bg-ms-warning/8 text-ms-text" : "border-ms-border bg-ms-elevated/20 text-ms-muted"}`}>
               {note}
             </div>
           ) : null}
         </div>
 
-        <div className="rounded-ms-xl border border-ms-border bg-ms-elevated/15 p-4">
-          <div className="flex items-start gap-2">
-            <Shield className="mt-0.5 size-4 text-ms-warning/70" strokeWidth={1.5} aria-hidden />
-            <p className="text-[12px] leading-snug text-ms-muted">
-              {pickLocale(
-                locale,
-                "Settlement server-side. Tier follows invoice state.",
-                "Проводка на сервере. Уровень по статусу счёта.",
-              )}
-            </p>
-          </div>
+        {/* Trust note */}
+        <div className="flex items-start gap-2 px-1">
+          <Shield className="mt-0.5 size-3.5 flex-shrink-0 text-ms-warning/60" strokeWidth={1.5} aria-hidden />
+          <p className="text-[11px] leading-snug text-ms-faint">
+            {pickLocale(
+              locale,
+              "Settlement is fully automatic. Your access tier is updated server-side within seconds of confirmation.",
+              "Зачисление полностью автоматическое. Уровень доступа обновляется на сервере в течение секунд после подтверждения.",
+            )}
+          </p>
         </div>
       </div>
     </Modal>

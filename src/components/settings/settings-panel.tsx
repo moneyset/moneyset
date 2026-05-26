@@ -15,6 +15,7 @@ import { trialAccessEndsLine } from "@/lib/i18n/trust-surface";
 import { Button } from "@/components/ui/button";
 import { InvitationAdminPanel } from "@/components/settings/invitation-admin-panel";
 import { TelegramSettingsCard } from "@/components/settings/telegram-settings-card";
+import { AccountDashboardCard } from "@/components/settings/account-dashboard-card";
 import { accessTierLabel } from "@/lib/access/capabilities";
 import type { CognitionDensityMode } from "@/store/ui-prefs-store";
 import {
@@ -82,6 +83,8 @@ export function SettingsPanel() {
       ) : null}
 
       <div className="grid grid-cols-1 gap-[var(--ms-block-gap)] lg:grid-cols-2">
+        <AccountDashboardCard />
+
         <CognitionPanel
           id="preferences-appearance"
           eyebrow={pickLocale(locale, "Localization", "Локализация")}

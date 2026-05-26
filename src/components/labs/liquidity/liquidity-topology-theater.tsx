@@ -8,6 +8,7 @@ import { SignatureMomentBanner } from "@/components/cognition/signature-moment-b
 import { LiquidityPhysicsLayer } from "@/components/liquidity/liquidity-physics-layer";
 import { useLiquidityTheater } from "@/hooks/use-liquidity-theater";
 import { useLiveSurfaceMotion } from "@/hooks/use-live-surface-motion";
+import { useMapFocus } from "@/hooks/use-map-focus";
 import type { LiquidityRegimeId, TerrainFeature } from "@/lib/intelligence/liquidity-topology-theater";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { cn } from "@/lib/utils";
@@ -223,7 +224,7 @@ export function LiquidityTopologyTheater({ className }: { className?: string }) 
   const bundle = useLiquidityTheater();
   const live   = useLiveSurfaceMotion("liquidity");
   const [replayOpen, setReplayOpen]       = useState(false);
-  const [expandedFeatureId, setExpandedFeatureId] = useState<string | null>(null);
+  const { activeId: expandedFeatureId, toggle: toggleFeature, containerRef: mapContainerRef } = useMapFocus<string>();
 
   const theaterStyle = useMemo(
     () =>
@@ -247,11 +248,11 @@ export function LiquidityTopologyTheater({ className }: { className?: string }) 
   // Max 6 features on screen at once to reduce clutter
   const visibleFeatures = sortedFeatures.slice(0, 6);
 
-  const toggleFeature = (id: string) =>
-    setExpandedFeatureId((prev) => (prev === id ? null : id));
+
 
   return (
     <section
+      ref={mapContainerRef}
       className={cn(
         "ms-liq-theater",
         "ms-liq-topology-theater",
