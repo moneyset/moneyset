@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/ui/status-pill";
 import { supabaseBrowser } from "@/lib/supabase/browser";
 import { guestProfile } from "@/lib/access/roles";
+import { hasFounderAccess } from "@/lib/access/founder";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { useAccessStore } from "@/store/access-store";
 import { useAuthStore } from "@/store/auth-store";
@@ -54,7 +55,7 @@ export function AccountDashboardCard() {
   const signedIn = auth.status === "signed_in" && Boolean(auth.user?.id);
   const email = auth.user?.email ?? null;
 
-  const isFounder = profile.foundingAccess || profile.accessLevel === "founding";
+  const isFounder = hasFounderAccess(profile);
   const isPremium = isFounder || profile.accessTier === "premium";
 
   // Access level label

@@ -5,6 +5,7 @@
 
 import type { ProfileAccess } from "@/lib/access/roles";
 import { hasExtendedAccess, isAdmin } from "@/lib/access/roles";
+import { hasFounderAccess } from "@/lib/access/founder";
 
 export type AccessCapability =
   | "marketPostureCore"
@@ -44,7 +45,7 @@ export function hasFullPlatformAccess(profile: ProfileAccess): boolean {
 export function accessTierLabel(profile: ProfileAccess): "free" | "founding" | "invitation" | "admin" {
   if (isAdmin(profile)) return "admin";
   if (isInvitationActive(profile)) return "invitation";
-  if (profile.foundingAccess || profile.accessLevel === "founding") return "founding";
+  if (hasFounderAccess(profile)) return "founding";
   if (hasExtendedAccess(profile)) return "founding";
   return "free";
 }
