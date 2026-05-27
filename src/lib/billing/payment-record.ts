@@ -110,7 +110,12 @@ export async function markPaymentPaid(
     return { ok: true, alreadyPaid: true };
   }
 
-  const { error: updateErr } = await admin
+  // Atomic transition: the UPDATE returns the updated row only if it matched
+  // (i.e. status was still not "paid"). If another concurrent request already
+  // transitioned to "paid", PostgreSQL's row-level lock serializes the UPDATEs
+  // and this UPDATE matches 0 rows — .select() returns an empty array, which
+  // we treat as alreadyPaid: true, preventing double-processing.
+  const { data: updated, error: updateErr } = await admin
     .from("payments")
     .update({
       status: "paid",
@@ -122,10 +127,13 @@ export async function markPaymentPaid(
       updated_at: new Date().toISOString(),
     })
     .eq("idempotency_key", idempotencyKey)
-    .neq("status", "paid");   // optimistic lock — skip if already paid
+    .neq("status", "paid")
+    .select("id");   // returns [] if 0 rows matched = concurrent winner already did it
 
   if (updateErr) return { ok: false, error: updateErr.message };
-  return { ok: true, alreadyPaid: false };
+
+  const didUpdate = Array.isArray(updated) && updated.length > 0;
+  return { ok: true, alreadyPaid: !didUpdate };
 }
 
 /**

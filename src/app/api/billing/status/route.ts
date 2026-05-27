@@ -20,11 +20,14 @@ export const dynamic = "force-dynamic";
  *
  * Security model:
  * - The client supplies an invoiceId only.
- * - The orderId and amount are retrieved from the payment provider's API —
- *   never from client-supplied query parameters.
+ * - Ownership is verified BEFORE calling the payment provider API:
+ *   (a) If a payments table record exists, user_id must match the authenticated user.
+ *   (b) If no record exists yet (invoice just created), ownership is verified via the
+ *       provider's order_id after the provider call — and the result is only returned
+ *       to the owner.
  * - Access is only unlocked when:
- *   (a) The authenticated user ID matches the user encoded in the provider's order_id
- *   (b) The provider's price_amount >= the product's catalog price
+ *   (a) Authenticated user ID matches the user encoded in the provider's order_id
+ *   (b) provider's price_amount is not null AND >= the product's catalog price
  *   (c) Payment status is "paid"
  * - This endpoint is a UX polling fallback. The webhook is the authoritative path.
  */
@@ -40,10 +43,13 @@ export async function GET(req: Request) {
 
   const admin = supabaseAdmin();
 
-  // Require authentication for all status checks
   const authUserId = await resolveRequestUserId(req, admin);
   if (!authUserId) {
     return NextResponse.json({ ok: false, error: "Authentication required" }, { status: 401 });
+  }
+
+  if (!admin) {
+    return NextResponse.json({ ok: false, error: "Billing service unavailable" }, { status: 503 });
   }
 
   try {
@@ -53,6 +59,35 @@ export async function GET(req: Request) {
       return NextResponse.json({ ok: false, error: "Missing invoiceId" }, { status: 400 });
     }
 
+    // ── Ownership pre-check via payments table ───────────────────────────────
+    // If a record exists for this invoice, enforce ownership BEFORE calling the
+    // provider. This prevents any authenticated user from probing arbitrary invoice IDs.
+    const existingRecord = await getPaymentByInvoiceId(admin, invoiceId);
+    if (existingRecord) {
+      if (existingRecord.user_id !== authUserId) {
+        return NextResponse.json(
+          { ok: false, error: "This invoice does not belong to your account." },
+          { status: 403 },
+        );
+      }
+      // If already paid, ensure the profile is unlocked and return immediately
+      if (existingRecord.status === "paid") {
+        await unlockProfileForProduct(
+          admin,
+          authUserId,
+          existingRecord.product_id,
+          existingRecord.order_id,
+        );
+        return NextResponse.json({
+          ok: true,
+          provider: existingRecord.provider,
+          invoiceId,
+          status: "paid",
+        });
+      }
+    }
+
+    // ── Call provider to get current status ──────────────────────────────────
     const provider = paymentProvider();
     const result = await provider.getInvoiceStatus({ invoiceId });
 
@@ -63,7 +98,7 @@ export async function GET(req: Request) {
       );
     }
 
-    // ── If not yet paid, return status immediately — nothing to unlock ──────
+    // Not yet paid — return status now (no unlock needed)
     if (result.status !== "paid") {
       return NextResponse.json({
         ok: true,
@@ -73,14 +108,7 @@ export async function GET(req: Request) {
       });
     }
 
-    // ── Payment is "paid" — verify before granting access ───────────────────
-
-    if (!admin) {
-      return NextResponse.json(
-        { ok: false, error: "Billing service unavailable" },
-        { status: 503 },
-      );
-    }
+    // ── Payment is "paid" — full verification before granting access ─────────
 
     // 1. Get the order_id from the PROVIDER — not from the client
     const providerOrderId = result.providerOrderId;
@@ -100,7 +128,7 @@ export async function GET(req: Request) {
       );
     }
 
-    // 3. Verify authenticated user owns this order
+    // 3. Verify authenticated user owns this order (second ownership check — defense in depth)
     if (orderUserId !== authUserId) {
       return NextResponse.json(
         { ok: false, error: "This invoice does not belong to your account." },
@@ -108,7 +136,7 @@ export async function GET(req: Request) {
       );
     }
 
-    // 4. Look up catalog product and verify price integrity
+    // 4. Look up catalog product
     const product = billingProduct(productId);
     if (!product) {
       return NextResponse.json(
@@ -117,32 +145,29 @@ export async function GET(req: Request) {
       );
     }
 
+    // 5. Amount integrity — reject null amounts (do not silently skip the check)
     const providerAmount = result.providerPriceAmount;
-    if (providerAmount !== null && providerAmount < product.priceUsd) {
-      // Amount paid is less than the catalog price — reject
+    if (providerAmount === null) {
       return NextResponse.json(
         {
           ok: false,
-          error: `Payment amount insufficient. Expected $${product.priceUsd}, got $${providerAmount}.`,
+          error:
+            "Provider did not return a payment amount. Cannot verify payment integrity. Contact support.",
+        },
+        { status: 502 },
+      );
+    }
+    if (providerAmount < product.priceUsd) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: `Payment amount insufficient. Expected $${product.priceUsd}, received $${providerAmount}.`,
         },
         { status: 422 },
       );
     }
 
-    // 5. Check if we already processed this invoice (idempotency via payments table)
-    const existingRecord = await getPaymentByInvoiceId(admin, invoiceId);
-    if (existingRecord?.status === "paid") {
-      // Already processed — ensure profile is unlocked and return success
-      await unlockProfileForProduct(admin, authUserId, productId, providerOrderId);
-      return NextResponse.json({
-        ok: true,
-        provider: result.provider,
-        invoiceId: result.invoiceId,
-        status: "paid",
-      });
-    }
-
-    // 6. Create or update the payment record, then unlock
+    // 6. Create payment record if it doesn't exist yet
     if (!existingRecord) {
       await createPendingPayment(admin, {
         idempotencyKey: invoiceId,
@@ -155,17 +180,22 @@ export async function GET(req: Request) {
       });
     }
 
+    // 7. Mark as paid (idempotent — see markPaymentPaid for TOCTOU handling)
     const markResult = await markPaymentPaid(admin, invoiceId, {
       paidAmount: providerAmount,
       currency: result.providerPayCurrency,
     });
 
     if (!markResult.ok) {
-      // Non-fatal — log but continue with profile unlock
+      // markPaymentPaid failed — could be a record-not-found race in an edge case,
+      // but we proceed to unlock anyway so the user is not stranded. Logged for monitoring.
       console.error("[billing/status] markPaymentPaid failed:", markResult.error);
     }
 
-    // 7. Unlock profile entitlement
+    // If concurrent webhook already processed and unlocked, still call unlock
+    // here — unlockProfileForProduct is idempotent via last_payment_order_id.
+
+    // 8. Unlock profile entitlement
     const unlockResult = await unlockProfileForProduct(admin, authUserId, productId, providerOrderId);
     if (!unlockResult.ok) {
       return NextResponse.json(
@@ -182,7 +212,10 @@ export async function GET(req: Request) {
     });
   } catch (e) {
     return NextResponse.json(
-      { ok: false, error: sanitizeApiError(e instanceof Error ? e.message : "Billing status error") },
+      {
+        ok: false,
+        error: sanitizeApiError(e instanceof Error ? e.message : "Billing status error"),
+      },
       { status: 500 },
     );
   }

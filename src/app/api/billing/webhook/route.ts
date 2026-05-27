@@ -114,10 +114,19 @@ export async function POST(req: Request) {
   const rawExpected = body.price_amount ?? null;
   const priceAmount = rawExpected !== null ? parseFloat(String(rawExpected)) : null;
 
-  // Amount integrity check: reject if reported price is less than catalog price.
-  // We compare against the catalog price (server-authoritative) as the floor.
+  // Amount integrity check: null amount is not tolerated — if the IPN contains no
+  // amount fields at all, reject rather than silently skipping the check.
+  // priceAmount (price_amount) is preferred; paidAmount (actually_paid / pay_amount)
+  // is the fallback for providers that omit price_amount in the IPN.
   const amountToCheck = priceAmount ?? paidAmount;
-  if (amountToCheck !== null && amountToCheck < product.priceUsd) {
+  if (amountToCheck === null) {
+    console.error("[billing/webhook] IPN missing all amount fields:", { orderId });
+    return NextResponse.json(
+      { ok: false, error: "IPN missing payment amount — cannot verify price integrity." },
+      { status: 422 },
+    );
+  }
+  if (amountToCheck < product.priceUsd) {
     console.error(
       "[billing/webhook] amount too low:",
       { orderId, amountToCheck, expectedMin: product.priceUsd },
@@ -176,6 +185,12 @@ export async function POST(req: Request) {
       { ok: false, error: "Payment record could not be updated" },
       { status: 502 },
     );
+  }
+
+  // If another concurrent request already processed this payment, stop here.
+  // The profile unlock already happened — no need to repeat it.
+  if (markResult.alreadyPaid) {
+    return NextResponse.json({ ok: true, alreadyProcessed: true, orderId });
   }
 
   // ── 6. Unlock entitlement ────────────────────────────────────────────────
