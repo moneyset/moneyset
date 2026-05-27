@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 
 import { capabilitiesFor } from "@/lib/access/capabilities";
-import { expireInvitationIfNeeded } from "@/lib/access/invitation";
-import { expirePremiumIfNeeded } from "@/lib/access/premium-expiry";
 import { entitlementsFor, guestProfile, roleFromProfile } from "@/lib/access/roles";
 import { resolveRequestUserId } from "@/lib/access/request-user";
 import { isFounderTelegramId } from "@/lib/access/founder";
@@ -12,16 +10,25 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 export const dynamic = "force-dynamic";
 
 /**
- * Read-only profile + entitlement endpoint.
+ * Pure read endpoint — profile + entitlements.
  *
- * This endpoint must NOT write to the database.
- * - Expiry helpers (invitation, premium) run as background tasks and are
- *   accepted as a necessary side-effect on a read endpoint; they don't affect
- *   the response and are called from nowhere else.
- * - Founder access: the DB row is set authoritative at Telegram login time
- *   (src/app/api/auth/telegram/route.ts). This route reads the DB row and
- *   applies the founding override in-memory only — it does NOT write to DB.
- *   If the DB row is stale, the user should re-login to refresh it.
+ * MUST NOT write to the database.
+ *
+ * Access decisions (expiry, founder override) are computed in-memory from the
+ * DB row values — no compensating DB writes happen here.
+ *
+ * Expiry cleanup (downgrading stale access_level / role columns) is the sole
+ * responsibility of the scheduled cron job at /api/cron/expire-access.
+ *
+ * Why in-memory expiry is safe:
+ *   - hasExtendedAccess() checks profile.premiumUntil date before granting access
+ *   - isInvitationActive() checks profile.invitationUntil date before granting access
+ *   - A stale access_level column in the DB cannot grant access through either gate
+ *   - The cron job cleans up stale columns asynchronously
+ *
+ * Founder override:
+ *   - Applied in-memory only. The DB row is set correctly at Telegram login time
+ *     (api/auth/telegram/route.ts). If the DB row is stale, re-login refreshes it.
  */
 export async function GET(req: Request) {
   const admin = supabaseAdmin();
@@ -36,10 +43,6 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: true, profile, entitlements: entitlementsFor(profile) });
   }
 
-  // TTL checks — run in background, do not await
-  void expireInvitationIfNeeded(admin, userId);
-  void expirePremiumIfNeeded(admin, userId);
-
   const { data, error } = await admin.from("profiles").select("*").eq("id", userId).maybeSingle();
   if (error) {
     return NextResponse.json(
@@ -50,8 +53,7 @@ export async function GET(req: Request) {
 
   const rawProfile = data ?? {};
 
-  // Founder override: applied in-memory only, no DB write from this path.
-  // DB is kept authoritative by the Telegram login route on each sign-in.
+  // Founder override: in-memory only, no DB write from this path.
   const telegramUserId = (rawProfile as Record<string, unknown>).telegram_user_id;
   const telegramUserIdStr =
     typeof telegramUserId === "string" || typeof telegramUserId === "number"
