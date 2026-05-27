@@ -1,6 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-/** Resolve authenticated user id — Bearer JWT in production; dev may use x-ms-user-id. */
+/**
+ * Resolve the authenticated user ID from an incoming server-side Request.
+ *
+ * Production: only a valid Supabase Bearer JWT is accepted.
+ * Development: additionally accepts the `x-ms-user-id` header for local testing
+ *              without a full auth flow.
+ */
 export async function resolveRequestUserId(
   req: Request,
   admin?: SupabaseClient | null,
@@ -12,6 +18,7 @@ export async function resolveRequestUserId(
     if (!error && data.user?.id) return data.user.id;
   }
 
+  // Development convenience only — never in production.
   if (process.env.NODE_ENV !== "production") {
     const headerId = req.headers.get("x-ms-user-id")?.trim();
     if (headerId) return headerId;
@@ -20,9 +27,20 @@ export async function resolveRequestUserId(
   return null;
 }
 
+/**
+ * Build auth headers for client → server API calls.
+ *
+ * In production, only the Bearer token is sent.
+ * The `x-ms-user-id` header is omitted — the server ignores it in production,
+ * and sending it would unnecessarily leak the user UUID in request headers.
+ */
 export function authHeadersForUser(userId: string | null, accessToken?: string | null): HeadersInit {
   const headers: Record<string, string> = {};
-  if (userId) headers["x-ms-user-id"] = userId;
-  if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
+  if (accessToken) {
+    headers["Authorization"] = `Bearer ${accessToken}`;
+  } else if (userId && process.env.NODE_ENV !== "production") {
+    // Development fallback only
+    headers["x-ms-user-id"] = userId;
+  }
   return headers;
 }

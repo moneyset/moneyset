@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ExternalLink, Shield } from "lucide-react";
 
 import { Modal } from "@/components/ui/modal";
@@ -17,6 +17,10 @@ import { useSubscriptionStore } from "@/store/subscription-store";
 import type { CreateInvoiceResult, InvoiceStatusResult } from "@/types/billing";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
 import { useShallow } from "zustand/react/shallow";
+
+// 30 minutes at 12-second intervals
+const POLL_INTERVAL_MS = 12_000;
+const POLL_MAX_TICKS = 150; // 30 min
 
 type CryptoCheckoutModalProps = {
   open: boolean;
@@ -49,33 +53,38 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
   const [invoice, setInvoice] = useState<CreateInvoiceResult | null>(null);
   const [poll, setPoll] = useState<InvoiceStatusResult | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const pollTicksRef = useRef(0);
 
-
+  // Effective invoice ID — prefer freshly-created invoice; fall back to
+  // last known invoice from the subscription store (resume-on-reload support)
   const invoiceId = useMemo(() => {
     if (invoice && invoice.ok) return invoice.invoiceId;
     return sub.lastInvoiceId;
   }, [invoice, sub.lastInvoiceId]);
 
+  // Reset state when modal closes
   useEffect(() => {
     if (!open) {
       setInvoice(null);
       setPoll(null);
       setNote(null);
       setBusy(false);
+      pollTicksRef.current = 0;
     }
   }, [open]);
 
-  const orderIdForPoll = invoice && invoice.ok ? invoice.orderId : null;
-
-  const check = async (opts?: { invoiceId?: string; orderId?: string }) => {
+  /**
+   * Poll the billing status endpoint.
+   * The server now derives the orderId and verifies ownership/amount
+   * from the provider's API — we only send the invoiceId.
+   */
+  const check = useCallback(async (opts?: { invoiceId?: string }) => {
     const pollInvoiceId = opts?.invoiceId ?? invoiceId;
-    const pollOrderId = opts?.orderId ?? orderIdForPoll;
     if (!pollInvoiceId) return;
     setBusy(true);
     setNote(null);
     try {
       const qs = new URLSearchParams({ invoiceId: pollInvoiceId });
-      if (pollOrderId) qs.set("orderId", pollOrderId);
       const res = await fetch(`/api/billing/status?${qs.toString()}`, {
         headers: authHeadersForUser(user?.id ?? null, session?.access_token ?? null),
         cache: "no-store",
@@ -88,11 +97,15 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
           provider: json.provider,
           periodDays: isFounding ? null : (product?.subscriptionDays ?? 30),
         });
+        // Refresh authoritative server-side profile
         const me = await fetch("/api/access/me", {
           headers: authHeadersForUser(user?.id ?? null, session?.access_token ?? null),
           cache: "no-store",
         });
-        const profileJson = (await me.json()) as { ok: boolean; profile?: Parameters<typeof setProfile>[0] };
+        const profileJson = (await me.json()) as {
+          ok: boolean;
+          profile?: Parameters<typeof setProfile>[0];
+        };
         if (profileJson.ok && profileJson.profile) setProfile(profileJson.profile);
         setNote(
           pickLocale(
@@ -102,13 +115,15 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
           ),
         );
       }
-      if (!json.ok) setNote(json.error);
+      if (!json.ok) setNote("error" in json ? json.error : null);
     } catch {
-      setNote(pickLocale(locale, "Could not verify payment. Try again.", "Не удалось проверить оплату."));
+      setNote(
+        pickLocale(locale, "Could not verify payment. Try again.", "Не удалось проверить оплату."),
+      );
     } finally {
       setBusy(false);
     }
-  };
+  }, [invoiceId, user?.id, session?.access_token, productId, product?.subscriptionDays, locale, sub, setProfile]);
 
   const create = async () => {
     if (!signedIn) {
@@ -131,38 +146,48 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
       setInvoice(json);
       if (json.ok) {
         sub.setPendingInvoice({ provider: json.provider, invoiceId: json.invoiceId });
-        if (json.paymentUrl) void check({ invoiceId: json.invoiceId, orderId: json.orderId });
+        pollTicksRef.current = 0;
+        if (json.paymentUrl) void check({ invoiceId: json.invoiceId });
       }
-      if (!json.ok) setNote(json.error);
+      if (!json.ok) setNote("error" in json ? json.error : null);
     } catch {
-      setNote(pickLocale(locale, "Could not create invoice. Try again.", "Не удалось создать счёт."));
+      setNote(
+        pickLocale(locale, "Could not create invoice. Try again.", "Не удалось создать счёт."),
+      );
     } finally {
       setBusy(false);
     }
   };
 
+  // Auto-poll every 12 s for up to 30 minutes while the modal is open
+  // and an invoice is active. Stops immediately when paid.
   useEffect(() => {
-    if (!open || !invoiceId || !orderIdForPoll) return;
-    let ticks = 0;
+    if (!open || !invoiceId) return;
+    if (poll?.ok && poll.status === "paid") return;
+
     const id = window.setInterval(() => {
-      ticks += 1;
-      if (ticks > 24) {
+      pollTicksRef.current += 1;
+      if (pollTicksRef.current > POLL_MAX_TICKS) {
         window.clearInterval(id);
         return;
       }
       void check();
-    }, 12_000);
+    }, POLL_INTERVAL_MS);
+
     return () => window.clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- poll while modal open
-  }, [open, invoiceId, orderIdForPoll]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- check is stable via useCallback
+  }, [open, invoiceId, poll?.ok && "status" in (poll ?? {}) ? poll?.status : null]);
 
   const paid = poll?.ok && poll.status === "paid";
   const confirming = poll?.ok && (poll.status === "confirming" || poll.status === "unpaid");
   const hasInvoice = Boolean(invoiceId);
+  // Resume UX: invoice exists but was loaded from store (not freshly created this session)
+  const isResumedInvoice = hasInvoice && !(invoice?.ok);
 
-  const planLabel = productId === "founding_access"
-    ? pickLocale(locale, "Founding Access", "Founding Access")
-    : (product?.label ?? "Premium");
+  const planLabel =
+    productId === "founding_access"
+      ? pickLocale(locale, "Founding Access", "Founding Access")
+      : (product?.label ?? "Premium");
 
   return (
     <Modal
@@ -180,11 +205,17 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
         <div className="rounded-ms-xl border border-ms-border bg-ms-surface/35 p-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="ms-data-label text-ms-faint">{pickLocale(locale, "You are purchasing", "Вы покупаете")}</p>
+              <p className="ms-data-label text-ms-faint">
+                {pickLocale(locale, "You are purchasing", "Вы покупаете")}
+              </p>
               <p className="mt-1 text-[14px] font-semibold text-ms-text">{planLabel}</p>
               {productId === "founding_access" && (
                 <p className="mt-1 text-[12px] text-ms-muted">
-                  {pickLocale(locale, "Lifetime access · no renewal", "Пожизненный доступ · без продления")}
+                  {pickLocale(
+                    locale,
+                    "Lifetime access · no renewal",
+                    "Пожизненный доступ · без продления",
+                  )}
                 </p>
               )}
             </div>
@@ -192,13 +223,23 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
               <p className="font-mono text-[20px] font-semibold tabular-nums text-ms-text">
                 ${product?.priceUsd ?? "—"}
               </p>
-              <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-ms-faint">USD</p>
+              <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-ms-faint">
+                USD
+              </p>
             </div>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <StatusPill accent="neutral">USDT · TRC-20</StatusPill>
-            {paid && <StatusPill accent="warning">{pickLocale(locale, "Payment received", "Оплата получена")}</StatusPill>}
-            {confirming && !paid && <StatusPill accent="neutral">{pickLocale(locale, "Awaiting confirmation", "Ожидаем подтверждения")}</StatusPill>}
+            {paid && (
+              <StatusPill accent="warning">
+                {pickLocale(locale, "Payment received", "Оплата получена")}
+              </StatusPill>
+            )}
+            {confirming && !paid && (
+              <StatusPill accent="neutral">
+                {pickLocale(locale, "Awaiting confirmation", "Ожидаем подтверждения")}
+              </StatusPill>
+            )}
           </div>
         </div>
 
@@ -213,7 +254,11 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
                       "Tap below to generate a USDT payment address. You will be redirected to NOWPayments to complete the transfer.",
                       "Нажмите ниже для генерации адреса USDT. Вы будете перенаправлены на NOWPayments для перевода.",
                     )
-                  : pickLocale(locale, "Sign in first to create a payment invoice.", "Войдите, чтобы создать счёт.")}
+                  : pickLocale(
+                      locale,
+                      "Sign in first to create a payment invoice.",
+                      "Войдите, чтобы создать счёт.",
+                    )}
               </p>
               <Button
                 type="button"
@@ -228,7 +273,11 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
               </Button>
               {!signedIn && (
                 <p className="mt-3 text-center text-[11px] text-ms-muted">
-                  <button type="button" onClick={openAuth} className="text-ms-cognition/80 hover:text-ms-cognition">
+                  <button
+                    type="button"
+                    onClick={openAuth}
+                    className="text-ms-cognition/80 hover:text-ms-cognition"
+                  >
                     {pickLocale(locale, "Sign in →", "Войти →")}
                   </button>
                 </p>
@@ -236,6 +285,17 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
             </>
           ) : (
             <div className="space-y-3">
+              {/* Resume notice */}
+              {isResumedInvoice && (
+                <div className="rounded-ms-lg border border-ms-border/60 bg-ms-elevated/15 px-3 py-2 text-[11px] text-ms-muted">
+                  {pickLocale(
+                    locale,
+                    "Resuming previous payment session — checking your transaction status.",
+                    "Возобновляем предыдущую оплату — проверяем статус транзакции.",
+                  )}
+                </div>
+              )}
+
               {/* Payment URL */}
               {invoice && invoice.ok && invoice.paymentUrl ? (
                 <a
@@ -248,13 +308,15 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
                   {pickLocale(locale, "Open payment page", "Открыть страницу оплаты")}
                 </a>
               ) : (
-                <div className="rounded-ms-lg border border-dashed border-ms-border bg-ms-elevated/15 px-4 py-3 text-center text-[12px] text-ms-muted">
-                  {pickLocale(
-                    locale,
-                    "Payment page is loading — use 'Check status' in a moment.",
-                    "Страница загружается — нажмите 'Проверить' через момент.",
-                  )}
-                </div>
+                !isResumedInvoice && (
+                  <div className="rounded-ms-lg border border-dashed border-ms-border bg-ms-elevated/15 px-4 py-3 text-center text-[12px] text-ms-muted">
+                    {pickLocale(
+                      locale,
+                      "Payment page is loading — use 'Check status' in a moment.",
+                      "Страница загружается — нажмите 'Проверить' через момент.",
+                    )}
+                  </div>
+                )
               )}
 
               {/* Poll status */}
@@ -289,8 +351,8 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
                 <p className="text-[11px] leading-relaxed text-ms-faint">
                   {pickLocale(
                     locale,
-                    "Status checks automatically every 12 seconds. Access activates immediately after confirmation.",
-                    "Статус проверяется каждые 12 сек. Доступ активируется сразу после подтверждения.",
+                    "Checks automatically every 12 seconds for up to 30 minutes. Access activates immediately after confirmation.",
+                    "Проверка каждые 12 сек в течение 30 минут. Доступ активируется сразу после подтверждения.",
                   )}
                 </p>
               )}
@@ -298,7 +360,9 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
           )}
 
           {note ? (
-            <div className={`mt-4 rounded-ms-lg border px-3 py-2 text-[12px] ${paid ? "border-ms-warning/40 bg-ms-warning/8 text-ms-text" : "border-ms-border bg-ms-elevated/20 text-ms-muted"}`}>
+            <div
+              className={`mt-4 rounded-ms-lg border px-3 py-2 text-[12px] ${paid ? "border-ms-warning/40 bg-ms-warning/8 text-ms-text" : "border-ms-border bg-ms-elevated/20 text-ms-muted"}`}
+            >
               {note}
             </div>
           ) : null}
@@ -306,7 +370,11 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
 
         {/* Trust note */}
         <div className="flex items-start gap-2 px-1">
-          <Shield className="mt-0.5 size-3.5 flex-shrink-0 text-ms-warning/60" strokeWidth={1.5} aria-hidden />
+          <Shield
+            className="mt-0.5 size-3.5 flex-shrink-0 text-ms-warning/60"
+            strokeWidth={1.5}
+            aria-hidden
+          />
           <p className="text-[11px] leading-snug text-ms-faint">
             {pickLocale(
               locale,
@@ -319,4 +387,3 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
     </Modal>
   );
 }
-

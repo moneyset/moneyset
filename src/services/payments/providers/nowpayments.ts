@@ -116,7 +116,17 @@ export const nowPaymentsProvider: PaymentProvider = {
       if (process.env.NODE_ENV === "production") {
         return { ok: false, error: "Payment provider not configured" };
       }
-      return { ok: true, provider: "nowpayments", invoiceId, status: "unpaid", expiresAtTs: null };
+      // Development stub — returns safe "unpaid" so no unlock is triggered
+      return {
+        ok: true,
+        provider: "nowpayments",
+        invoiceId,
+        status: "unpaid",
+        providerOrderId: null,
+        providerPriceAmount: null,
+        providerPayCurrency: null,
+        expiresAtTs: null,
+      };
     }
 
     const apiKey = process.env.NOWPAYMENTS_API_KEY!.trim();
@@ -130,6 +140,7 @@ export const nowPaymentsProvider: PaymentProvider = {
     }
     const json = (await res.json()) as unknown;
     const obj = (json ?? {}) as Record<string, unknown>;
+
     const s = String((obj.invoice_status ?? obj.status ?? "unknown") as string).toLowerCase();
     const status: InvoiceStatus =
       s.includes("paid") || s.includes("finished")
@@ -141,6 +152,29 @@ export const nowPaymentsProvider: PaymentProvider = {
             : s.includes("fail")
               ? "failed"
               : "unpaid";
-    return { ok: true, provider: "nowpayments", invoiceId, status, expiresAtTs: null };
+
+    // Retrieve the authoritative order_id and price from the provider response.
+    // These are what was embedded at invoice creation time — clients cannot alter them.
+    const providerOrderId =
+      typeof obj.order_id === "string" ? obj.order_id.trim() || null : null;
+    const providerPriceAmount =
+      typeof obj.price_amount === "number"
+        ? obj.price_amount
+        : typeof obj.price_amount === "string"
+          ? parseFloat(obj.price_amount) || null
+          : null;
+    const providerPayCurrency =
+      typeof obj.pay_currency === "string" ? obj.pay_currency.trim().toLowerCase() || null : null;
+
+    return {
+      ok: true,
+      provider: "nowpayments",
+      invoiceId,
+      status,
+      providerOrderId,
+      providerPriceAmount,
+      providerPayCurrency,
+      expiresAtTs: null,
+    };
   },
 };

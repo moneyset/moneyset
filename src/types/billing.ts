@@ -53,6 +53,16 @@ export type InvoiceStatusResult = Readonly<{
   provider: PaymentProviderId;
   invoiceId: string;
   status: InvoiceStatus;
+  /**
+   * The order_id as stored at the payment provider.
+   * Authoritative for ownership verification — comes from the provider's API response,
+   * never from client-supplied query parameters.
+   */
+  providerOrderId: string | null;
+  /** Price amount from the provider invoice — used for amount integrity checks. */
+  providerPriceAmount: number | null;
+  /** Pay currency from the provider invoice. */
+  providerPayCurrency: string | null;
   paidAtTs?: number | null;
   expiresAtTs?: number | null;
 }> | Readonly<{ ok: false; error: string }>;
