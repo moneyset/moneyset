@@ -12,7 +12,6 @@ type AuthState = {
   user: User | null;
   setAuth: (session: Session | null) => void;
   setGuest: () => void;
-  signOutLocal: () => void;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -31,13 +30,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({
       status: "signed_out",
       sessionMode: "guest",
-      session: null,
-      user: null,
-    }),
-  signOutLocal: () =>
-    set({
-      status: "signed_out",
-      sessionMode: "unknown",
       session: null,
       user: null,
     }),

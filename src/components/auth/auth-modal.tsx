@@ -9,12 +9,9 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { useT } from "@/lib/i18n/use-t";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
 import { supabaseBrowser } from "@/lib/supabase/browser";
-import { guestProfile } from "@/lib/access/roles";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
+import { clearClientSession } from "@/lib/auth/sign-out";
 import { useAuthStore } from "@/store/auth-store";
-import { useAccessStore } from "@/store/access-store";
-import { useSubscriptionStore } from "@/store/subscription-store";
-import { useEntryStore } from "@/store/entry-store";
 import { useShallow } from "zustand/react/shallow";
 import { authModalPolicyNote } from "@/lib/i18n/trust-surface";
 import { useTelegramAuth } from "@/hooks/use-telegram-auth";
@@ -162,22 +159,13 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     }
   };
 
-  const clearLocalSession = () => {
-    useAccessStore.getState().setProfile(guestProfile());
-    useAccessStore.setState({ trialEndsAtTs: null, trialStarted: false });
-    useSubscriptionStore.getState().setFree();
-    // Do NOT reset entry — user already completed onboarding; don't force them through it again.
-    // Only set entryMode to guest so they can re-auth without the onboarding overlay.
-    useEntryStore.setState({ entryMode: "guest" });
-  };
-
   const doSignOut = async () => {
     setNote(null);
     if (!sb) return;
     setBusy(true);
     try {
       await sb.auth.signOut();
-      clearLocalSession();
+      clearClientSession();
     } finally {
       setBusy(false);
     }

@@ -7,14 +7,14 @@ import { CognitionPanel } from "@/components/ui/panel";
 import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/ui/status-pill";
 import { supabaseBrowser } from "@/lib/supabase/browser";
-import { guestProfile } from "@/lib/access/roles";
 import { hasFounderAccess } from "@/lib/access/founder";
+import { hasFullPlatformAccess } from "@/lib/access/capabilities";
+import { clearClientSession } from "@/lib/auth/sign-out";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { useAccessStore } from "@/store/access-store";
 import { useAuthStore } from "@/store/auth-store";
 import { useSubscriptionStore } from "@/store/subscription-store";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
-import { useEntryStore } from "@/store/entry-store";
 import { useTelegramStore } from "@/store/telegram-store";
 import { useUpgradeModalStore } from "@/store/upgrade-modal-store";
 import { useShallow } from "zustand/react/shallow";
@@ -56,7 +56,9 @@ export function AccountDashboardCard() {
   const email = auth.user?.email ?? null;
 
   const isFounder = hasFounderAccess(profile);
-  const isPremium = isFounder || profile.accessTier === "premium";
+  // Use the canonical platform-access check — mirrors the same logic as server-side
+  // hasFullPlatformAccess() and the client gates, rather than a one-off inline check.
+  const isPremium = hasFullPlatformAccess(profile);
 
   // Access level label
   const accessLabel = isFounder
@@ -83,10 +85,7 @@ export function AccountDashboardCard() {
     setSigningOut(true);
     try {
       await sb.auth.signOut();
-      useAccessStore.getState().setProfile(guestProfile());
-      useAccessStore.setState({ trialEndsAtTs: null, trialStarted: false });
-      useSubscriptionStore.getState().setFree();
-      useEntryStore.setState({ entryMode: "guest" });
+      clearClientSession();
     } finally {
       setSigningOut(false);
     }
