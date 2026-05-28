@@ -4,6 +4,7 @@ import { AnimatePresence, m } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 
 import { useTelegramAuth } from "@/hooks/use-telegram-auth";
+import { openInExternalBrowser } from "@/lib/auth/telegram-client";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { msEase, msTransition } from "@/lib/theme/motion";
 import { cn } from "@/lib/utils";
@@ -258,6 +259,10 @@ export function MoneysetEntryOnboarding() {
   };
 
   const continueWithGoogle = async () => {
+    if (inTelegram) {
+      openInExternalBrowser(`${window.location.origin}/auth`);
+      return;
+    }
     if (!sb) return;
     setGoogleBusy(true);
     try {

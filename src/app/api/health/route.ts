@@ -12,13 +12,17 @@ export async function GET() {
   const isProd = process.env.NODE_ENV === "production";
 
   let supabaseOk = false;
+  let supabaseError: string | null = null;
   const admin = supabaseAdmin();
+  const adminConfigured = Boolean(admin);
   if (admin) {
     try {
       const { error } = await admin.from("profiles").select("id").limit(1);
       supabaseOk = !error;
-    } catch {
+      if (error) supabaseError = error.message;
+    } catch (e) {
       supabaseOk = false;
+      supabaseError = e instanceof Error ? e.message : "connection_failed";
     }
   }
 
@@ -39,7 +43,9 @@ export async function GET() {
       env: isProd
         ? { ok: envCheck.ok, missing: envCheck.missing, invalid: envCheck.invalid }
         : { ok: true, mode: "development" },
-      supabase: supabaseOk,
+      supabase: isProd
+        ? { ok: supabaseOk, adminConfigured, error: supabaseError }
+        : { ok: true, mode: "development" },
     },
     { status: ok ? 200 : 503 },
   );

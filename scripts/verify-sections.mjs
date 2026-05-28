@@ -7,7 +7,7 @@ const base = (process.argv[2] ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://loc
 
 const PAGES = [
   { path: "/", name: "Core", markers: ["MONEYSET", "ms-"] },
-  { path: "/index", name: "Market Index", markers: ["Market Index", "ms-market-index", "Regime"] },
+  { path: "/market-index", name: "Market Index", markers: ["ms-market-index", "ms-market-index-hero"] },
   { path: "/execution", name: "Execution", markers: ["ms-", "Execution"] },
   { path: "/scenarios", name: "Scenarios", markers: ["ms-", "Scenario"] },
   { path: "/ops", name: "Ops", markers: ["ms-"] },

@@ -67,6 +67,7 @@ export function useTelegramAuth() {
 
       if (json.profile) setProfile(json.profile);
       completeEntry("telegram");
+      useAccessStore.getState().retryProfileSync?.();
       return true;
     } catch (e) {
       setError(e instanceof Error ? e.message : "Telegram sign-in failed");

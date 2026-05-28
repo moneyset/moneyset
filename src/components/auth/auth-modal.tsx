@@ -15,6 +15,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { useShallow } from "zustand/react/shallow";
 import { authModalPolicyNote } from "@/lib/i18n/trust-surface";
 import { useTelegramAuth } from "@/hooks/use-telegram-auth";
+import { openInExternalBrowser } from "@/lib/auth/telegram-client";
 
 type AuthModalProps = {
   open: boolean;
@@ -80,6 +81,17 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
   const doOAuth = async () => {
     setNote(null);
+    if (inTelegram) {
+      setNote(
+        pickLocale(
+          locale,
+          "Google sign-in opens in your browser — Telegram cannot complete OAuth inside the Mini App.",
+          "Вход через Google откроется в браузере — OAuth в Mini App недоступен.",
+        ),
+      );
+      openInExternalBrowser(`${window.location.origin}/auth`);
+      return;
+    }
     if (!sb) return;
     setBusy(true);
     try {

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { useTelegramAuth } from "@/hooks/use-telegram-auth";
+import { openInExternalBrowser } from "@/lib/auth/telegram-client";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { supabaseBrowser, authCallbackUrl } from "@/lib/supabase/browser";
 import { useAuthStore } from "@/store/auth-store";
@@ -43,6 +44,17 @@ export function AuthPage() {
   };
 
   const handleGoogle = async () => {
+    if (inTelegram) {
+      setOauthError(
+        pickLocale(
+          locale,
+          "Open in browser to continue with Google — OAuth is blocked inside Telegram.",
+          "Откройте в браузере для входа через Google — OAuth в Telegram недоступен.",
+        ),
+      );
+      openInExternalBrowser(`${window.location.origin}/auth`);
+      return;
+    }
     if (!sb) return;
     setGoogleBusy(true);
     try {

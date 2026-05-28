@@ -54,10 +54,10 @@ export const useAccessStore = create<AccessState>()(
       setSyncLoading: () => set({ syncStatus: "loading" }),
 
       setSyncError: () =>
-        set({
-          serverConfirmed: false,
+        set((s) => ({
           syncStatus: "error",
-        }),
+          serverConfirmed: s.serverConfirmed || hasExtendedAccess(s.profile),
+        })),
 
       registerProfileSyncRetry: (fn) => set({ retryProfileSync: fn }),
 

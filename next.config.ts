@@ -11,6 +11,9 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  async redirects() {
+    return [{ source: "/index", destination: "/market-index", permanent: true }];
+  },
   async headers() {
     return [
       {

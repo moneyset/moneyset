@@ -19,7 +19,7 @@ export function useOptimisticEntitlement(): boolean {
   const syncStatus = useAccessStore((s) => s.syncStatus);
   const profile = useAccessStore((s) => s.profile);
   if (confirmed) return false;
-  return syncStatus === "loading" && hasExtendedAccess(profile);
+  return (syncStatus === "loading" || syncStatus === "error") && hasExtendedAccess(profile);
 }
 
 export function useCapabilities() {
@@ -32,14 +32,25 @@ function clientTrialActive(trialEndsAtTs: number | null): boolean {
   return trialEndsAtTs != null && trialEndsAtTs > Date.now();
 }
 
+function canEvaluateAccess(
+  confirmed: boolean,
+  syncStatus: "idle" | "loading" | "confirmed" | "error",
+  profile: ReturnType<typeof useAccessStore.getState>["profile"],
+): boolean {
+  if (confirmed) return true;
+  if (syncStatus === "error") return true;
+  if (syncStatus === "loading" && hasExtendedAccess(profile)) return true;
+  if (syncStatus === "idle") return true;
+  return false;
+}
+
 export function useFullPlatformAccess(): boolean {
   const profile = useAccessStore((s) => s.profile);
   const trial = useAccessStore((s) => s.trialEndsAtTs);
   const confirmed = useAccessStore((s) => s.serverConfirmed);
   const syncStatus = useAccessStore((s) => s.syncStatus);
-  const optimistic = !confirmed && syncStatus === "loading" && hasExtendedAccess(profile);
 
-  if (!confirmed && !optimistic) return false;
+  if (!canEvaluateAccess(confirmed, syncStatus, profile)) return false;
   if (hasFullPlatformAccess(profile)) return true;
   return clientTrialActive(trial);
 }
@@ -49,9 +60,8 @@ export function useCanAccessCapability(capability: AccessCapability): boolean {
   const trial = useAccessStore((s) => s.trialEndsAtTs);
   const confirmed = useAccessStore((s) => s.serverConfirmed);
   const syncStatus = useAccessStore((s) => s.syncStatus);
-  const optimistic = !confirmed && syncStatus === "loading" && hasExtendedAccess(profile);
 
-  if (!confirmed && !optimistic) return false;
+  if (!canEvaluateAccess(confirmed, syncStatus, profile)) return false;
   if (clientTrialActive(trial)) return true;
   return canAccessCapability(profile, capability);
 }

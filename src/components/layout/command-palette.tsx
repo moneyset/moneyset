@@ -7,6 +7,7 @@ import {
   Binary,
   BookOpen,
   Crown,
+  Gauge,
   Globe2,
   History,
   LayoutGrid,
@@ -37,6 +38,7 @@ type Cmd = Readonly<{
 
 const ITEMS: Cmd[] = [
   { id: "home", label: "Core", hint: "Operational command", href: "/", icon: LayoutGrid },
+  { id: "market-index", label: "Market Index", hint: "Regime synthesis", href: "/market-index", icon: Gauge },
   { id: "execution", label: "Execution", hint: "Zones · ladder · posture", href: "/execution", icon: Crown },
   { id: "scenarios", label: "Scenarios", hint: "Path deck", href: "/scenarios", icon: Binary },
   { id: "ops", label: "Ops", hint: "Operational timeline", href: "/ops", icon: ScrollText },

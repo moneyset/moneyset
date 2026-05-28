@@ -94,6 +94,7 @@ export function resolveMobileWorldFromPath(pathname: string): CognitionWorldId |
   if (pathname === "/agents" || pathname.startsWith("/agents/")) return "agents";
   if (pathname === "/execution" || pathname.startsWith("/execution/")) return "execution";
   if (pathname === "/replay" || pathname.startsWith("/replay/")) return "replay";
+  if (pathname === "/market-index" || pathname.startsWith("/market-index/")) return "macro";
   if (pathname === "/index" || pathname.startsWith("/index/")) return "macro";
   if (pathname === "/macro" || pathname.startsWith("/macro/")) return "macro";
   if (pathname === "/sentiment" || pathname.startsWith("/sentiment/")) return "sentiment";

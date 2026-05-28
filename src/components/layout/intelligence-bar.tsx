@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Menu, Settings, UserRound } from "lucide-react";
+import { Menu, Settings, UserRound, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
@@ -13,6 +13,8 @@ import { useAuthModalStore } from "@/store/auth-modal-store";
 import { useUpgradeModalStore } from "@/store/upgrade-modal-store";
 import { useProfileCenterStore } from "@/store/profile-center-store";
 import { useAuthStore } from "@/store/auth-store";
+import { supabaseBrowser } from "@/lib/supabase/browser";
+import { clearClientSession } from "@/lib/auth/sign-out";
 import { useAccessStore } from "@/store/access-store";
 import { hasFounderAccess } from "@/lib/access/founder";
 import { useMarketStore } from "@/store/market-store";
@@ -62,6 +64,13 @@ export function IntelligenceBar() {
   const handleAccountClick = () => {
     if (signedIn) openProfileCenter("overview");
     else openAuth();
+  };
+
+  const handleSignOut = async () => {
+    const sb = supabaseBrowser();
+    if (!sb) return;
+    await sb.auth.signOut();
+    clearClientSession();
   };
 
   const handleFoundingClick = () => {
@@ -186,6 +195,16 @@ export function IntelligenceBar() {
           >
             <UserRound className="size-4" strokeWidth={1.5} />
           </button>
+          {signedIn ? (
+            <button
+              type="button"
+              className="ms-focus-ring flex size-9 min-h-10 min-w-10 shrink-0 touch-manipulation items-center justify-center rounded-ms-md border border-ms-border/55 bg-ms-surface/35 text-ms-muted transition-colors hover:border-ms-border-mid hover:text-ms-text"
+              aria-label={pickLocale(locale, "Sign out", "Выйти")}
+              onClick={() => void handleSignOut()}
+            >
+              <LogOut className="size-3.5" strokeWidth={1.5} />
+            </button>
+          ) : null}
         </div>
 
         <div className="col-span-3 min-w-0 border-t border-ms-border/20 pt-1.5">
@@ -270,6 +289,16 @@ export function IntelligenceBar() {
           >
             <UserRound className="size-3.5" strokeWidth={1.4} />
           </button>
+          {signedIn ? (
+            <button
+              type="button"
+              className="ms-focus-ring flex size-8 shrink-0 touch-manipulation items-center justify-center rounded-ms-md border border-ms-border/40 bg-ms-surface/25 text-ms-faint transition-colors hover:border-ms-border/60 hover:text-ms-muted"
+              aria-label={pickLocale(locale, "Sign out", "Выйти")}
+              onClick={() => void handleSignOut()}
+            >
+              <LogOut className="size-3.5" strokeWidth={1.4} />
+            </button>
+          ) : null}
         </div>
       </div>
     </header>

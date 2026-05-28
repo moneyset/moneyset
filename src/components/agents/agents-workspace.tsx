@@ -3,7 +3,6 @@
 import { PlatformAccessGate } from "@/components/access/platform-access-gate";
 import { AgentConsensusBattle } from "@/components/agents/agent-consensus-battle";
 import { CognitionNavRail } from "@/components/cognition/cognition-nav-rail";
-import { useCanAccessCapability } from "@/hooks/use-capabilities";
 import { AgentCommandStrip } from "@/components/agents/agent-command-strip";
 import { SignatureMomentBanner } from "@/components/cognition/signature-moment-banner";
 import { AgentConvictionPhysics } from "@/components/agents/agent-conviction-physics";
@@ -26,7 +25,24 @@ export type AgentsWorkspaceProps = {
 export function AgentsWorkspace({ className }: AgentsWorkspaceProps) {
   const locale = useUiPrefsStore((s) => s.uiLocale);
   const live = useLiveSurfaceMotion("agents");
-  const fullAgents = useCanAccessCapability("agentConsensusFull");
+
+  const premiumAgents = (
+    <>
+      <AgentWowEvents className="mb-5" />
+      <AgentWarRoom className="mb-6" />
+      <div className="ms-agents-system__grid gap-5 lg:grid-cols-12">
+        <div className="lg:col-span-7">
+          <AgentDebateEngine className="h-full rounded-ms-2xl border border-ms-border/20 bg-ms-surface/6 p-4 sm:p-5" />
+        </div>
+        <div className="lg:col-span-5">
+          <AgentConvictionPhysics className="h-full rounded-ms-2xl border border-ms-border/20 bg-ms-surface/6 p-4 sm:p-5" />
+        </div>
+        <div className="lg:col-span-12">
+          <AgentTimeline className="rounded-ms-2xl border border-ms-border/20 bg-ms-surface/6 p-4 sm:p-5" />
+        </div>
+      </div>
+    </>
+  );
 
   return (
     <section
@@ -80,35 +96,17 @@ export function AgentsWorkspace({ className }: AgentsWorkspaceProps) {
       <p className="mb-4 font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-ms-faint">
         {pickLocale(locale, "Evidence · specialist read influence and alignment", "Доказательная база · влияние и сходимость прочтений")}
       </p>
-      {fullAgents ? <AgentWowEvents className="mb-5" /> : null}
       <AgentConsensusBattle className="mb-5" />
-      {fullAgents ? (
-        <>
-          <AgentWarRoom className="mb-6" />
-          <div className="ms-agents-system__grid gap-5 lg:grid-cols-12">
-            <div className="lg:col-span-7">
-              <AgentDebateEngine className="h-full rounded-ms-2xl border border-ms-border/20 bg-ms-surface/6 p-4 sm:p-5" />
-            </div>
-            <div className="lg:col-span-5">
-              <AgentConvictionPhysics className="h-full rounded-ms-2xl border border-ms-border/20 bg-ms-surface/6 p-4 sm:p-5" />
-            </div>
-            <div className="lg:col-span-12">
-              <AgentTimeline className="rounded-ms-2xl border border-ms-border/20 bg-ms-surface/6 p-4 sm:p-5" />
-            </div>
-          </div>
-        </>
-      ) : (
-        <PlatformAccessGate
-          capability="agentConsensusFull"
-          titleEn="Full specialist analysis"
-          titleRu="Полный анализ специалистов"
-          bodyEn="Six specialist reads — structure, liquidity, flow, sentiment, macro, and risk. See where they agree, where they conflict, and what it means for your decision."
-          bodyRu="Шесть специализированных прочтений — структура, ликвидность, поток, настроение, макро и риск. Где они сходятся, где конфликтуют и что это значит для решения."
-          className="mt-4"
-        >
-          <span />
-        </PlatformAccessGate>
-      )}
+      <PlatformAccessGate
+        capability="agentConsensusFull"
+        titleEn="Full specialist analysis"
+        titleRu="Полный анализ специалистов"
+        bodyEn="Six specialist reads — structure, liquidity, flow, sentiment, macro, and risk. See where they agree, where they conflict, and what it means for your decision."
+        bodyRu="Шесть специализированных прочтений — структура, ликвидность, поток, настроение, макро и риск. Где они сходятся, где конфликтуют и что это значит для решения."
+        className="mt-4"
+      >
+        {premiumAgents}
+      </PlatformAccessGate>
 
       <CognitionNavRail className="mt-6" links={[{ href: "/execution", labelEn: "Execution", labelRu: "Исполнение" }]} />
     </section>

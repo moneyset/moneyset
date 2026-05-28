@@ -5,7 +5,7 @@ import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n/use-t";
-import { useCanAccessCapability, useOptimisticEntitlement, useServerConfirmed } from "@/hooks/use-capabilities";
+import { useCanAccessCapability } from "@/hooks/use-capabilities";
 import { useCanAccess } from "@/hooks/use-entitlements";
 import { useExtendedCognitionAccess } from "@/hooks/use-extended-cognition-access";
 import type { AccessCapability } from "@/lib/access/capabilities";
@@ -31,16 +31,12 @@ type PremiumGateProps = {
 };
 
 export function PremiumGate({ children, onUnlock, className, preview = true, feature, capability }: PremiumGateProps) {
-  const confirmed = useServerConfirmed();
-  const optimistic = useOptimisticEntitlement();
-  const extended = useExtendedCognitionAccess();
   const capAllowed = useCanAccessCapability(capability ?? "executionMap");
   const featureAllowed = useCanAccess(feature ?? "executionMap");
+  const extended = useExtendedCognitionAccess();
   const entitled = capability ? capAllowed : feature ? featureAllowed : extended;
   const t = useT();
   const locale = useUiPrefsStore((s) => s.uiLocale);
-
-  if (!confirmed && !optimistic) return null;
 
   if (entitled) return <>{children}</>;
 

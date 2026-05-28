@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase/browser";
 import { clearClientSession } from "@/lib/auth/sign-out";
 import { useAuthStore } from "@/store/auth-store";
+import { useAccessStore } from "@/store/access-store";
 import { useEntryStore } from "@/store/entry-store";
 
 /**
@@ -41,6 +42,7 @@ export function AuthBootstrap() {
         if (!useEntryStore.getState().entryComplete) {
           useEntryStore.getState().completeEntry("account");
         }
+        useAccessStore.getState().retryProfileSync?.();
       } else {
         // No stored session on load — clear any stale access state immediately.
         clearClientSession();
@@ -58,6 +60,7 @@ export function AuthBootstrap() {
         if (!useEntryStore.getState().entryComplete) {
           useEntryStore.getState().completeEntry("account");
         }
+        useAccessStore.getState().retryProfileSync?.();
       } else {
         // Auth loss: token expired, revoked, explicit signOut from another tab, etc.
         // Reset access immediately — do NOT wait for useProfileAccess to refetch.
