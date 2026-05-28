@@ -9,7 +9,8 @@ import {
   binancePremiumIndex,
 } from "@/services/binance/rest";
 import { BINANCE_FAPI_BASE } from "@/services/binance/constants";
-import { cacheGet, cacheSet, fetchJson, num } from "@/lib/services/shared/http";
+import { fetchBinanceJson, intervalToBinance } from "@/lib/binance/upstream";
+import { cacheGet, cacheSet, num } from "@/lib/services/shared/http";
 import type { OhlcCandle } from "@/types/market";
 import { momentumFromCandles, realizedVolFromCandles } from "@/lib/market/metrics";
 
@@ -29,10 +30,11 @@ function cleanSymbol(s: string): string {
   return (s || "BTCUSDT").trim().replace(/[^A-Z0-9]/gi, "").toUpperCase() || "BTCUSDT";
 }
 
-async function fetchKlines(symbol: string, interval = "1", limit = 180): Promise<OhlcCandle[]> {
+async function fetchKlines(symbol: string, interval = "1m", limit = 180): Promise<OhlcCandle[]> {
   const sym = cleanSymbol(symbol);
-  const url = `${BINANCE_FAPI_BASE}/fapi/v1/klines?symbol=${sym}&interval=${interval}&limit=${limit}`;
-  const raw = await fetchJson<unknown[][]>(url, { timeoutMs: 15_000 });
+  const binanceInterval = intervalToBinance(interval);
+  const url = `${BINANCE_FAPI_BASE}/fapi/v1/klines?symbol=${sym}&interval=${binanceInterval}&limit=${limit}`;
+  const raw = await fetchBinanceJson<unknown[][]>(url);
   if (!Array.isArray(raw)) return [];
   return raw
     .map((row) => {
@@ -43,7 +45,7 @@ async function fetchKlines(symbol: string, interval = "1", limit = 180): Promise
       const close = num(row[4]);
       const openTime = num(row[0]);
       if (open === null || high === null || low === null || close === null || openTime === null) return null;
-      return { time: openTime, open, high, low, close };
+      return { time: Math.floor(openTime / 1000), open, high, low, close };
     })
     .filter((c): c is OhlcCandle => c !== null);
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { isTelegramIntegrationEnabled, telegramDisabledResponse } from "@/lib/ops/feature-flags";
 import { tgAllChats, tgGetChat } from "@/services/telegram/memory";
 import { tgSendMessage } from "@/services/telegram/bot-api";
 
@@ -11,6 +12,10 @@ type Req = {
 };
 
 export async function POST(req: Request) {
+  if (!isTelegramIntegrationEnabled()) {
+    return NextResponse.json(telegramDisabledResponse());
+  }
+
   try {
     const secret = process.env.CRON_SECRET?.trim() || process.env.TELEGRAM_ALERT_SECRET?.trim();
     if (secret) {

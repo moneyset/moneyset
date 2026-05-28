@@ -111,6 +111,7 @@ export async function POST(req: Request) {
         lastWsTs: null,
         lastRestTs: null,
         error: null,
+        feedDegraded: false,
       },
       unified: null,
       derived,

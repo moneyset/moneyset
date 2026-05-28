@@ -3,6 +3,7 @@
 import { useCallback, useEffect } from "react";
 
 import type { ProfileAccess } from "@/lib/access/roles";
+import { guestProfile } from "@/lib/access/roles";
 import { authHeadersForUser } from "@/lib/access/request-user";
 import { useAccessStore } from "@/store/access-store";
 import { useAuthStore } from "@/store/auth-store";
@@ -12,6 +13,7 @@ const RETRY_MS = [0, 2_000, 6_000];
 
 /**
  * Sync Supabase profile → local access store with retry.
+ * Runs for ALL sessions (guest + authenticated) — server is the only authority.
  */
 export function useProfileAccess() {
   const user = useAuthStore((s) => s.user);
@@ -21,8 +23,6 @@ export function useProfileAccess() {
   const setSyncError = useAccessStore((s) => s.setSyncError);
 
   const load = useCallback(async () => {
-    if (!user?.id) return;
-
     setSyncLoading();
 
     for (let i = 0; i < MAX_ATTEMPTS; i++) {
@@ -31,9 +31,9 @@ export function useProfileAccess() {
       }
 
       try {
-        const headers: HeadersInit = {
-          ...authHeadersForUser(user.id, session?.access_token ?? null),
-        };
+        const headers: HeadersInit = user?.id
+          ? { ...authHeadersForUser(user.id, session?.access_token ?? null) }
+          : {};
         const res = await fetch("/api/access/me", { headers, cache: "no-store" });
         const json = (await res.json()) as { ok: boolean; profile?: ProfileAccess };
 
@@ -44,6 +44,11 @@ export function useProfileAccess() {
       } catch {
         /* retry */
       }
+    }
+
+    if (!user?.id) {
+      setProfile(guestProfile());
+      return;
     }
 
     setSyncError();

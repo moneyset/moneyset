@@ -38,6 +38,9 @@ export function AuthBootstrap() {
       if (!active) return;
       if (data.session) {
         setAuth(data.session);
+        if (!useEntryStore.getState().entryComplete) {
+          useEntryStore.getState().completeEntry("account");
+        }
       } else {
         // No stored session on load — clear any stale access state immediately.
         clearClientSession();
@@ -52,6 +55,9 @@ export function AuthBootstrap() {
     const { data } = sb.auth.onAuthStateChange((_event, session) => {
       if (session) {
         setAuth(session);
+        if (!useEntryStore.getState().entryComplete) {
+          useEntryStore.getState().completeEntry("account");
+        }
       } else {
         // Auth loss: token expired, revoked, explicit signOut from another tab, etc.
         // Reset access immediately — do NOT wait for useProfileAccess to refetch.

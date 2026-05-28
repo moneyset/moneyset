@@ -22,7 +22,11 @@ export const useAiCognitionStore = create<AiCognitionState>((set) => ({
   agents: {},
   orchestrator: null,
   setRunning: () => set({ status: "running", error: null }),
-  setError: (msg) => set({ status: "error", error: msg }),
+  setError: (msg) =>
+    set((s) => ({
+      status: s.orchestrator || Object.keys(s.agents).length > 0 ? "idle" : "error",
+      error: msg,
+    })),
   setResult: ({ agents, orchestrator, ts }) =>
     set(() => {
       const map: Partial<Record<AgentOutput["agent"], AgentOutput>> = {};

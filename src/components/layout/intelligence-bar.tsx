@@ -17,7 +17,7 @@ import { useAccessStore } from "@/store/access-store";
 import { hasFounderAccess } from "@/lib/access/founder";
 import { useMarketStore } from "@/store/market-store";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
-import { feedLatencyLabel, marketFeedStatusLabel, tapeAwaitingLine } from "@/lib/i18n/trust-surface";
+import { feedLatencyLabel, marketFeedStatusLabel, staleDataWarningLine, tapeAwaitingLine } from "@/lib/i18n/trust-surface";
 import { phaseLabel, pickLocale } from "@/lib/i18n/cognition-dict";
 import { workspaceTitleFromPath } from "@/lib/workspace/workspace-route-meta";
 import { executionSessionDeskStrip } from "@/lib/cognition/session-visual";
@@ -75,6 +75,7 @@ export function IntelligenceBar() {
       price: s.price,
       connection: s.connection,
       lastWsTs: s.lastWsTs,
+      feedDegraded: s.feedDegraded,
     })),
   );
 
@@ -122,6 +123,8 @@ export function IntelligenceBar() {
 
   const feedStatus = marketFeedStatusLabel(locale, market.connection);
   const linkOk = market.connection === "live";
+  const showStaleWarning =
+    market.feedDegraded || market.connection === "stale" || (market.connection === "disconnected" && market.price !== null);
 
   return (
     <header
@@ -210,6 +213,12 @@ export function IntelligenceBar() {
             <LiveStateDot connection={market.connection} />
             <p className="min-w-0 flex-1 truncate text-[10.5px] leading-snug text-ms-muted">
               <span className={cn("font-semibold tracking-[0.01em]", linkOk ? "text-ms-text/85" : "text-ms-muted")}>{feedStatus}</span>
+              {showStaleWarning ? (
+                <>
+                  <span className="mx-1.5 text-ms-border/40">·</span>
+                  <span className="text-ms-warning/85">{staleDataWarningLine(locale)}</span>
+                </>
+              ) : null}
               <span className="mx-1.5 text-ms-border/40">·</span>
               <span className="text-ms-text/75">{liveStateLine}</span>
             </p>

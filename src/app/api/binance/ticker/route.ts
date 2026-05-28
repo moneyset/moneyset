@@ -5,6 +5,7 @@ import { sanitizeApiError } from "@/lib/services/shared/env";
 import { BINANCE_FAPI_BASE } from "@/services/binance/constants";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function GET(req: Request) {
   const limited = applyRateLimit({ req, route: "binance/ticker", limit: 60, windowMs: 60_000 });

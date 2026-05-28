@@ -138,12 +138,11 @@ export function useOpenRouterCognition(enabled = true) {
     if (!enabled) return;
     if (!hasExtended) return;
     if (ai.status === "running") return;
-    if (market.connection !== "live") return;
-    if (!market.price) return;
+    if (market.connection === "disconnected" && market.price === null) return;
 
     const lp = lastPriceRef.current;
-    const dislocation = lp ? Math.abs((market.price - lp) / lp) >= 0.0065 : false;
-    lastPriceRef.current = market.price;
+    const dislocation = lp && market.price ? Math.abs((market.price - lp) / lp) >= 0.0065 : false;
+    if (market.price) lastPriceRef.current = market.price;
 
     const key = {
       phase: sim.derived.phase,

@@ -5,7 +5,7 @@ import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { AccessCapability } from "@/lib/access/capabilities";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
-import { useCanAccessCapability, useServerConfirmed } from "@/hooks/use-capabilities";
+import { useCanAccessCapability, useOptimisticEntitlement, useServerConfirmed } from "@/hooks/use-capabilities";
 import { cn } from "@/lib/utils";
 import { useUpgradeModalStore } from "@/store/upgrade-modal-store";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
@@ -31,14 +31,11 @@ export function PlatformAccessGate({
 }: PlatformAccessGateProps) {
   const locale = useUiPrefsStore((s) => s.uiLocale);
   const confirmed = useServerConfirmed();
+  const optimistic = useOptimisticEntitlement();
   const allowed = useCanAccessCapability(capability);
   const openUpgrade = useUpgradeModalStore((s) => s.openUpgrade);
 
-  // While the server has not yet responded this session, render nothing rather
-  // than the locked UI — prevents a flash of "locked" for paying users whose
-  // cached profile is legitimate, and prevents premature reveal of the gate UI
-  // to free users before we know their real access level.
-  if (!confirmed) return null;
+  if (!confirmed && !optimistic) return null;
 
   if (allowed) return <>{children}</>;
 

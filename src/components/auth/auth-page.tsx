@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useTelegramAuth } from "@/hooks/use-telegram-auth";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
-import { supabaseBrowser } from "@/lib/supabase/browser";
+import { supabaseBrowser, authCallbackUrl } from "@/lib/supabase/browser";
 import { useAuthStore } from "@/store/auth-store";
 import { useEntryStore } from "@/store/entry-store";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
@@ -17,8 +17,14 @@ export function AuthPage() {
   const openAuth = useAuthModalStore((s) => s.openAuth);
   const { signInWithTelegram, busy: telegramBusy, error: telegramError, hasInitData } = useTelegramAuth();
   const [googleBusy, setGoogleBusy] = useState(false);
+  const [oauthError, setOauthError] = useState<string | null>(null);
   const sb = useMemo(() => (typeof window !== "undefined" ? supabaseBrowser() : null), []);
   const inTelegram = typeof window !== "undefined" && Boolean(window.Telegram?.WebApp);
+
+  useEffect(() => {
+    const err = new URLSearchParams(window.location.search).get("error");
+    if (err) setOauthError(decodeURIComponent(err));
+  }, []);
 
   const busy = telegramBusy || googleBusy;
 
@@ -40,9 +46,10 @@ export function AuthPage() {
     if (!sb) return;
     setGoogleBusy(true);
     try {
-      const authCallbackUrl =
-        typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : undefined;
-      await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: authCallbackUrl } });
+      await sb.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: authCallbackUrl(), skipBrowserRedirect: false },
+      });
     } finally {
       setGoogleBusy(false);
     }
@@ -102,8 +109,8 @@ export function AuthPage() {
         </div>
 
         {/* Error */}
-        {telegramError ? (
-          <p className="ms-auth-page__error">{telegramError}</p>
+        {telegramError || oauthError ? (
+          <p className="ms-auth-page__error">{telegramError ?? oauthError}</p>
         ) : null}
 
         {/* Separator */}

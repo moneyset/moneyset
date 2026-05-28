@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 
+import { isTelegramIntegrationEnabled, telegramDisabledResponse } from "@/lib/ops/feature-flags";
 import type { TelegramPushState } from "@/types/telegram";
 import { tgSetLatestState } from "@/services/telegram/memory";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
+  if (!isTelegramIntegrationEnabled()) {
+    return NextResponse.json(telegramDisabledResponse());
+  }
+
   try {
     const secret = process.env.CRON_SECRET?.trim();
     if (secret) {

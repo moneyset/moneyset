@@ -1,21 +1,41 @@
 import { NextResponse } from "next/server";
 
+import { readBinanceRouteCache, writeBinanceRouteCache } from "@/lib/binance/upstream";
+import { applyRateLimit } from "@/lib/ops/api-guard-helpers";
+import { sanitizeApiError } from "@/lib/services/shared/env";
 import { binanceOpenInterest } from "@/services/binance/rest";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+const CACHE_MS = 45_000;
 
 export async function GET(req: Request) {
+  const limited = applyRateLimit({ req, route: "binance/open-interest", limit: 40, windowMs: 60_000 });
+  if (limited) return limited;
+
   try {
     const { searchParams } = new URL(req.url);
     const symbol =
       searchParams.get("symbol")?.trim().replace(/[^A-Z0-9]/gi, "").toUpperCase() || "BTCUSDT";
-    const openInterest = await binanceOpenInterest(symbol);
-    return NextResponse.json({ ok: true, openInterest, ts: Date.now() });
+    const cacheKey = `oi:${symbol}`;
+
+    try {
+      const openInterest = await binanceOpenInterest(symbol);
+      const payload = { ok: true as const, openInterest, ts: Date.now(), stale: false as const };
+      writeBinanceRouteCache(cacheKey, payload);
+      return NextResponse.json(payload);
+    } catch (upstreamError) {
+      const cached = readBinanceRouteCache<{ ok: true; openInterest: number | null; ts: number }>(cacheKey, CACHE_MS * 4);
+      if (cached) {
+        return NextResponse.json({ ok: true, openInterest: cached.openInterest, ts: cached.ts, stale: true });
+      }
+      throw upstreamError;
+    }
   } catch (e) {
     return NextResponse.json(
-      { ok: false, error: e instanceof Error ? e.message : "Binance openInterest error" },
+      { ok: false, error: sanitizeApiError(e instanceof Error ? e.message : "Binance openInterest error") },
       { status: 502 },
     );
   }
 }
-

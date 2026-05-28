@@ -26,5 +26,7 @@ export type NormalizedMarketState = Readonly<{
   lastWsTs: number | null;
   lastRestTs: number | null;
   error: string | null;
+  /** True when REST/WS refresh failed but prior tape values are preserved. */
+  feedDegraded: boolean;
 }>;
 

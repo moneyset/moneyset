@@ -159,26 +159,36 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
     }
   };
 
+  const paid = poll?.ok && poll.status === "paid";
+
   // Auto-poll every 12 s for up to 30 minutes while the modal is open
   // and an invoice is active. Stops immediately when paid.
   useEffect(() => {
     if (!open || !invoiceId) return;
-    if (poll?.ok && poll.status === "paid") return;
+    if (paid) return;
+
+    pollTicksRef.current = 0;
+    void check();
 
     const id = window.setInterval(() => {
       pollTicksRef.current += 1;
       if (pollTicksRef.current > POLL_MAX_TICKS) {
         window.clearInterval(id);
+        setNote(
+          pickLocale(
+            locale,
+            "Verification timed out. Payment may still settle — reopen this panel or refresh access.",
+            "Время проверки истекло. Оплата может ещё пройти — откройте панель снова или обновите доступ.",
+          ),
+        );
         return;
       }
       void check();
     }, POLL_INTERVAL_MS);
 
     return () => window.clearInterval(id);
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- check is stable via useCallback
-  }, [open, invoiceId, poll?.ok && "status" in (poll ?? {}) ? poll?.status : null]);
+  }, [open, invoiceId, paid, check, locale]);
 
-  const paid = poll?.ok && poll.status === "paid";
   const confirming = poll?.ok && (poll.status === "confirming" || poll.status === "unpaid");
   const hasInvoice = Boolean(invoiceId);
   // Resume UX: invoice exists but was loaded from store (not freshly created this session)

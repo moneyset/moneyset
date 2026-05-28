@@ -214,6 +214,11 @@ export function CognitionCoreSurface() {
           ))}
         </ul>
       </nav>
+
+      <footer className="ms-home-legal-footer" aria-label={pickLocale(locale, "Legal", "Правовая информация")}>
+        <Link href="/privacy">{pickLocale(locale, "Privacy Policy", "Privacy Policy")}</Link>
+        <Link href="/terms">{pickLocale(locale, "Terms of Service", "Terms of Service")}</Link>
+      </footer>
     </div>
   );
 }

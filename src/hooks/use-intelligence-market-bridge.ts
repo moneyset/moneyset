@@ -18,6 +18,7 @@ export function useIntelligenceMarketBridge(enabled = true) {
   const setPremiumIndex = useMarketStore((s) => s.setPremiumIndex);
   const setOpenInterest = useMarketStore((s) => s.setOpenInterest);
   const setConnection = useMarketStore((s) => s.setConnection);
+  const setFeedDegraded = useMarketStore((s) => s.setFeedDegraded);
   const setUnifiedMarket = useIntelligencePipelineStore((s) => s.setUnifiedMarket);
 
   useEffect(() => {
@@ -52,7 +53,13 @@ export function useIntelligenceMarketBridge(enabled = true) {
             };
           };
         };
-        if (!alive || !json.ok || !json.market?.tape) return;
+        if (!alive || !json.ok || !json.market?.tape) {
+          if (useMarketStore.getState().price !== null) {
+            setFeedDegraded(true);
+            setConnection("stale", null);
+          }
+          return;
+        }
         setUnifiedMarket(json.market as UnifiedMarketSnapshot);
         const t = json.market.tape;
         const ts = t.ts ?? Date.now();
@@ -79,9 +86,13 @@ export function useIntelligenceMarketBridge(enabled = true) {
               : "disconnected",
           null,
         );
+        setFeedDegraded(false);
       } catch (e) {
         if (e instanceof Error && e.name === "AbortError") return;
-        /* keep WS path */
+        if (useMarketStore.getState().price !== null) {
+          setFeedDegraded(true);
+          setConnection("stale", null);
+        }
       }
     };
 
@@ -92,5 +103,5 @@ export function useIntelligenceMarketBridge(enabled = true) {
       inflight?.abort();
       window.clearInterval(id);
     };
-  }, [enabled, setConnection, setDerived, setOpenInterest, setPremiumIndex, setUnifiedMarket, setWsPrice]);
+  }, [enabled, setConnection, setDerived, setFeedDegraded, setOpenInterest, setPremiumIndex, setUnifiedMarket, setWsPrice]);
 }

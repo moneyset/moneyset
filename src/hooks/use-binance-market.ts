@@ -7,7 +7,7 @@ import { momentumFromCandles, realizedVolFromCandles } from "@/lib/market/metric
 import type { OhlcCandle } from "@/types/market";
 import { useMarketStore } from "@/store/market-store";
 
-type KlineResponse = { ok: boolean; candles?: OhlcCandle[] };
+type KlineResponse = { ok: boolean; candles?: OhlcCandle[]; stale?: boolean };
 type PremiumIndexResponse = {
   ok: boolean;
   markPrice?: number | null;
@@ -15,8 +15,9 @@ type PremiumIndexResponse = {
   fundingRate?: number | null;
   nextFundingTime?: number | null;
   ts?: number;
+  stale?: boolean;
 };
-type OpenInterestResponse = { ok: boolean; openInterest?: number | null; ts?: number };
+type OpenInterestResponse = { ok: boolean; openInterest?: number | null; ts?: number; stale?: boolean };
 
 function now() {
   return Date.now();
@@ -33,6 +34,7 @@ export function useBinanceMarket(symbol = "BTCUSDT", enabled = true) {
   const setPremiumIndex = useMarketStore((s) => s.setPremiumIndex);
   const setOpenInterest = useMarketStore((s) => s.setOpenInterest);
   const setConnection = useMarketStore((s) => s.setConnection);
+  const setFeedDegraded = useMarketStore((s) => s.setFeedDegraded);
 
   const retryRef = useRef(0);
   const disconnectRef = useRef<(() => void) | null>(null);
@@ -50,6 +52,7 @@ export function useBinanceMarket(symbol = "BTCUSDT", enabled = true) {
       if (!last) return;
       if (Date.now() - last >= stalenessMs) {
         useMarketStore.getState().setConnection("stale", null);
+        useMarketStore.getState().setFeedDegraded(true);
       }
     }, 2500);
 
@@ -83,6 +86,7 @@ export function useBinanceMarket(symbol = "BTCUSDT", enabled = true) {
         onClose: () => {
           if (!alive) return;
           setConnection("disconnected", null);
+          setFeedDegraded(true);
           const attempt = (retryRef.current += 1);
           const wait = Math.min(12_000, 800 + attempt * 700);
           window.setTimeout(() => open(), wait);
@@ -103,7 +107,7 @@ export function useBinanceMarket(symbol = "BTCUSDT", enabled = true) {
       disconnectRef.current?.();
       disconnectRef.current = null;
     };
-  }, [enabled, setConnection, setWsPrice, symbol]);
+  }, [enabled, setConnection, setDerived, setFeedDegraded, setOpenInterest, setPremiumIndex, setWsPrice, symbol]);
 
   useEffect(() => {
     if (!enabled || typeof window === "undefined") return;
@@ -116,12 +120,25 @@ export function useBinanceMarket(symbol = "BTCUSDT", enabled = true) {
           cache: "no-store",
         });
         const json = (await res.json()) as KlineResponse;
-        if (!alive || !json.ok || !json.candles) return;
+        if (!alive) return;
+        if (!json.ok || !json.candles) {
+          setFeedDegraded(true);
+          if (useMarketStore.getState().price !== null) setConnection("stale", null);
+          return;
+        }
         const realizedVol = realizedVolFromCandles(json.candles, 90);
         const momentum = momentumFromCandles(json.candles, 24);
         setDerived({ realizedVol, momentum, ts: now() });
+        if (json.stale) {
+          setFeedDegraded(true);
+          setConnection("stale", null);
+        } else {
+          setFeedDegraded(false);
+        }
       } catch {
-        // ignore
+        if (!alive) return;
+        setFeedDegraded(true);
+        if (useMarketStore.getState().price !== null) setConnection("stale", null);
       }
     };
 
@@ -129,15 +146,21 @@ export function useBinanceMarket(symbol = "BTCUSDT", enabled = true) {
       try {
         const res = await fetch(`/api/binance/premium-index?symbol=${encodeURIComponent(symbol)}`, { cache: "no-store" });
         const json = (await res.json()) as PremiumIndexResponse;
-        if (!alive || !json.ok) return;
+        if (!alive) return;
+        if (!json.ok) {
+          setFeedDegraded(true);
+          return;
+        }
         setPremiumIndex({
           markPrice: json.markPrice ?? null,
           fundingRate: json.fundingRate ?? null,
           nextFundingTime: json.nextFundingTime ?? null,
           ts: json.ts ?? now(),
         });
+        if (json.stale) setFeedDegraded(true);
       } catch {
-        // ignore
+        if (!alive) return;
+        setFeedDegraded(true);
       }
     };
 
@@ -145,10 +168,16 @@ export function useBinanceMarket(symbol = "BTCUSDT", enabled = true) {
       try {
         const res = await fetch(`/api/binance/open-interest?symbol=${encodeURIComponent(symbol)}`, { cache: "no-store" });
         const json = (await res.json()) as OpenInterestResponse;
-        if (!alive || !json.ok) return;
+        if (!alive) return;
+        if (!json.ok) {
+          setFeedDegraded(true);
+          return;
+        }
         setOpenInterest({ openInterest: json.openInterest ?? null, ts: json.ts ?? now() });
+        if (json.stale) setFeedDegraded(true);
       } catch {
-        // ignore
+        if (!alive) return;
+        setFeedDegraded(true);
       }
     };
 
@@ -166,6 +195,6 @@ export function useBinanceMarket(symbol = "BTCUSDT", enabled = true) {
       window.clearInterval(id2);
       window.clearInterval(id3);
     };
-  }, [enabled, setDerived, setOpenInterest, setPremiumIndex, symbol]);
+  }, [enabled, setConnection, setDerived, setFeedDegraded, setOpenInterest, setPremiumIndex, symbol]);
 }
 

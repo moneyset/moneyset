@@ -1,6 +1,7 @@
-"use client";
+import { createBrowserClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+export { authCallbackUrl } from "@/lib/supabase/auth-routing";
 
 let cached: SupabaseClient | null = null;
 
@@ -9,13 +10,6 @@ export function supabaseBrowser(): SupabaseClient | null {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
   if (!url || !key) return null;
-  cached = createClient(url, key, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-    },
-  });
+  cached = createBrowserClient(url, key);
   return cached;
 }
-

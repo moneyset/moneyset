@@ -13,6 +13,7 @@ import { useLiveExecutionIntelBridge } from "@/hooks/use-live-execution-intel-br
 import { useMarketCognitionBridge } from "@/hooks/use-market-cognition-bridge";
 import { useOpenRouterCognition } from "@/hooks/use-openrouter-cognition";
 import { useTelegramBridge } from "@/hooks/use-telegram-bridge";
+import { isTelegramIntegrationEnabledClient } from "@/lib/ops/feature-flags";
 
 export function CognitionRuntimeProvider({ children }: { children: ReactNode }) {
   useCognitionSimulationTick(true);
@@ -21,7 +22,7 @@ export function CognitionRuntimeProvider({ children }: { children: ReactNode }) 
   useLiveExecutionIntelBridge(true);
   useOpenRouterCognition(true);
   useCognitionArchiver(true);
-  useTelegramBridge(true);
+  useTelegramBridge(isTelegramIntegrationEnabledClient());
 
   return (
     <MarketMotionProvider>

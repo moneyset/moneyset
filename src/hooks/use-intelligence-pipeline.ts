@@ -88,6 +88,7 @@ export function useIntelligencePipeline(enabled = true) {
           lastWsTs: market.lastWsTs,
           lastRestTs: market.lastRestTs,
           error: market.error,
+          feedDegraded: market.feedDegraded,
         },
         unified: pipeline.unifiedMarket,
         derived: simulation.derived,

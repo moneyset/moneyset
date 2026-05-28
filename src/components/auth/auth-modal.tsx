@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/ui/status-pill";
 import { useT } from "@/lib/i18n/use-t";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
-import { supabaseBrowser } from "@/lib/supabase/browser";
+import { supabaseBrowser, authCallbackUrl } from "@/lib/supabase/browser";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { clearClientSession } from "@/lib/auth/sign-out";
 import { useAuthStore } from "@/store/auth-store";
@@ -64,8 +64,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   const canEmail = isValidEmail(email);
   const canPassword = isValidPassword(password);
 
-  const authCallbackUrl =
-    typeof window === "undefined" ? undefined : `${window.location.origin}/auth/callback`;
+  const oauthRedirectTo = authCallbackUrl();
 
   const handleTelegram = async () => {
     setNote(null);
@@ -84,7 +83,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     if (!sb) return;
     setBusy(true);
     try {
-      await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: authCallbackUrl } });
+      await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: oauthRedirectTo } });
     } catch (e) {
       setNote(friendlyAuthError(e instanceof Error ? e.message : "Auth error"));
     } finally {
@@ -99,7 +98,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     try {
       const { error } = await sb.auth.signInWithOtp({
         email: email.trim(),
-        options: { emailRedirectTo: authCallbackUrl },
+        options: { emailRedirectTo: oauthRedirectTo },
       });
       if (error) throw error;
       setNote(t("auth.magicSent"));
@@ -133,7 +132,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
       const { error } = await sb.auth.signUp({
         email: email.trim(),
         password,
-        options: { emailRedirectTo: authCallbackUrl },
+        options: { emailRedirectTo: oauthRedirectTo },
       });
       if (error) throw error;
       setNote("Account created. Confirm your email if prompted, then sign in.");
@@ -149,7 +148,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     if (!sb || !canEmail) return;
     setBusy(true);
     try {
-      const { error } = await sb.auth.resetPasswordForEmail(email.trim(), { redirectTo: authCallbackUrl });
+      const { error } = await sb.auth.resetPasswordForEmail(email.trim(), { redirectTo: oauthRedirectTo });
       if (error) throw error;
       setNote("Password reset link sent. Check your email.");
     } catch (e) {

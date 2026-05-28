@@ -15,6 +15,7 @@ type MarketStore = NormalizedMarketState & {
   }) => void;
   setOpenInterest: (args: { openInterest: number | null; ts: number }) => void;
   setConnection: (connection: NormalizedMarketState["connection"], error?: string | null) => void;
+  setFeedDegraded: (degraded: boolean) => void;
 };
 
 const initial: NormalizedMarketState = {
@@ -32,7 +33,16 @@ const initial: NormalizedMarketState = {
   lastWsTs: null,
   lastRestTs: null,
   error: null,
+  feedDegraded: false,
 };
+
+function softenDisconnect(
+  connection: NormalizedMarketState["connection"],
+  hasTape: boolean,
+): NormalizedMarketState["connection"] {
+  if (connection === "disconnected" && hasTape) return "stale";
+  return connection;
+}
 
 export const useMarketStore = create<MarketStore>((set) => ({
   ...initial,
@@ -48,33 +58,37 @@ export const useMarketStore = create<MarketStore>((set) => ({
       lastWsTs: ts,
       connection: s.connection === "disconnected" ? "live" : s.connection,
       error: null,
+      feedDegraded: false,
     })),
 
   setDerived: ({ realizedVol, momentum, ts }) =>
-    set(() => ({
-      realizedVol,
-      momentum,
+    set((s) => ({
+      realizedVol: realizedVol ?? s.realizedVol,
+      momentum: momentum ?? s.momentum,
       lastRestTs: ts,
     })),
 
   setPremiumIndex: ({ markPrice, fundingRate, nextFundingTime, ts }) =>
-    set(() => ({
-      markPrice,
-      fundingRate,
-      nextFundingTime,
+    set((s) => ({
+      markPrice: markPrice ?? s.markPrice,
+      fundingRate: fundingRate ?? s.fundingRate,
+      nextFundingTime: nextFundingTime ?? s.nextFundingTime,
       lastRestTs: ts,
     })),
 
   setOpenInterest: ({ openInterest, ts }) =>
-    set(() => ({
-      openInterest,
+    set((s) => ({
+      openInterest: openInterest ?? s.openInterest,
       lastRestTs: ts,
     })),
 
   setConnection: (connection, error = null) =>
-    set(() => ({
-      connection,
+    set((s) => ({
+      connection: softenDisconnect(connection, s.price !== null),
       error,
+      feedDegraded:
+        connection === "stale" || (connection === "disconnected" && s.price !== null) ? true : s.feedDegraded,
     })),
-}));
 
+  setFeedDegraded: (feedDegraded) => set({ feedDegraded }),
+}));

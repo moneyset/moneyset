@@ -37,7 +37,7 @@ export async function GET() {
       ok,
       ts: Date.now(),
       env: isProd
-        ? { ok: envCheck.ok, missing: envCheck.missing }
+        ? { ok: envCheck.ok, missing: envCheck.missing, invalid: envCheck.invalid }
         : { ok: true, mode: "development" },
       supabase: supabaseOk,
     },

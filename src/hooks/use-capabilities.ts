@@ -6,15 +6,20 @@ import {
   hasFullPlatformAccess,
   type AccessCapability,
 } from "@/lib/access/capabilities";
+import { hasExtendedAccess } from "@/lib/access/roles";
 import { useAccessStore } from "@/store/access-store";
 
-/**
- * True once the server has responded to /api/access/me this session.
- * Gates must not open until this is true — prevents localStorage-edited
- * profiles from bypassing access checks before the server corrects them.
- */
 export function useServerConfirmed(): boolean {
   return useAccessStore((s) => s.serverConfirmed);
+}
+
+/** Cached paid profile while server sync is in flight — prevents premium vanish on reload. */
+export function useOptimisticEntitlement(): boolean {
+  const confirmed = useAccessStore((s) => s.serverConfirmed);
+  const syncStatus = useAccessStore((s) => s.syncStatus);
+  const profile = useAccessStore((s) => s.profile);
+  if (confirmed) return false;
+  return syncStatus === "loading" && hasExtendedAccess(profile);
 }
 
 export function useCapabilities() {
@@ -31,9 +36,10 @@ export function useFullPlatformAccess(): boolean {
   const profile = useAccessStore((s) => s.profile);
   const trial = useAccessStore((s) => s.trialEndsAtTs);
   const confirmed = useAccessStore((s) => s.serverConfirmed);
-  // Block all premium access until the server has confirmed this session's profile.
-  // This ensures no localStorage-edited profile can open premium gates.
-  if (!confirmed) return false;
+  const syncStatus = useAccessStore((s) => s.syncStatus);
+  const optimistic = !confirmed && syncStatus === "loading" && hasExtendedAccess(profile);
+
+  if (!confirmed && !optimistic) return false;
   if (hasFullPlatformAccess(profile)) return true;
   return clientTrialActive(trial);
 }
@@ -42,7 +48,10 @@ export function useCanAccessCapability(capability: AccessCapability): boolean {
   const profile = useAccessStore((s) => s.profile);
   const trial = useAccessStore((s) => s.trialEndsAtTs);
   const confirmed = useAccessStore((s) => s.serverConfirmed);
-  if (!confirmed) return false;
+  const syncStatus = useAccessStore((s) => s.syncStatus);
+  const optimistic = !confirmed && syncStatus === "loading" && hasExtendedAccess(profile);
+
+  if (!confirmed && !optimistic) return false;
   if (clientTrialActive(trial)) return true;
   return canAccessCapability(profile, capability);
 }

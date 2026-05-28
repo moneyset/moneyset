@@ -17,7 +17,6 @@ import { trialAccessEndsLine } from "@/lib/i18n/trust-surface";
 import { Button } from "@/components/ui/button";
 import { InvitationAdminPanel } from "@/components/settings/invitation-admin-panel";
 import { TelegramSettingsCard } from "@/components/settings/telegram-settings-card";
-import { AccountDashboardCard } from "@/components/settings/account-dashboard-card";
 import { accessTierLabel } from "@/lib/access/capabilities";
 import type { CognitionDensityMode } from "@/store/ui-prefs-store";
 import {
@@ -92,7 +91,29 @@ export function SettingsPanel() {
       ) : null}
 
       <div className="grid grid-cols-1 gap-[var(--ms-block-gap)] lg:grid-cols-2">
-        <AccountDashboardCard />
+        <CognitionPanel
+          id="preferences-account"
+          eyebrow={pickLocale(locale, "Identity", "Идентичность")}
+          accent="neutral"
+          title={pickLocale(locale, "Account center", "Центр аккаунта")}
+        >
+          <p className="text-[12px] leading-relaxed text-ms-muted">
+            {pickLocale(
+              locale,
+              "Sign in, billing, access tier, and sign out — one surface, no duplicate panels.",
+              "Вход, оплата, уровень доступа и выход — одна поверхность, без дублирования.",
+            )}
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-3"
+            onClick={() => openProfileCenter("overview")}
+          >
+            {pickLocale(locale, "Open account center", "Открыть центр аккаунта")}
+          </Button>
+        </CognitionPanel>
 
         <CognitionPanel
           id="preferences-appearance"

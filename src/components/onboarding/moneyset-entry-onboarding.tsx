@@ -7,7 +7,7 @@ import { useTelegramAuth } from "@/hooks/use-telegram-auth";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { msEase, msTransition } from "@/lib/theme/motion";
 import { cn } from "@/lib/utils";
-import { supabaseBrowser } from "@/lib/supabase/browser";
+import { supabaseBrowser, authCallbackUrl } from "@/lib/supabase/browser";
 import { useAuthStore } from "@/store/auth-store";
 import { useCheckoutModalStore } from "@/store/checkout-modal-store";
 import { useEntryStore } from "@/store/entry-store";
@@ -261,9 +261,10 @@ export function MoneysetEntryOnboarding() {
     if (!sb) return;
     setGoogleBusy(true);
     try {
-      const authCallbackUrl =
-        typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : undefined;
-      await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: authCallbackUrl } });
+      await sb.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: authCallbackUrl() },
+      });
     } finally {
       setGoogleBusy(false);
     }

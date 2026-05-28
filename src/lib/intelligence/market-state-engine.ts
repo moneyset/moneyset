@@ -105,6 +105,7 @@ export async function fetchUnifiedMarketSnapshot(symbol = "BTCUSDT"): Promise<Un
     lastWsTs: null,
     lastRestTs: ts,
     error: price === null ? "Tape unavailable" : null,
+    feedDegraded: false,
   };
 
   const macroPressure = deriveMacroPressure(fred?.dxyProxy ?? null, fred?.yield10y ?? null);

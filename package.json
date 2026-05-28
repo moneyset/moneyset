@@ -10,10 +10,12 @@
     "lint": "eslint",
     "check:env": "node scripts/check-env.mjs",
     "verify:deploy": "node scripts/verify-deployment.mjs",
-    "verify:sections": "node scripts/verify-sections.mjs"
+    "verify:sections": "node scripts/verify-sections.mjs",
+    "verify:placeholders": "node scripts/verify-placeholders.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",
+    "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.103.3",
     "@twa-dev/sdk": "^8.0.2",
     "ai": "^6.0.168",

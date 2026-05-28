@@ -3,7 +3,7 @@ import { Geist, IBM_Plex_Mono } from "next/font/google";
 import Script from "next/script";
 
 import { ClientProviders } from "@/providers/client-providers";
-import { publicSiteUrl } from "@/lib/services/shared/env";
+import { publicSiteUrl, vercelSiteOrigin } from "@/lib/services/shared/env";
 
 import "./globals.css";
 
@@ -23,6 +23,8 @@ function metadataBaseUrl(): URL {
   try {
     return new URL(publicSiteUrl());
   } catch {
+    const vercel = vercelSiteOrigin();
+    if (vercel) return new URL(vercel);
     return new URL("http://localhost:3000");
   }
 }

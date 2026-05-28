@@ -22,7 +22,23 @@ export function AgentConsensusBattle({ className }: { className?: string }) {
     return Math.min(100, spread + physics.escalationPressure * 0.4);
   }, [personas, physics.escalationPressure]);
 
-  if (!top || !challenger) return null;
+  if (!top || !challenger) {
+    return (
+      <section
+        className={cn("ms-consensus-battle ms-consensus-battle--degraded rounded-ms-lg border border-ms-border/25 bg-ms-surface/15 px-4 py-5", className)}
+        aria-label={pickLocale(locale, "Specialist read influence and consensus", "Влияние и консенсус прочтений")}
+      >
+        <p className="text-[11px] font-medium text-ms-text">{pickLocale(locale, "Consensus desk", "Стол консенсуса")}</p>
+        <p className="mt-2 text-[11px] leading-relaxed text-ms-warning/90">
+          {pickLocale(
+            locale,
+            "Specialist lattice preserved — live refresh paused. Prior reads remain visible.",
+            "Решётка специалистов сохранена — обновление приостановлено. Прошлые прочтения остаются видимыми.",
+          )}
+        </p>
+      </section>
+    );
+  }
 
   const battleIntensity = Math.min(1, (networkStress + fragmentation) / 160);
 

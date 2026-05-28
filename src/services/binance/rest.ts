@@ -1,4 +1,5 @@
 import { BINANCE_FAPI_BASE } from "@/services/binance/constants";
+import { fetchBinanceJson } from "@/lib/binance/upstream";
 
 export type BinanceSymbol = string;
 
@@ -10,10 +11,9 @@ function cleanSymbol(s: string | null | undefined, fallback = "BTCUSDT"): string
 export async function binanceFuturesPrice(symbol?: string): Promise<number> {
   const sym = cleanSymbol(symbol);
   const url = `${BINANCE_FAPI_BASE}/fapi/v1/ticker/price?symbol=${sym}`;
-  const res = await fetch(url, { cache: "no-store" });
-  const json = (await res.json()) as { price?: unknown };
+  const json = await fetchBinanceJson<{ price?: unknown }>(url);
   const price = typeof json.price === "string" ? Number(json.price) : Number(json.price);
-  if (!res.ok || !Number.isFinite(price)) throw new Error("Binance price fetch failed");
+  if (!Number.isFinite(price)) throw new Error("Binance price fetch failed");
   return price;
 }
 
@@ -25,9 +25,7 @@ export async function binancePremiumIndex(symbol?: string): Promise<{
 }> {
   const sym = cleanSymbol(symbol);
   const url = `${BINANCE_FAPI_BASE}/fapi/v1/premiumIndex?symbol=${sym}`;
-  const res = await fetch(url, { cache: "no-store" });
-  const json = (await res.json()) as Record<string, unknown>;
-  if (!res.ok) throw new Error("Binance premiumIndex fetch failed");
+  const json = await fetchBinanceJson<Record<string, unknown>>(url);
   const markPrice = Number(json.markPrice);
   const indexPrice = Number(json.indexPrice);
   const fundingRate = Number(json.lastFundingRate);
@@ -43,10 +41,7 @@ export async function binancePremiumIndex(symbol?: string): Promise<{
 export async function binanceOpenInterest(symbol?: string): Promise<number | null> {
   const sym = cleanSymbol(symbol);
   const url = `${BINANCE_FAPI_BASE}/fapi/v1/openInterest?symbol=${sym}`;
-  const res = await fetch(url, { cache: "no-store" });
-  const json = (await res.json()) as { openInterest?: unknown };
-  if (!res.ok) throw new Error("Binance openInterest fetch failed");
+  const json = await fetchBinanceJson<{ openInterest?: unknown }>(url);
   const oi = typeof json.openInterest === "string" ? Number(json.openInterest) : Number(json.openInterest);
   return Number.isFinite(oi) ? oi : null;
 }
-

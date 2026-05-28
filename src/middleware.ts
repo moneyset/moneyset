@@ -1,26 +1,18 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+import { updateSupabaseSession } from "@/lib/supabase/middleware";
+
 const PROTECTED_API_PREFIXES = ["/api/billing/create", "/api/billing/status", "/api/billing/history"];
 
-/**
- * Edge-level billing guard.
- *
- * Security contract:
- * - In PRODUCTION: requires a valid `Authorization: Bearer <jwt>` header.
- *   The `x-ms-user-id` header is NOT accepted — it is developer-only and
- *   cannot be trusted as an auth signal in production.
- * - In DEVELOPMENT: passes all requests through (no auth at edge level).
- * - The webhook route (/api/billing/webhook) is intentionally excluded —
- *   it is protected by HMAC signature verification, not session auth.
- */
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
+  const response = await updateSupabaseSession(req);
+
   const path = req.nextUrl.pathname;
   const needsAuth = PROTECTED_API_PREFIXES.some((p) => path.startsWith(p));
-  if (!needsAuth) return NextResponse.next();
+  if (!needsAuth) return response;
 
-  if (process.env.NODE_ENV !== "production") return NextResponse.next();
+  if (process.env.NODE_ENV !== "production") return response;
 
-  // Production: require a Bearer JWT — no x-ms-user-id fallback
   const auth = req.headers.get("authorization");
   if (!auth?.startsWith("Bearer ")) {
     return NextResponse.json(
@@ -29,9 +21,11 @@ export function middleware(req: NextRequest) {
     );
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
-  matcher: ["/api/billing/:path*"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 };

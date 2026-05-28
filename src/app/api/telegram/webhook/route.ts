@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { isTelegramIntegrationEnabled, telegramDisabledResponse } from "@/lib/ops/feature-flags";
 import { logOpsEvent } from "@/lib/ops/operational-events";
 import { tgLinkChat, tgGetLatestState, tgGetChat, tgSetChatPrefs, tgDefaultLocaleForChat } from "@/services/telegram/memory";
 import { tgSendMessage } from "@/services/telegram/bot-api";
@@ -32,6 +33,10 @@ function cmd(text: string): { name: string; args: string[] } | null {
 }
 
 export async function POST(req: Request) {
+  if (!isTelegramIntegrationEnabled()) {
+    return NextResponse.json(telegramDisabledResponse());
+  }
+
   try {
     const secret = process.env.TELEGRAM_WEBHOOK_SECRET?.trim();
     if (process.env.NODE_ENV === "production" && !secret) {

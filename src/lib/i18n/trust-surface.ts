@@ -18,6 +18,14 @@ export function marketFeedStatusLabel(locale: UiLocale, state: MarketConnectionS
   return pickLocale(locale, row.en, row.ru);
 }
 
+export function staleDataWarningLine(locale: UiLocale): string {
+  return pickLocale(
+    locale,
+    "Showing last confirmed data — live refresh paused",
+    "Показаны последние подтверждённые данные — обновление приостановлено",
+  );
+}
+
 export function tapeAwaitingLine(locale: UiLocale): string {
   return pickLocale(locale, "Awaiting confirmed tape", "Лента не подтверждена");
 }
