@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { loadRequestProfile, profileHasFullAccess } from "@/lib/access/api-guard";
 import { fetchUnifiedMarketSnapshot } from "@/lib/intelligence/market-state-engine";
 import { getCachedInference } from "@/lib/intelligence/inference-cache";
+import { sanitizeApiError } from "@/lib/services/shared/env";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -22,7 +23,10 @@ export async function GET(req: Request) {
     });
   } catch (e) {
     return NextResponse.json(
-      { ok: false, error: e instanceof Error ? e.message : "market-state error" },
+      {
+        ok: false,
+        error: sanitizeApiError(e instanceof Error ? e.message : "Market state unavailable"),
+      },
       { status: 502 },
     );
   }

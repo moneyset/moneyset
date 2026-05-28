@@ -23,7 +23,12 @@ type AccessState = {
    * page load, so manually-edited localStorage entries cannot bypass access gates.
    */
   serverConfirmed: boolean;
+  syncStatus: "idle" | "loading" | "confirmed" | "error";
+  retryProfileSync: (() => void) | null;
   setProfile: (profile: ProfileAccess) => void;
+  setSyncLoading: () => void;
+  setSyncError: () => void;
+  registerProfileSyncRetry: (fn: (() => void) | null) => void;
   beginCognitionTrial: () => void;
   isPremium: () => boolean;
   hasExtendedCognition: () => boolean;
@@ -36,15 +41,25 @@ export const useAccessStore = create<AccessState>()(
       trialEndsAtTs: null,
       trialStarted: false,
       serverConfirmed: false,
+      syncStatus: "idle",
+      retryProfileSync: null,
 
       setProfile: (profile) =>
         set({
           profile,
-          // Every call to setProfile() comes from a server response (/api/access/me
-          // or /api/auth/telegram). Marking confirmed here is the ONLY way to unlock
-          // the premium gates — localStorage edits can never set this flag.
           serverConfirmed: true,
+          syncStatus: "confirmed",
         }),
+
+      setSyncLoading: () => set({ syncStatus: "loading" }),
+
+      setSyncError: () =>
+        set({
+          serverConfirmed: false,
+          syncStatus: "error",
+        }),
+
+      registerProfileSyncRetry: (fn) => set({ retryProfileSync: fn }),
 
       beginCognitionTrial: () =>
         set((s) => {

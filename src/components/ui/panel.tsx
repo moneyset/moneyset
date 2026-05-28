@@ -34,9 +34,7 @@ export function CognitionPanel({ id, eyebrow, title, children, className, accent
       layout
       transition={msTransition.fast}
       className={cn(
-        "relative flex min-h-0 min-w-0 flex-col gap-3.5 rounded-ms-xl p-4 sm:gap-4 sm:p-6",
-        // Reduce “widget box” feel: softer surface, less contrast.
-        "bg-ms-surface/14 transition-[border-color,background-color] duration-300 ease-out",
+        "ms-intel-panel relative flex min-h-0 min-w-0 flex-col gap-3.5 sm:gap-4",
         accent !== "neutral" && "border-l pl-[1.25rem] sm:pl-[1.5rem]",
         accentBorder[accent],
         className,

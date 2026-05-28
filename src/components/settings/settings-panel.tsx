@@ -10,6 +10,8 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { useAccessStore } from "@/store/access-store";
 import { useExtendedCognitionAccess } from "@/hooks/use-extended-cognition-access";
 import { useUpgradeModalStore } from "@/store/upgrade-modal-store";
+import { useProfileCenterStore } from "@/store/profile-center-store";
+import { useAuthStore } from "@/store/auth-store";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
 import { trialAccessEndsLine } from "@/lib/i18n/trust-surface";
 import { Button } from "@/components/ui/button";
@@ -32,6 +34,8 @@ export function SettingsPanel() {
   const extended = useExtendedCognitionAccess();
   const locale = useUiPrefsStore((s) => s.uiLocale);
   const openUpgrade = useUpgradeModalStore((s) => s.openUpgrade);
+  const openProfileCenter = useProfileCenterStore((s) => s.openProfileCenter);
+  const signedIn = useAuthStore((s) => s.status === "signed_in");
 
   const cognitionMode = useUiPrefsStore((s) => s.cognitionMode);
   const setCognitionMode = useUiPrefsStore((s) => s.setCognitionMode);
@@ -70,7 +74,12 @@ export function SettingsPanel() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <StatusPill accent={extended ? "warning" : "neutral"}>{tierLabel}</StatusPill>
-          <Button type="button" variant="outline" size="sm" onClick={openUpgrade}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => (signedIn ? openProfileCenter("access") : openUpgrade())}
+          >
             {pickLocale(locale, "Access & billing", "Доступ и оплата")}
           </Button>
         </div>

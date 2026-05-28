@@ -41,8 +41,8 @@ h1.ms-title {
   letter-spacing: 0.12em;
 }
 
-/* Hero label — used on cognition surfaces */
-.ms-hero-label {
+/* Hero display — large titles on entry/cognition surfaces only */
+.ms-hero-display {
   font-size: var(--ms-text-hero);
   font-weight: 600;
   letter-spacing: -0.03em;

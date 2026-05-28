@@ -5,17 +5,25 @@ import { telegramAuthEmail, telegramAuthPassword } from "@/lib/auth/telegram-cre
 import { verifyTelegramWebAppInitData } from "@/lib/auth/telegram-verify";
 import { roleFromProfile } from "@/lib/access/roles";
 import { isFounderTelegramId } from "@/lib/access/founder";
+import { applyRateLimit } from "@/lib/ops/api-guard-helpers";
+import { logOpsEvent } from "@/lib/ops/operational-events";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { env } from "@/lib/services/shared/env";
+import { env, sanitizeApiError } from "@/lib/services/shared/env";
 
 export const dynamic = "force-dynamic";
 
 type Body = Readonly<{ initData?: string }>;
 
 export async function POST(req: Request) {
+  const limited = applyRateLimit({ req, route: "auth/telegram", limit: 20, windowMs: 60_000 });
+  if (limited) return limited;
+
   const botToken = env("TELEGRAM_BOT_TOKEN");
   if (!botToken) {
-    return NextResponse.json({ ok: false, error: "Telegram bot not configured" }, { status: 503 });
+    return NextResponse.json(
+      { ok: false, error: sanitizeApiError("Telegram bot not configured") },
+      { status: 503 },
+    );
   }
 
   let body: Body;
@@ -32,7 +40,11 @@ export async function POST(req: Request) {
 
   const verified = verifyTelegramWebAppInitData(initData, botToken);
   if (!verified) {
-    return NextResponse.json({ ok: false, error: "Invalid Telegram session" }, { status: 401 });
+    logOpsEvent("auth_failure", { route: "telegram", reason: "invalid_init" });
+    return NextResponse.json(
+      { ok: false, error: sanitizeApiError("Invalid Telegram session") },
+      { status: 401 },
+    );
   }
 
   const admin = supabaseAdmin();

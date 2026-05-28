@@ -50,12 +50,13 @@ function ArchiveLayerCard({ layer, locale }: { layer: ReplayLayerBundle; locale:
 
 export function ReplayStudioWorkspace({ className }: { className?: string }) {
   const locale = useUiPrefsStore((s) => s.uiLocale);
+  const mobileReduced = useUiPrefsStore((s) => s.replayMobileDetail === "reduced");
   const bundle = useReplayCinema();
   const { layers } = bundle;
 
   const archive = useMemo(
     () => (
-      <div className="mt-8 hidden border-t border-ms-border/15 pt-8 lg:block">
+      <div className={cn("mt-8 border-t border-ms-border/15 pt-8", mobileReduced ? "hidden md:block" : "hidden lg:block")}>
         <p className="mb-4 text-[10px] font-medium text-ms-faint">
           {pickLocale(locale, "Deep layer archive — six cognition lenses", "Архив глубоких слоёв — шесть линз прочтения")}
         </p>
@@ -73,7 +74,7 @@ export function ReplayStudioWorkspace({ className }: { className?: string }) {
         </div>
       </div>
     ),
-    [locale, layers],
+    [locale, layers, mobileReduced],
   );
 
   return (
@@ -83,7 +84,7 @@ export function ReplayStudioWorkspace({ className }: { className?: string }) {
       className={cn("scroll-mt-[calc(var(--ms-intel-bar-height)+0.5rem)]", className)}
       aria-label={pickLocale(locale, "Replay studio", "Replay Studio")}
     >
-      <ReplayCinemaTheater />
+      <ReplayCinemaTheater bundle={bundle} />
       {archive}
     </section>
   );

@@ -3,7 +3,10 @@
 import { useEffect, useMemo, useRef } from "react";
 
 import { useAiCognitionStore } from "@/store/ai-cognition-store";
+import { useAccessStore } from "@/store/access-store";
+import { useAuthStore } from "@/store/auth-store";
 import { useCognitionSimulationStore } from "@/store/cognition-simulation-store";
+import { authHeadersForUser } from "@/lib/access/request-user";
 import { useMarketStore } from "@/store/market-store";
 import { buildContextPayload } from "@/lib/openrouter/context";
 import type { AgentOutput, OrchestratorOutput } from "@/lib/openrouter/prompts";
@@ -53,6 +56,9 @@ function momentumBand(v: number | null): "neg" | "neutral" | "pos" | null {
 }
 
 export function useOpenRouterCognition(enabled = true) {
+  const user = useAuthStore((s) => s.user);
+  const session = useAuthStore((s) => s.session);
+  const hasExtended = useAccessStore((s) => s.hasExtendedCognition());
   const ai = useAiCognitionStore(
     useShallow((s) => ({
       status: s.status,
@@ -130,6 +136,7 @@ export function useOpenRouterCognition(enabled = true) {
   // eslint-disable-next-line react-hooks/exhaustive-deps -- ai slice stable for trigger; full object would loop on status churn
   useEffect(() => {
     if (!enabled) return;
+    if (!hasExtended) return;
     if (ai.status === "running") return;
     if (market.connection !== "live") return;
     if (!market.price) return;
@@ -159,7 +166,10 @@ export function useOpenRouterCognition(enabled = true) {
       try {
         const res = await fetch("/api/openrouter/cognition", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...authHeadersForUser(user?.id ?? null, session?.access_token ?? null),
+          },
           body: JSON.stringify({ context: contextRef.current }),
         });
         const json = (await res.json()) as Resp;
@@ -207,6 +217,7 @@ export function useOpenRouterCognition(enabled = true) {
     ai.setRunning,
     ai.status,
     enabled,
+    hasExtended,
     market.connection,
     market.fundingRate,
     market.momentum,
@@ -215,6 +226,8 @@ export function useOpenRouterCognition(enabled = true) {
     push,
     sim.derived.dangerBand,
     sim.derived.phase,
+    session?.access_token,
+    user?.id,
   ]);
 }
 

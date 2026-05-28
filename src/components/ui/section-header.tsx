@@ -30,7 +30,7 @@ export function SectionHeader({
       )}
     >
       <div className="min-w-0 flex-1 space-y-1">
-        <p className={variant === "hero" ? "ms-hero-label" : "ms-section-eyebrow"}>{eyebrow}</p>
+        <p className="ms-section-eyebrow">{eyebrow}</p>
         <h2 className={cn(titleClass, "text-pretty break-words")}>{title}</h2>
         {description ? (
           <div className="ms-intelligence-summary max-w-[42rem] text-pretty text-ms-muted">{description}</div>

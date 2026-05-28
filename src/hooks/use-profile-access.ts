@@ -1,41 +1,61 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 import type { ProfileAccess } from "@/lib/access/roles";
 import { authHeadersForUser } from "@/lib/access/request-user";
 import { useAccessStore } from "@/store/access-store";
 import { useAuthStore } from "@/store/auth-store";
 
+const MAX_ATTEMPTS = 3;
+const RETRY_MS = [0, 2_000, 6_000];
+
 /**
- * Sync Supabase profile role → local access store (premium / founding).
+ * Sync Supabase profile → local access store with retry.
  */
 export function useProfileAccess() {
   const user = useAuthStore((s) => s.user);
   const session = useAuthStore((s) => s.session);
-  const sessionMode = useAuthStore((s) => s.sessionMode);
   const setProfile = useAccessStore((s) => s.setProfile);
+  const setSyncLoading = useAccessStore((s) => s.setSyncLoading);
+  const setSyncError = useAccessStore((s) => s.setSyncError);
 
-  useEffect(() => {
-    let alive = true;
+  const load = useCallback(async () => {
+    if (!user?.id) return;
 
-    const load = async () => {
+    setSyncLoading();
+
+    for (let i = 0; i < MAX_ATTEMPTS; i++) {
+      if (RETRY_MS[i]) {
+        await new Promise((r) => setTimeout(r, RETRY_MS[i]));
+      }
+
       try {
         const headers: HeadersInit = {
-          ...authHeadersForUser(user?.id ?? null, session?.access_token ?? null),
+          ...authHeadersForUser(user.id, session?.access_token ?? null),
         };
         const res = await fetch("/api/access/me", { headers, cache: "no-store" });
         const json = (await res.json()) as { ok: boolean; profile?: ProfileAccess };
-        if (!alive || !json.ok || !json.profile) return;
-        setProfile(json.profile);
-      } catch {
-        /* local tier fallback */
-      }
-    };
 
-    load();
+        if (res.ok && json.ok && json.profile) {
+          setProfile(json.profile);
+          return;
+        }
+      } catch {
+        /* retry */
+      }
+    }
+
+    setSyncError();
+  }, [session?.access_token, setProfile, setSyncError, setSyncLoading, user?.id]);
+
+  useEffect(() => {
+    void load();
+    useAccessStore.getState().registerProfileSyncRetry(load);
     return () => {
-      alive = false;
+      useAccessStore.getState().registerProfileSyncRetry(null);
     };
-  }, [user?.id, session?.access_token, sessionMode, setProfile]);
+  }, [load]);
+
+  return { retry: load };
 }

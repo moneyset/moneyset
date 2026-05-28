@@ -1,0 +1,377 @@
+/* Journal + Market Memory — Phase 7 institutional archive */
+
+.ms-journal-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-bottom: 1.5rem;
+}
+
+/* Period navigation */
+.ms-journal-period {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  border-radius: var(--ms-radius-xl, 0.75rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 28%, transparent);
+  background: color-mix(in srgb, var(--ms-elevated) 10%, transparent);
+  padding: 0.75rem;
+}
+
+.ms-journal-period__tabs {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.ms-journal-period__tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.ms-journal-period__tab {
+  flex-shrink: 0;
+  padding: 0.4rem 0.65rem;
+  border-radius: var(--ms-radius-md, 0.375rem);
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ms-muted);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.ms-journal-period__tab:hover {
+  background: color-mix(in srgb, var(--ms-surface) 45%, transparent);
+  color: var(--ms-text);
+}
+
+.ms-journal-period__tab--active {
+  border-color: color-mix(in srgb, var(--ms-consensus) 35%, transparent);
+  background: color-mix(in srgb, var(--ms-consensus) 8%, transparent);
+  color: var(--ms-text);
+}
+
+.ms-journal-period__meta {
+  font-size: 0.625rem;
+  color: var(--ms-faint);
+  margin: 0;
+}
+
+/* Memory panel */
+.ms-journal-memory {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.ms-journal-memory__block {
+  /* Surface from ms-intel-card--inset */
+}
+
+.ms-journal-memory__block--bridge {
+  /* Tone from ms-intel-card--support */
+}
+
+.ms-journal-memory__eyebrow {
+  font-size: 0.5625rem;
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ms-faint);
+  margin-bottom: 0.5rem;
+}
+
+.ms-journal-memory__bullets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ms-journal-memory__bullets li {
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--ms-muted);
+  padding-left: 0.65rem;
+  border-left: 2px solid color-mix(in srgb, var(--ms-cognition) 35%, transparent);
+}
+
+.ms-journal-memory__empty {
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  color: var(--ms-faint);
+  margin: 0;
+}
+
+.ms-journal-memory__evolution {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.ms-journal-memory__evolution dt {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ms-faint);
+}
+
+.ms-journal-memory__evolution dd {
+  margin: 0.15rem 0 0;
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  color: var(--ms-muted);
+}
+
+.ms-journal-memory__transitions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.ms-journal-memory__transitions li {
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--ms-border) 30%, transparent);
+}
+
+.ms-journal-memory__transitions li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.ms-journal-memory__transition-label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  color: var(--ms-text);
+}
+
+.ms-journal-memory__transition-time {
+  display: block;
+  margin-top: 0.1rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.5625rem;
+  color: var(--ms-faint);
+}
+
+.ms-journal-memory__transition-read {
+  margin: 0.25rem 0 0;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: var(--ms-muted);
+}
+
+.ms-journal-memory__bridge-copy {
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  color: var(--ms-muted);
+  margin: 0 0 0.625rem;
+}
+
+.ms-journal-memory__replay-link {
+  display: inline-flex;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--ms-consensus) 88%, var(--ms-text));
+  text-decoration: none;
+}
+
+.ms-journal-memory__replay-link:hover {
+  text-decoration: underline;
+}
+
+/* Journal entry cards */
+.ms-journal-entry {
+  border-bottom: 1px solid color-mix(in srgb, var(--ms-border) 32%, transparent);
+  transition: opacity 0.35s ease, background 0.2s ease;
+}
+
+.ms-journal-entry:last-child {
+  border-bottom: none;
+}
+
+.ms-journal-entry--focused {
+  background: color-mix(in srgb, var(--ms-cognition) 6%, transparent);
+}
+
+.ms-journal-entry--dimmed {
+  opacity: 0.58;
+}
+
+.ms-journal-entry--signal {
+  border-left: 2px solid color-mix(in srgb, var(--ms-warning) 45%, transparent);
+}
+
+.ms-journal-entry__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 0.875rem 0.25rem;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ms-journal-entry__meta {
+  min-width: 0;
+}
+
+.ms-journal-entry__time {
+  display: block;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  color: var(--ms-faint);
+}
+
+.ms-journal-entry__tags {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.6875rem;
+  color: var(--ms-muted);
+}
+
+.ms-journal-entry__badge {
+  flex-shrink: 0;
+  font-size: 0.5625rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ms-consensus) 85%, var(--ms-muted));
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--ms-radius-pill, 999px);
+  border: 1px solid color-mix(in srgb, var(--ms-consensus) 28%, transparent);
+}
+
+.ms-journal-entry__body {
+  padding: 0 0.875rem 0.875rem;
+}
+
+.ms-journal-entry__reasoning {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--ms-text);
+  margin: 0;
+}
+
+.ms-journal-entry__teaser {
+  margin: 0.5rem 0 0;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: var(--ms-muted);
+}
+
+.ms-journal-entry__intel {
+  margin-top: 0.75rem;
+  padding-top: 0.625rem;
+  border-top: 1px solid color-mix(in srgb, var(--ms-border) 28%, transparent);
+}
+
+.ms-journal-entry__summary {
+  list-style: none;
+  margin: 0 0 0.625rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.ms-journal-entry__summary li {
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--ms-cognition) 80%, var(--ms-muted));
+}
+
+.ms-journal-entry__record {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .ms-journal-entry__record {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem 0.75rem;
+  }
+}
+
+.ms-journal-entry__record dt {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ms-faint);
+}
+
+.ms-journal-entry__record dd {
+  margin: 0.1rem 0 0;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: var(--ms-muted);
+}
+
+.ms-journal-entry__layers {
+  margin-top: 0.625rem;
+  padding: 0.5rem 0.625rem;
+  border-radius: var(--ms-radius-md, 0.375rem);
+  background: color-mix(in srgb, var(--ms-surface) 35%, transparent);
+}
+
+.ms-journal-entry__layers-label {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ms-faint);
+  margin-bottom: 0.25rem;
+}
+
+.ms-journal-layout {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .ms-journal-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+    align-items: start;
+  }
+}
+
+.ms-journal-feed {
+  overflow: hidden;
+  border-radius: var(--ms-radius-xl, 0.75rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 28%, transparent);
+  background: color-mix(in srgb, var(--ms-elevated) 8%, transparent);
+}
+
+@media (max-width: 420px) {
+  .ms-journal-period__tab {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.5625rem;
+  }
+
+  .ms-journal-entry__header {
+    padding-left: 0.625rem;
+    padding-right: 0.625rem;
+  }
+
+  .ms-journal-entry__body {
+    padding-left: 0.625rem;
+    padding-right: 0.625rem;
+  }
+}

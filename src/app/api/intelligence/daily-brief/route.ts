@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { loadRequestProfile, profileHasFullAccess } from "@/lib/access/api-guard";
 import { deriveDailyBriefDeterministic, generateDailyBrief } from "@/lib/intelligence/daily-brief";
+import { applyRateLimit } from "@/lib/ops/api-guard-helpers";
 import { runIntelligencePipeline } from "@/lib/intelligence/pipeline/run-pipeline";
 import { fetchUnifiedMarketSnapshot } from "@/lib/intelligence/market-state-engine";
 import { buildStructuredIntelligenceContext } from "@/lib/intelligence/structured-context";
@@ -39,6 +40,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const limited = applyRateLimit({ req, route: "intelligence/daily-brief", limit: 6, windowMs: 60_000 });
+  if (limited) return limited;
+
   const profile = await loadRequestProfile(req);
   if (!profileHasFullAccess(profile)) {
     return NextResponse.json({ ok: false, error: "Premium access required" }, { status: 403 });

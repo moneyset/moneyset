@@ -17,6 +17,7 @@ export function workspaceTitleFromPath(pathname: string | null, locale: UiLocale
   }
 
   const map: { prefix: string; en: string; ru: string }[] = [
+    { prefix: "/index", en: "Market Index", ru: "Market Index" },
     { prefix: "/settings", en: "Settings", ru: "Настройки" },
     { prefix: "/journal", en: "Journal", ru: "Журнал" },
     { prefix: "/execution", en: "Execution", ru: "Исполнение" },

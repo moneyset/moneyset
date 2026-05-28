@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { loadRequestProfile, profileHasFullAccess } from "@/lib/access/api-guard";
+import { applyRateLimit } from "@/lib/ops/api-guard-helpers";
+import { logOpsEvent } from "@/lib/ops/operational-events";
 import { sanitizeApiError } from "@/lib/services/shared/env";
 import { openRouterChat } from "@/services/openrouter/client";
 import { resolveModelRoute, modelForAgent, type AgentId } from "@/lib/openrouter/models";
@@ -20,6 +22,9 @@ type Req = {
 };
 
 export async function POST(req: Request) {
+  const limited = applyRateLimit({ req, route: "openrouter/cognition", limit: 8, windowMs: 60_000 });
+  if (limited) return limited;
+
   try {
     const profile = await loadRequestProfile(req);
     const cronSecret = process.env.CRON_SECRET?.trim();
@@ -105,6 +110,7 @@ export async function POST(req: Request) {
       },
     });
   } catch (e) {
+    logOpsEvent("openrouter_failure", { status: 502 });
     return NextResponse.json(
       {
         ok: false,

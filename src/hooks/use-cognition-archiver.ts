@@ -2,10 +2,14 @@
 
 import { useEffect, useRef } from "react";
 
+import { deriveStrategicPosture } from "@/lib/cognition/strategic-read";
+import { dominantHeadline } from "@/lib/i18n/cognition-dict";
+import { enrichSnapshotCapture } from "@/lib/journal/market-memory-engine";
 import { useAiCognitionStore } from "@/store/ai-cognition-store";
 import { useCognitionSimulationStore } from "@/store/cognition-simulation-store";
 import { useMarketStore } from "@/store/market-store";
 import { useMemoryStore } from "@/store/memory-store";
+import { useUiPrefsStore } from "@/store/ui-prefs-store";
 import { useShallow } from "zustand/react/shallow";
 
 function nid(): string {
@@ -41,13 +45,19 @@ function volBand(v: number | null): "compressing" | "neutral" | "expanding" | nu
 /** Captures historical cognition snapshots into local memory (future Supabase-ready). */
 export function useCognitionArchiver(enabled = true) {
   const addSnapshot = useMemoryStore((s) => s.addSnapshot);
+  const prevSnapshots = useMemoryStore((s) => s.snapshots);
+  const locale = useUiPrefsStore((s) => s.uiLocale);
 
   const market = useMarketStore((s) => s);
   const sim = useCognitionSimulationStore(
     useShallow((s) => ({
       derived: s.derived,
+      latent: s.latent,
       scenarioBook: s.scenarioBook,
       operationalLog: s.operationalLog,
+      topScenario: s.topScenario,
+      mainRisk: s.mainRisk,
+      dominant: s.dominant,
     })),
   );
   const orch = useAiCognitionStore((s) => s.orchestrator);
@@ -67,7 +77,8 @@ export function useCognitionArchiver(enabled = true) {
     if (!shouldCapture(prevKey.current, key)) return;
     prevKey.current = key;
 
-    addSnapshot({
+    const prevSnap = prevSnapshots[0] ?? null;
+    const base = {
       id: nid(),
       ts: Date.now(),
       symbol: market.symbol,
@@ -92,7 +103,39 @@ export function useCognitionArchiver(enabled = true) {
         simulatedClockLabel: e.simulatedClockLabel,
         message: e.message,
       })),
+    };
+
+    const executionPosture =
+      orch?.actionBias === "tighten_risk"
+        ? "Tighten risk · reduce chase distance"
+        : orch?.actionBias === "wait_for_acceptance"
+          ? "Wait for acceptance proofs at shelves"
+          : orch?.actionBias === "stay_measured"
+            ? "Stay measured · conditional structures only"
+            : undefined;
+
+    const strategic = deriveStrategicPosture({
+      locale,
+      dominantHeadline: dominantHeadline(locale, sim.dominant.headlineKey),
+      mainRisk: sim.mainRisk,
+      topScenario: sim.topScenario,
+      scenarioCards: sim.scenarioBook.cards,
+      derived: sim.derived,
+      latent: sim.latent,
+      history: [],
     });
+
+    addSnapshot(
+      enrichSnapshotCapture({
+        locale,
+        base,
+        prev: prevSnap,
+        executionPosture: strategic.strategicBias ?? executionPosture,
+        primaryRiskLine: strategic.primaryStructuralRisk,
+        liquidityStress: sim.latent.liquidityStructuralStress,
+        participationPressure: sim.latent.positioningPressure,
+      }),
+    );
   }, [
     addSnapshot,
     enabled,
@@ -109,8 +152,17 @@ export function useCognitionArchiver(enabled = true) {
     sim.derived.dangerScore,
     sim.derived.divergenceIndex,
     sim.derived.phase,
+    sim.latent.liquidityStructuralStress,
+    sim.latent.positioningPressure,
+    sim.mainRisk.dangerScore,
+    sim.mainRisk.riskKey,
+    sim.dominant.headlineKey,
     sim.operationalLog,
     sim.scenarioBook.cards,
+    sim.topScenario,
+    locale,
+    prevSnapshots,
+    orch?.actionBias,
     orch?.synthesis,
   ]);
 }

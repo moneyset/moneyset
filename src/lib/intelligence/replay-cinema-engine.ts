@@ -1,6 +1,7 @@
 import type { AgentArchetypeId } from "@/lib/agents/agent-archetypes";
 import { deriveReplayStudioBundle } from "@/lib/intelligence/replay-studio-view";
 import type { ReplayStudioBundle } from "@/lib/intelligence/replay-studio-view";
+import { buildReplayTimeline, type ReplayTimelineSlot } from "@/lib/intelligence/replay-timeline-engine";
 import type { DerivedCognitionSnapshot } from "@/lib/simulation/engine-evolve";
 import type { AgentHistoryPoint, CognitiveSnapshot, TopScenarioWireId } from "@/lib/simulation/cognition-types";
 import { consensusLabel, pickLocale, scenarioTitle } from "@/lib/i18n/cognition-dict";
@@ -72,6 +73,7 @@ export type ReplayCinemaBundle = Readonly<{
   headline: string;
   subline: string;
   frames: readonly ReplayCinemaFrame[];
+  timeline: readonly ReplayTimelineSlot[];
   criticalMoments: readonly CriticalMoment[];
   cognitionDrift: readonly CognitionDriftLine[];
   agentEpochs: readonly AgentReplayEpoch[];
@@ -274,6 +276,25 @@ function detectCriticalMoments(
         fi,
       );
     }
+
+    if (
+      c.consensus !== p.consensus &&
+      (c.consensus === "divergence_increasing" || c.consensus === "consensus_weakening") &&
+      c.liquidityStructuralStress >= 52 &&
+      c.dangerBand !== "calm"
+    ) {
+      push(
+        `reclaim-${c.simTick}`,
+        c.simTick,
+        c.simulatedClockLabel,
+        "reclaim_rejection",
+        "Reclaim rejection",
+        "Отклонение откупа",
+        "Sponsorship failed at structural reclaim — acceptance proof rejected.",
+        "Спонсорство провалилось на структурном откупе — доказательство принятия отклонено.",
+        fi,
+      );
+    }
   }
 
   for (let i = 1; i < agentHistory.length; i++) {
@@ -428,6 +449,7 @@ export function deriveReplayCinemaBundle(args: {
   const criticalMoments = detectCriticalMoments(locale, history, agentHistory);
   const cognitionDrift = buildCognitionDrift(locale, history, agentHistory);
   const agentEpochs = buildAgentEpochs(locale, history, agentHistory);
+  const timeline = buildReplayTimeline(locale, frames, history);
 
   const headline =
     history.length >= 2
@@ -444,6 +466,7 @@ export function deriveReplayCinemaBundle(args: {
     headline,
     subline,
     frames,
+    timeline,
     criticalMoments,
     cognitionDrift,
     agentEpochs,

@@ -1,12 +1,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { LogOut, UserRound, CreditCard, ShieldCheck, Mail } from "lucide-react";
+import { LogOut, UserRound, CreditCard, ShieldCheck, Mail, ExternalLink } from "lucide-react";
 
 import { CognitionPanel } from "@/components/ui/panel";
 import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/ui/status-pill";
 import { supabaseBrowser } from "@/lib/supabase/browser";
+import {
+  accessPlanDetail,
+  accessPlanLabel,
+  formatAccountDate,
+  maskAccountEmail,
+  providerLabel,
+  subscriptionStatusLabel,
+} from "@/lib/account/account-display";
 import { hasFounderAccess } from "@/lib/access/founder";
 import { hasFullPlatformAccess } from "@/lib/access/capabilities";
 import { clearClientSession } from "@/lib/auth/sign-out";
@@ -17,34 +25,20 @@ import { useSubscriptionStore } from "@/store/subscription-store";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
 import { useTelegramStore } from "@/store/telegram-store";
 import { useUpgradeModalStore } from "@/store/upgrade-modal-store";
+import { useProfileCenterStore } from "@/store/profile-center-store";
 import { useShallow } from "zustand/react/shallow";
 import { cn } from "@/lib/utils";
-
-function formatDate(ts: number | null | string): string {
-  if (!ts) return "—";
-  const d = new Date(typeof ts === "string" ? ts : ts);
-  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
-}
-
-function maskEmail(email: string): string {
-  const [local, domain] = email.split("@");
-  if (!local || !domain) return email;
-  const masked = local.length > 3 ? `${local.slice(0, 2)}${"•".repeat(local.length - 2)}` : local;
-  return `${masked}@${domain}`;
-}
 
 export function AccountDashboardCard() {
   const locale = useUiPrefsStore((s) => s.uiLocale);
   const profile = useAccessStore((s) => s.profile);
+  const serverConfirmed = useAccessStore((s) => s.serverConfirmed);
   const openUpgrade = useUpgradeModalStore((s) => s.openUpgrade);
+  const openProfileCenter = useProfileCenterStore((s) => s.openProfileCenter);
   const auth = useAuthStore(useShallow((s) => ({ status: s.status, user: s.user })));
   const sub = useSubscriptionStore(
     useShallow((s) => ({
-      tier: s.tier,
-      status: s.status,
       provider: s.provider,
-      currentPeriodEndTs: s.currentPeriodEndTs,
-      lastInvoiceId: s.lastInvoiceId,
       updatedAtTs: s.updatedAtTs,
     })),
   );
@@ -55,30 +49,10 @@ export function AccountDashboardCard() {
   const signedIn = auth.status === "signed_in" && Boolean(auth.user?.id);
   const email = auth.user?.email ?? null;
 
-  const isFounder = hasFounderAccess(profile);
-  // Use the canonical platform-access check — mirrors the same logic as server-side
-  // hasFullPlatformAccess() and the client gates, rather than a one-off inline check.
-  const isPremium = hasFullPlatformAccess(profile);
-
-  // Access level label
-  const accessLabel = isFounder
-    ? pickLocale(locale, "Founding Access", "Founding Access")
-    : profile.accessLevel === "invitation"
-      ? pickLocale(locale, "Invitation Access", "Приглашение")
-      : profile.accessLevel === "admin"
-        ? pickLocale(locale, "Admin", "Админ")
-        : profile.accessTier === "premium"
-          ? pickLocale(locale, "Premium", "Премиум")
-          : pickLocale(locale, "Free Access", "Бесплатный доступ");
-
-  // Plan status line
-  const planLine = isFounder
-    ? pickLocale(locale, "Lifetime access · no expiry", "Пожизненный доступ · без срока")
-    : profile.premiumUntil
-      ? pickLocale(locale, `Active until ${formatDate(profile.premiumUntil)}`, `Активен до ${formatDate(profile.premiumUntil)}`)
-      : isPremium
-        ? pickLocale(locale, "Active", "Активен")
-        : pickLocale(locale, "Free tier — execution map and invalidation locked", "Бесплатный доступ — карта исполнения закрыта");
+  const isFounder = serverConfirmed && hasFounderAccess(profile);
+  const isPremium = serverConfirmed && hasFullPlatformAccess(profile);
+  const accessLabel = accessPlanLabel(locale, profile);
+  const planLine = accessPlanDetail(locale, profile);
 
   const handleSignOut = async () => {
     if (!sb) return;
@@ -106,22 +80,20 @@ export function AccountDashboardCard() {
             <UserRound className="size-4" strokeWidth={1.4} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="ms-data-label text-ms-faint">{pickLocale(locale, "Account", "Аккаунт")}</p>
+            <p className="ms-data-label text-ms-faint">{pickLocale(locale, "Profile", "Профиль")}</p>
             {signedIn && email ? (
               <>
-                <p className="mt-1 truncate font-mono text-[12px] text-ms-text">{maskEmail(email)}</p>
+                <p className="mt-1 truncate text-[12px] text-ms-text">{maskAccountEmail(email)}</p>
                 <p className="mt-0.5 text-[11px] text-ms-faint">
                   {telegramStatus === "linked"
                     ? pickLocale(locale, "Email + Telegram linked", "Email + Telegram подключён")
                     : pickLocale(locale, "Email session", "Email сессия")}
                 </p>
               </>
-            ) : auth.user?.user_metadata?.telegram_id ? (
+            ) : auth.user?.user_metadata?.telegram_username ? (
               <>
                 <p className="mt-1 text-[12px] text-ms-text">
-                  {auth.user.user_metadata.telegram_username
-                    ? `@${String(auth.user.user_metadata.telegram_username)}`
-                    : pickLocale(locale, "Telegram account", "Telegram аккаунт")}
+                  @{String(auth.user.user_metadata.telegram_username)}
                 </p>
                 <p className="mt-0.5 text-[11px] text-ms-faint">
                   {pickLocale(locale, "Telegram session", "Telegram сессия")}
@@ -142,13 +114,18 @@ export function AccountDashboardCard() {
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <p className="ms-data-label text-ms-faint">{pickLocale(locale, "Plan", "Тариф")}</p>
+              <p className="ms-data-label text-ms-faint">{pickLocale(locale, "Access", "Доступ")}</p>
               <StatusPill accent={isPremium ? "warning" : "neutral"} className="text-[9px]">
                 {accessLabel}
               </StatusPill>
             </div>
             <p className="mt-1 text-[12px] leading-snug text-ms-muted">{planLine}</p>
-            {!isPremium && (
+            {serverConfirmed ? (
+              <p className="mt-1 text-[10px] text-ms-faint">
+                {pickLocale(locale, "Status", "Статус")}: {subscriptionStatusLabel(locale, profile.subscriptionStatus)}
+              </p>
+            ) : null}
+            {!isPremium ? (
               <button
                 type="button"
                 onClick={openUpgrade}
@@ -156,28 +133,31 @@ export function AccountDashboardCard() {
               >
                 {pickLocale(locale, "Upgrade to Founding Access →", "Founding Access →")}
               </button>
-            )}
+            ) : isFounder ? (
+              <button
+                type="button"
+                onClick={() => openProfileCenter("founder")}
+                className="mt-2 text-[11px] font-medium text-ms-warning/80 hover:text-ms-warning transition-colors"
+              >
+                {pickLocale(locale, "View founder status →", "Статус Founder →")}
+              </button>
+            ) : null}
           </div>
         </div>
 
-        {/* Payment */}
+        {/* Billing summary */}
         <div className="ms-account-cell">
           <div className="ms-account-cell__icon">
             <CreditCard className="size-4" strokeWidth={1.4} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="ms-data-label text-ms-faint">{pickLocale(locale, "Payment", "Оплата")}</p>
+            <p className="ms-data-label text-ms-faint">{pickLocale(locale, "Billing", "Оплата")}</p>
             {sub.provider ? (
               <>
-                <p className="mt-1 text-[12px] text-ms-muted capitalize">{sub.provider}</p>
-                {sub.lastInvoiceId ? (
-                  <p className="mt-0.5 font-mono text-[10px] text-ms-faint/70">
-                    {sub.lastInvoiceId.length > 20 ? `${sub.lastInvoiceId.slice(0, 20)}…` : sub.lastInvoiceId}
-                  </p>
-                ) : null}
+                <p className="mt-1 text-[12px] text-ms-muted">{providerLabel(sub.provider)}</p>
                 {sub.updatedAtTs ? (
                   <p className="mt-0.5 text-[11px] text-ms-faint">
-                    {formatDate(sub.updatedAtTs)}
+                    {pickLocale(locale, "Last activity", "Последняя активность")}: {formatAccountDate(sub.updatedAtTs)}
                   </p>
                 ) : null}
               </>
@@ -188,18 +168,17 @@ export function AccountDashboardCard() {
             )}
             <button
               type="button"
-              onClick={openUpgrade}
-              className="mt-2 text-[11px] text-ms-faint/70 hover:text-ms-muted transition-colors"
+              onClick={() => openProfileCenter("billing")}
+              className="mt-2 inline-flex items-center gap-1 text-[11px] text-ms-cognition/80 hover:text-ms-cognition transition-colors"
             >
-              {isPremium
-                ? pickLocale(locale, "Manage access →", "Управление доступом →")
-                : pickLocale(locale, "Founding Access — $149 →", "Founding Access — $149 →")}
+              {pickLocale(locale, "View payment history →", "История оплат →")}
+              <ExternalLink className="size-3" strokeWidth={1.5} />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Sign out / account actions */}
+      {/* Actions */}
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-ms-border/20 pt-4">
         <div className="flex items-center gap-2">
           <Mail className="size-3.5 text-ms-faint/60" strokeWidth={1.4} aria-hidden />
@@ -209,21 +188,34 @@ export function AccountDashboardCard() {
               : pickLocale(locale, "Guest mode — sign in for sync", "Гостевой режим — войдите для синхронизации")}
           </p>
         </div>
-        {signedIn ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="gap-2 text-[11px] text-ms-muted"
-            disabled={signingOut}
-            onClick={() => void handleSignOut()}
-          >
-            <LogOut className="size-3.5" strokeWidth={1.5} />
-            {signingOut
-              ? pickLocale(locale, "Signing out…", "Выход…")
-              : pickLocale(locale, "Sign out", "Выйти")}
-          </Button>
-        ) : null}
+        <div className="flex flex-wrap items-center gap-2">
+          {signedIn ? (
+            <>
+              <Button
+                type="button"
+                variant="cognition"
+                size="sm"
+                className="gap-2 text-[11px]"
+                onClick={() => openProfileCenter("overview")}
+              >
+                {pickLocale(locale, "Account center", "Центр аккаунта")}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-2 text-[11px] text-ms-muted"
+                disabled={signingOut}
+                onClick={() => void handleSignOut()}
+              >
+                <LogOut className="size-3.5" strokeWidth={1.5} />
+                {signingOut
+                  ? pickLocale(locale, "Signing out…", "Выход…")
+                  : pickLocale(locale, "Sign out", "Выйти")}
+              </Button>
+            </>
+          ) : null}
+        </div>
       </div>
     </CognitionPanel>
   );

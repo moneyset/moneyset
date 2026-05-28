@@ -9,6 +9,7 @@ import {
 } from "@/lib/billing/payment-record";
 import { verifyNowPaymentsIpnSignature } from "@/lib/billing/nowpayments-ipn";
 import { checkRateLimit, rateLimitKey } from "@/lib/billing/rate-limit";
+import { logOpsEvent } from "@/lib/ops/operational-events";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -167,7 +168,11 @@ export async function POST(req: Request) {
       currency,
     });
     if (!createResult.ok) {
-      console.error("[billing/webhook] createPendingPayment error:", createResult.error);
+      logOpsEvent("payment_webhook_failure", { stage: "create_pending", orderId });
+      return NextResponse.json(
+        { ok: false, error: "Payment record could not be created" },
+        { status: 502 },
+      );
     }
   }
 

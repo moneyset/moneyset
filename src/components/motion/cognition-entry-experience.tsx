@@ -83,7 +83,7 @@ export function CognitionEntryExperience({ onExited }: CognitionEntryExperienceP
 
           <div className="relative z-[1] flex max-w-lg flex-col items-center text-center">
             <m.p
-              className="ms-hero-label text-ms-faint"
+              className="ms-section-eyebrow text-ms-faint"
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ ...msTransition.medium, delay: reduce ? 0 : 0.12 }}

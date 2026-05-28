@@ -36,12 +36,12 @@ export function PremiumGate({ children, onUnlock, className, preview = true, fea
   const capAllowed = useCanAccessCapability(capability ?? "executionMap");
   const featureAllowed = useCanAccess(feature ?? "executionMap");
   const entitled = capability ? capAllowed : feature ? featureAllowed : extended;
+  const t = useT();
+  const locale = useUiPrefsStore((s) => s.uiLocale);
 
   // Render nothing until the server has confirmed this session's profile.
   // Prevents the locked/blurred preview from flashing for paying users on reload.
   if (!confirmed) return null;
-  const t = useT();
-  const locale = useUiPrefsStore((s) => s.uiLocale);
 
   if (entitled) return <>{children}</>;
 

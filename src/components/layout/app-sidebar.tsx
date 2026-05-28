@@ -6,6 +6,7 @@ import {
   Binary,
   BookOpen,
   FlaskConical,
+  Gauge,
   Globe2,
   History,
   Link2,
@@ -39,6 +40,7 @@ export function AppSidebar({ className }: { className?: string }) {
 
   const surfaces: NavItem[] = [
     { href: "/", labelKey: "nav.core", icon: Orbit, surfaceId: "core" },
+    { href: "/index", labelKey: "nav.marketIndex", icon: Gauge, surfaceId: "core" },
     { href: "/execution", labelKey: "nav.execution", icon: Target, surfaceId: "execution" },
     { href: "/scenarios", labelKey: "nav.scenarios", icon: Binary, surfaceId: "scenarios" },
     { href: "/ops", labelKey: "nav.ops", icon: ScrollText, surfaceId: "ops" },

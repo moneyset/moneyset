@@ -1,68 +1,59 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { BookOpen, Brain, ChevronLeft, ChevronRight, Download, Plus, Shield } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Plus } from "lucide-react";
 
-import { SectionHeader } from "@/components/ui/section-header";
+import { JournalEntryCard } from "@/components/journal/journal-entry-card";
+import { JournalMemoryPanel } from "@/components/journal/journal-memory-panel";
+import { IntelCard } from "@/components/ui/intel-card";
+import { JournalPeriodNav } from "@/components/journal/journal-period-nav";
 import { Button } from "@/components/ui/button";
-import { StatusPill } from "@/components/ui/status-pill";
 import { Modal } from "@/components/ui/modal";
-import { useMarketStore } from "@/store/market-store";
-import { useMemoryStore } from "@/store/memory-store";
-import { useCognitionSimulationStore } from "@/store/cognition-simulation-store";
-import { useAiCognitionStore } from "@/store/ai-cognition-store";
-import type { JournalCognitiveLayers, JournalDirection, JournalEntry, MemorySnapshot } from "@/types/memory";
-import { cn } from "@/lib/utils";
-import { useShallow } from "zustand/react/shallow";
-import { downloadTextFile, memoryArchiveBody } from "@/lib/export/cognition-snapshot-download";
-import { useUiPrefsStore, type UiLocale } from "@/store/ui-prefs-store";
-import { consensusLabel, dangerBandLabel, phaseLabel, pickLocale } from "@/lib/i18n/cognition-dict";
-import { journalReplayHighPriority } from "@/lib/cognition/information-priority";
+import { StatusPill } from "@/components/ui/status-pill";
+import { useMarketMemory } from "@/hooks/use-market-memory";
 import { deriveJournalCognitiveLayers } from "@/lib/journal/cognitive-layers";
+import { deriveJournalIntelligenceRecord } from "@/lib/journal/market-memory-engine";
+import { deriveJournalInsightReport } from "@/lib/journal/journal-insights";
+import { downloadTextFile, memoryArchiveBody } from "@/lib/export/cognition-snapshot-download";
+import { consensusLabel, dangerBandLabel, phaseLabel, pickLocale } from "@/lib/i18n/cognition-dict";
 import {
   journalCancel,
   journalDirectionLabel,
-  journalEmotionPrefix,
   journalEntriesCount,
   journalExportArchive,
-  journalEyebrowContext,
-  journalEyebrowReview,
   journalFieldConfidence,
   journalFieldEmotionOptional,
   journalFieldReasoning,
   journalFieldRiskPerception,
-  journalLessonsPrefix,
-  journalLinkedSnapshotPrefix,
-  journalListEyebrow,
-  journalLiveAnchorTitle,
-  journalMetaConfidence,
-  journalMetaRisk,
   journalModalDescription,
   journalModalTitle,
   journalNewEntry,
-  journalOutcomeLabel,
   journalPageDescription,
   journalPageTitle,
-  journalPatternsTitle,
+  journalReplayPosition,
+  journalReplayToggle,
   journalSaveEntry,
-  journalSnapshotLinked,
+  journalTransitionCapture,
   journalEmptyPrimary,
   journalEmptySecondary,
   journalEmptyTitle,
-  journalReplayToggle,
-  journalReplayPosition,
-  journalTransitionCapture,
-  journalDeskNote,
+  journalListEyebrow,
+  journalLinkedSnapshotPrefix,
   journalLayerStateShift,
   journalLayerStructural,
   journalLayerPosture,
   journalLayerInvalidation,
   journalLayerScenario,
   journalLegacyNoLayers,
-  marketFeedStatusLabel,
-  tapeAwaitingLine,
-  formatOperationalTimestamp,
 } from "@/lib/i18n/trust-surface";
+import { cn } from "@/lib/utils";
+import { useAiCognitionStore } from "@/store/ai-cognition-store";
+import { useCognitionSimulationStore } from "@/store/cognition-simulation-store";
+import { useMarketStore } from "@/store/market-store";
+import { useMemoryStore } from "@/store/memory-store";
+import type { JournalDirection, JournalEntry, MemoryPeriodId, MemorySnapshot } from "@/types/memory";
+import { useUiPrefsStore, type UiLocale } from "@/store/ui-prefs-store";
+import { useShallow } from "zustand/react/shallow";
 
 function nid() {
   return `jrnl-${Date.now()}-${Math.floor(Math.random() * 10_000)}`;
@@ -80,47 +71,15 @@ function resolveSnapshotPair(
   return { cur, prev };
 }
 
-function LayerPulse({ layers }: { layers: JournalCognitiveLayers | undefined }) {
-  if (!layers) return <div className="flex gap-0.5 opacity-30" aria-hidden>{Array.from({ length: 5 }).map((_, i) => <span key={i} className="h-[3px] w-[3px] rounded-[1px] bg-ms-border" />)}</div>;
-  const weights = [
-    layers.stateShift.length,
-    layers.structuralChange.length,
-    layers.postureChange.length,
-    layers.invalidationOrConfirmation.length,
-    layers.scenarioEvolution.length,
-  ].map((n) => (n > 48 ? "bg-ms-cognition/55" : n > 28 ? "bg-ms-cognition/35" : "bg-ms-border/80"));
-  return (
-    <div className="flex gap-0.5" aria-hidden>
-      {weights.map((c, i) => (
-        <span key={i} className={cn("h-[3px] w-[3px] rounded-[1px]", c)} />
-      ))}
-    </div>
-  );
-}
-
 function CognitiveBlock({
   locale,
   layers,
-  compact,
 }: {
   locale: UiLocale;
   layers: JournalEntry["cognitiveLayers"];
-  compact: boolean;
 }) {
   if (!layers) {
     return <p className="text-[10px] leading-snug text-ms-faint">{journalLegacyNoLayers(locale)}</p>;
-  }
-  if (compact) {
-    return (
-      <div className="min-w-0 space-y-0.5">
-        <p className="line-clamp-2 text-[10px] leading-snug text-ms-muted" title={layers.stateShift}>
-          {layers.stateShift}
-        </p>
-        <p className="line-clamp-1 text-[10px] leading-snug text-ms-faint" title={layers.scenarioEvolution}>
-          {layers.scenarioEvolution}
-        </p>
-      </div>
-    );
   }
   const rows: ReadonlyArray<readonly [string, string]> = [
     [journalLayerStateShift(locale), layers.stateShift],
@@ -142,13 +101,22 @@ function CognitiveBlock({
 }
 
 export function JournalWorkspace() {
+  const locale = useUiPrefsStore((s) => s.uiLocale);
   const market = useMarketStore(
     useShallow((s) => ({ symbol: s.symbol, price: s.price, connection: s.connection })),
   );
   const snapshots = useMemoryStore((s) => s.snapshots);
   const journal = useMemoryStore((s) => s.journal);
   const add = useMemoryStore((s) => s.addJournalEntry);
-  const locale = useUiPrefsStore((s) => s.uiLocale);
+  const addInsight = useMemoryStore((s) => s.addInsight);
+  const insights = useMemoryStore((s) => s.insights);
+
+  const derived = useCognitionSimulationStore((s) => s.derived);
+  const topScenario = useCognitionSimulationStore((s) => s.topScenario);
+  const orch = useAiCognitionStore((s) => s.orchestrator);
+
+  const [period, setPeriod] = useState<MemoryPeriodId>("week");
+  const memory = useMarketMemory(period);
 
   const [open, setOpen] = useState(false);
   const [direction, setDirection] = useState<JournalDirection>("other");
@@ -157,22 +125,30 @@ export function JournalWorkspace() {
   const [confidencePct, setConfidencePct] = useState<number>(62);
   const [riskPerception, setRiskPerception] = useState<JournalEntry["riskPerception"]>("moderate");
 
-  const latestSnapshotId = snapshots[0]?.id;
-
-  const derived = useCognitionSimulationStore((s) => s.derived);
-  const topScenario = useCognitionSimulationStore((s) => s.topScenario);
-  const orch = useAiCognitionStore((s) => s.orchestrator);
-
   const [replayOn, setReplayOn] = useState(false);
   const [replayIdx, setReplayIdx] = useState(0);
 
-  const chrono = useMemo(() => [...journal].sort((a, b) => a.ts - b.ts), [journal]);
-  const displayList = useMemo(() => (replayOn ? chrono : journal.slice(0, 120)), [replayOn, chrono, journal]);
+  const latestSnapshotId = snapshots[0]?.id;
+  const canSave = reasoning.trim().length >= 12;
+
+  const chrono = useMemo(
+    () => [...memory.journal].sort((a, b) => a.ts - b.ts),
+    [memory.journal],
+  );
+  const displayList = replayOn ? chrono : memory.journal;
 
   useEffect(() => {
     if (!replayOn || chrono.length === 0) return;
     setReplayIdx((i) => Math.max(0, Math.min(i, chrono.length - 1)));
   }, [replayOn, chrono.length]);
+
+  useEffect(() => {
+    const report = deriveJournalInsightReport(locale, snapshots, period);
+    if (!report) return;
+    const recent = insights[0];
+    if (recent && Date.now() - recent.ts < 30 * 60_000) return;
+    addInsight(report);
+  }, [addInsight, insights, locale, period, snapshots]);
 
   const previewLayers = useMemo(() => {
     const { cur, prev } = resolveSnapshotPair(snapshots, latestSnapshotId);
@@ -186,8 +162,6 @@ export function JournalWorkspace() {
     );
   }, [snapshots, latestSnapshotId, locale, derived.volTone, topScenario.scenarioId, orch?.actionBias]);
 
-  const canSave = reasoning.trim().length >= 12;
-
   const contextNote = useMemo(() => {
     const snap = snapshots.find((s) => s.id === latestSnapshotId);
     if (!snap) return null;
@@ -195,231 +169,119 @@ export function JournalWorkspace() {
   }, [latestSnapshotId, snapshots, locale]);
 
   return (
-    <div className="ms-page">
-      <SectionHeader
-        eyebrow={pickLocale(locale, "Cognition memory", "Память прочтения")}
-        title={journalPageTitle(locale)}
-        description={journalPageDescription(locale)}
-        action={
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusPill accent="neutral">{journalEntriesCount(locale, journal.length)}</StatusPill>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                downloadTextFile(
-                  `moneyset-archive-${Date.now()}.json`,
-                  memoryArchiveBody(snapshots, journal),
-                );
-              }}
-            >
-              <Download className="size-4" strokeWidth={1.5} />
-              {journalExportArchive(locale)}
-            </Button>
-            <Button type="button" variant="outline" size="sm" onClick={() => setOpen(true)}>
-              <Plus className="size-4" strokeWidth={1.5} />
-              {journalNewEntry(locale)}
-            </Button>
-          </div>
-        }
-      />
-
-      <div className="mt-[var(--ms-section-gap)] grid grid-cols-1 gap-[var(--ms-block-gap)] lg:grid-cols-2">
-        <div className="ms-surface-panel rounded-ms-2xl p-5 sm:p-6">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="ms-eyebrow">{journalEyebrowContext(locale)}</p>
-              <p className="ms-title mt-1 text-ms-text">{journalLiveAnchorTitle(locale)}</p>
-              <p className="ms-intelligence-summary mt-2 font-mono text-[12px] tabular-nums text-ms-muted">
-                {market.symbol}
-                <span className="text-ms-faint"> · </span>
-                {market.price ? market.price.toFixed(0) : tapeAwaitingLine(locale)}
-                <span className="text-ms-faint"> · </span>
-                {marketFeedStatusLabel(locale, market.connection)}
-              </p>
-            </div>
-            <BookOpen className="size-5 text-ms-cognition/85" strokeWidth={1.5} aria-hidden />
-          </div>
-          <p className="mt-4 text-[12px] leading-relaxed text-ms-muted">
-            {pickLocale(locale, "Local-first. Sync optional.", "Локально. Синк опционален.")}
-          </p>
-          <div className="mt-5 rounded-ms-xl bg-ms-elevated/24 px-4 py-3 text-[12px] text-ms-muted">
-            <div className="flex items-start gap-2">
-              <Shield className="mt-0.5 size-4 shrink-0 text-ms-warning/70" strokeWidth={1.5} aria-hidden />
-              <p className="leading-relaxed">
-                {pickLocale(
-                  locale,
-                  "On-device. Backup optional.",
-                  "На устройстве до бэкапа.",
-                )}
-              </p>
-            </div>
-          </div>
+    <div className="ms-journal-workspace ms-page">
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="ms-eyebrow">{pickLocale(locale, "Market memory", "Память рынка")}</p>
+          <h2 className="ms-title mt-1 text-ms-text">{journalPageTitle(locale)}</h2>
+          <p className="ms-intelligence-summary mt-2 max-w-2xl">{journalPageDescription(locale)}</p>
         </div>
-
-        <div className="ms-surface-panel rounded-ms-2xl p-5 sm:p-6">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="ms-eyebrow">{journalEyebrowReview(locale)}</p>
-              <p className="ms-title mt-1 text-ms-text">{journalPatternsTitle(locale)}</p>
-              <p className="ms-intelligence-summary mt-2">
-                {pickLocale(
-                  locale,
-                  "Oldest → newest: posture, invalidation pressure, scenario rotation.",
-                  "От старых к новым: позиция, давление снятия, смена сценария.",
-                )}
-              </p>
-            </div>
-            <Brain className="size-5 text-ms-sentiment/85" strokeWidth={1.5} aria-hidden />
-          </div>
-          <p className="mt-5 text-[12px] text-ms-muted">
-            {pickLocale(locale, "Quiet by default.", "По умолчанию — без шума.")}
-          </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusPill accent="neutral">{journalEntriesCount(locale, journal.length)}</StatusPill>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              downloadTextFile(`moneyset-archive-${Date.now()}.json`, memoryArchiveBody(snapshots, journal));
+            }}
+          >
+            <Download className="size-4" strokeWidth={1.5} />
+            {journalExportArchive(locale)}
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => setOpen(true)}>
+            <Plus className="size-4" strokeWidth={1.5} />
+            {journalNewEntry(locale)}
+          </Button>
         </div>
-      </div>
+      </header>
 
-      <div className="mt-[var(--ms-section-gap)] space-y-3">
-        {journal.length > 0 ? (
-          <div className="flex flex-col gap-2 rounded-ms-xl border border-ms-border/55 bg-ms-elevated/10 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-4">
-            <p className="ms-data-label text-ms-faint">{journalListEyebrow(locale)}</p>
-            <div className="flex flex-wrap items-center gap-2">
-              {replayOn ? (
-                <>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="h-8 px-2"
-                    disabled={replayIdx <= 0}
-                    onClick={() => setReplayIdx((i) => Math.max(0, i - 1))}
-                    aria-label={pickLocale(locale, "Earlier capture", "Раньше")}
-                  >
-                    <ChevronLeft className="size-4" strokeWidth={1.5} />
-                  </Button>
-                  <span className="font-mono text-[11px] tabular-nums text-ms-muted">
-                    {journalReplayPosition(locale, replayIdx, displayList.length)}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="h-8 px-2"
-                    disabled={replayIdx >= displayList.length - 1}
-                    onClick={() => setReplayIdx((i) => Math.min(displayList.length - 1, i + 1))}
-                    aria-label={pickLocale(locale, "Later capture", "Позже")}
-                  >
-                    <ChevronRight className="size-4" strokeWidth={1.5} />
-                  </Button>
-                </>
-              ) : null}
-              <Button
-                type="button"
-                variant={replayOn ? "default" : "outline"}
-                size="sm"
-                onClick={() => {
-                  setReplayOn((v) => {
-                    const next = !v;
-                    if (next) setReplayIdx(0);
-                    return next;
-                  });
-                }}
-              >
-                {journalReplayToggle(locale, replayOn)}
-              </Button>
-            </div>
-          </div>
-        ) : null}
+      <IntelCard variant="inset" className="overflow-hidden p-0">
+        <JournalPeriodNav
+          active={period}
+          onChange={setPeriod}
+          snapshotCount={memory.snapshots.length}
+          entryCount={memory.journal.length}
+        />
+      </IntelCard>
 
-        {journal.length === 0 ? (
-          <div className="rounded-ms-2xl border border-ms-border/40 bg-ms-elevated/10 px-4 py-4 sm:px-5 sm:py-5">
-            <p className="ms-data-label text-ms-faint">{journalListEyebrow(locale)}</p>
-            <p className="ms-title mt-1 text-ms-text">{journalEmptyTitle(locale)}</p>
-            <p className="ms-intelligence-summary mt-2 max-w-2xl">{journalEmptyPrimary(locale)}</p>
-            <p className="mt-3 text-[11px] leading-relaxed text-ms-muted sm:text-[12px]">{journalEmptySecondary(locale)}</p>
-          </div>
-        ) : (
-          <div className="overflow-hidden rounded-ms-xl border border-ms-border/55">
-            {displayList.map((e, idx) => {
-              const focused = replayOn && idx === replayIdx;
-              const replayHi = journalReplayHighPriority(e.cognitiveLayers);
-              return (
-                <div
-                  key={e.id}
-                  className={cn(
-                    "border-b border-ms-border/35 last:border-b-0 transition-opacity duration-500 ease-out",
-                    focused && "bg-ms-cognition-dim/25 ring-1 ring-inset ring-ms-cognition/20",
-                    !focused && replayOn && !replayHi && "opacity-[0.62]",
-                  )}
+      <div className="ms-journal-layout">
+        <JournalMemoryPanel bundle={memory} />
+
+        <div className="min-w-0 space-y-3">
+          {memory.journal.length > 0 ? (
+            <div className="flex flex-col gap-2 rounded-ms-xl border border-ms-border/55 bg-ms-elevated/10 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+              <p className="ms-data-label text-ms-faint">{journalListEyebrow(locale)}</p>
+              <div className="flex flex-wrap items-center gap-2">
+                {replayOn ? (
+                  <>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8 px-2"
+                      disabled={replayIdx <= 0}
+                      onClick={() => setReplayIdx((i) => Math.max(0, i - 1))}
+                    >
+                      <ChevronLeft className="size-4" strokeWidth={1.5} />
+                    </Button>
+                    <span className="font-mono text-[11px] tabular-nums text-ms-muted">
+                      {journalReplayPosition(locale, replayIdx, displayList.length)}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8 px-2"
+                      disabled={replayIdx >= displayList.length - 1}
+                      onClick={() => setReplayIdx((i) => Math.min(displayList.length - 1, i + 1))}
+                    >
+                      <ChevronRight className="size-4" strokeWidth={1.5} />
+                    </Button>
+                  </>
+                ) : null}
+                <Button
+                  type="button"
+                  variant={replayOn ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => {
+                    setReplayOn((v) => {
+                      const next = !v;
+                      if (next) setReplayIdx(0);
+                      return next;
+                    });
+                  }}
                 >
-                  <div className="grid gap-2 px-3 py-2.5 sm:grid-cols-[minmax(0,5.75rem)_minmax(0,1fr)] sm:gap-x-4 sm:px-4 sm:py-3">
-                    <div className="flex flex-row items-baseline justify-between gap-2 sm:flex-col sm:items-start sm:justify-start sm:gap-1">
-                      <p className="font-mono text-[10px] tabular-nums text-ms-faint sm:text-[11px]">
-                        {formatOperationalTimestamp(locale, e.ts)}
-                      </p>
-                      <p className="text-[10px] text-ms-muted sm:text-[11px]">
-                        <span className="text-ms-text">{e.symbol}</span>
-                        <span className="text-ms-faint"> · </span>
-                        {journalDirectionLabel(locale, e.direction)}
-                        <span className="text-ms-faint"> · </span>
-                        {e.outcome ? journalOutcomeLabel(locale, e.outcome) : journalOutcomeLabel(locale, "open")}
-                      </p>
-                    </div>
-                    <div className="min-w-0 space-y-2">
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-ms-faint sm:text-[11px]">
-                        <LayerPulse layers={e.cognitiveLayers} />
-                        {typeof e.confidencePct === "number" ? (
-                          <span>
-                            {journalMetaConfidence(locale)} <span className="text-ms-text">{e.confidencePct}</span>
-                          </span>
-                        ) : null}
-                        {e.riskPerception ? (
-                          <span>
-                            {journalMetaRisk(locale)}{" "}
-                            <span className="text-ms-text">{dangerBandLabel(locale, e.riskPerception)}</span>
-                          </span>
-                        ) : null}
-                        {e.snapshotId ? <span>{journalSnapshotLinked(locale)}</span> : null}
-                      </div>
-                      <div className="sm:hidden">
-                        <CognitiveBlock locale={locale} layers={e.cognitiveLayers} compact />
-                      </div>
-                      <div className="hidden sm:block">
-                        <CognitiveBlock locale={locale} layers={e.cognitiveLayers} compact={false} />
-                      </div>
-                      <div>
-                        <p className="ms-data-label text-ms-faint">{journalDeskNote(locale)}</p>
-                        <p className="mt-1 text-[11px] leading-snug text-ms-text sm:text-[12px] sm:leading-relaxed">
-                          {e.reasoning}
-                        </p>
-                      </div>
-                      {e.emotion ? (
-                        <p className="text-[10px] leading-snug text-ms-muted sm:text-[11px] sm:leading-relaxed">
-                          <span className="text-ms-faint">{journalEmotionPrefix(locale)} </span>
-                          {e.emotion}
-                        </p>
-                      ) : null}
-                      {e.lessons ? (
-                        <p className="text-[10px] leading-snug text-ms-muted sm:text-[11px] sm:leading-relaxed">
-                          <span className="text-ms-faint">{journalLessonsPrefix(locale)} </span>
-                          {e.lessons}
-                        </p>
-                      ) : null}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                  {journalReplayToggle(locale, replayOn)}
+                </Button>
+              </div>
+            </div>
+          ) : null}
+
+          {memory.journal.length === 0 ? (
+            <div className="rounded-ms-2xl border border-ms-border/40 bg-ms-elevated/10 px-4 py-4 sm:px-5 sm:py-5">
+              <p className="ms-data-label text-ms-faint">{journalListEyebrow(locale)}</p>
+              <p className="ms-title mt-1 text-ms-text">{journalEmptyTitle(locale)}</p>
+              <p className="ms-intelligence-summary mt-2 max-w-2xl">{journalEmptyPrimary(locale)}</p>
+              <p className="mt-3 text-[11px] leading-relaxed text-ms-muted sm:text-[12px]">{journalEmptySecondary(locale)}</p>
+            </div>
+          ) : (
+            <div className="ms-journal-feed ms-intel-card ms-intel-card--feed">
+              {displayList.map((e, idx) => (
+                <JournalEntryCard
+                  key={e.id}
+                  entry={e}
+                  locale={locale}
+                  focused={replayOn && idx === replayIdx}
+                  dimmed={replayOn && idx !== replayIdx}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      <Modal
-        open={open}
-        onClose={() => setOpen(false)}
-        title={journalModalTitle(locale)}
-        description={journalModalDescription(locale)}
-      >
+      <Modal open={open} onClose={() => setOpen(false)} title={journalModalTitle(locale)} description={journalModalDescription(locale)}>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-2">
             {(["long", "short", "flat", "other"] as const).map((d) => (
@@ -512,7 +374,7 @@ export function JournalWorkspace() {
           <div className="rounded-ms-lg border border-ms-border/60 bg-ms-elevated/15 px-3 py-2.5">
             <p className="ms-data-label text-ms-faint">{journalTransitionCapture(locale)}</p>
             <div className="mt-2 max-h-[220px] overflow-y-auto">
-              <CognitiveBlock locale={locale} layers={previewLayers} compact={false} />
+              <CognitiveBlock locale={locale} layers={previewLayers} />
             </div>
           </div>
 
@@ -532,6 +394,14 @@ export function JournalWorkspace() {
                   topScenario.scenarioId,
                   orch?.actionBias,
                 );
+                const intelligenceRecord = deriveJournalIntelligenceRecord({
+                  locale,
+                  snapshot: cur,
+                  prevSnapshot: prev,
+                  layers: cognitiveLayers,
+                  orchestratorLine: orch?.synthesis,
+                  executionPosture: orch?.actionBias ?? undefined,
+                });
                 add({
                   id: nid(),
                   ts: Date.now(),
@@ -544,6 +414,7 @@ export function JournalWorkspace() {
                   outcome: "open",
                   snapshotId: latestSnapshotId,
                   cognitiveLayers,
+                  intelligenceRecord,
                 });
                 setReasoning("");
                 setEmotion("");
@@ -562,4 +433,3 @@ export function JournalWorkspace() {
     </div>
   );
 }
-

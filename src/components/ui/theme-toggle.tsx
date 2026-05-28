@@ -29,7 +29,7 @@ export function ThemeToggle() {
             key={value}
             type="button"
             onClick={() => setPreference(value)}
-            title={label}
+            aria-label={label}
             className={cn(
               "ms-focus-ring flex size-8 items-center justify-center rounded-[calc(var(--ms-radius-md)-2px)] transition-colors",
               active

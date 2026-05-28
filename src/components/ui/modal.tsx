@@ -48,7 +48,7 @@ export function Modal({ open, onClose, title, description, children }: ModalProp
     <AnimatePresence>
       {open ? (
         <m.div
-          className="fixed inset-0 z-[100] flex items-end justify-center p-4 sm:items-center"
+          className="fixed inset-0 z-[var(--ms-z-modal,100)] flex items-end justify-center p-4 sm:items-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

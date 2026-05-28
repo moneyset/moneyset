@@ -1,7 +1,21 @@
 import type { DangerBandId, MarketPhaseId, OperationalLogEntry } from "@/lib/simulation/cognition-types";
 import type { ConsensusEvolutionLabel } from "@/lib/simulation/cognition-types";
+import type { MarketRegimeId } from "@/lib/intelligence/market-index-engine";
 import type { NormalizedMarketState } from "@/types/market-state";
 import type { ScenarioId } from "@/lib/simulation/scenario-engine";
+
+export type RegimeTransitionKind =
+  | "risk_escalation"
+  | "risk_easing"
+  | "structural_break"
+  | "recovery_attempt"
+  | "failed_continuation"
+  | "consensus_fracture"
+  | "scenario_rotation"
+  | "regime_shift"
+  | "stable_hold";
+
+export type MemoryPeriodId = "today" | "yesterday" | "week" | "month" | "all";
 
 export type MemorySnapshot = Readonly<{
   id: string;
@@ -32,6 +46,17 @@ export type MemorySnapshot = Readonly<{
   ops: Array<
     Pick<OperationalLogEntry, "entryType" | "priority" | "headline" | "summary" | "simulatedClockLabel" | "message">
   >;
+
+  /** Phase 7 — enriched memory envelope (optional for legacy snapshots) */
+  regimeId?: MarketRegimeId;
+  regimeLabel?: string;
+  intelligenceBullets?: readonly string[];
+  transitionKind?: RegimeTransitionKind;
+  executionPosture?: string;
+  primaryRiskLine?: string;
+  leadScenarioId?: ScenarioId;
+  liquidityStress?: number;
+  participationPressure?: number;
 }>;
 
 export type JournalDirection = "long" | "short" | "flat" | "other";
@@ -43,6 +68,16 @@ export type JournalCognitiveLayers = Readonly<{
   postureChange: string;
   invalidationOrConfirmation: string;
   scenarioEvolution: string;
+}>;
+
+/** Structured intelligence record — replayable desk archive per entry. */
+export type JournalIntelligenceRecord = Readonly<{
+  regimeState: string;
+  scenarioState: string;
+  primaryRisks: string;
+  structuralInterpretation: string;
+  executionImplication: string;
+  intelligenceSummary: readonly string[];
 }>;
 
 export type JournalEntry = Readonly<{
@@ -66,6 +101,9 @@ export type JournalEntry = Readonly<{
 
   /** Derived interpretation deltas at capture — cognitive replay payload */
   cognitiveLayers?: JournalCognitiveLayers;
+
+  /** Phase 7 — structured institutional memory at capture */
+  intelligenceRecord?: JournalIntelligenceRecord;
 }>;
 
 export type InsightReport = Readonly<{

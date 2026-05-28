@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-const PROTECTED_API_PREFIXES = ["/api/billing/create", "/api/billing/status"];
+const PROTECTED_API_PREFIXES = ["/api/billing/create", "/api/billing/status", "/api/billing/history"];
 
 /**
  * Edge-level billing guard.

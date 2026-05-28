@@ -32,13 +32,13 @@ export function PlatformAccessGate({
   const locale = useUiPrefsStore((s) => s.uiLocale);
   const confirmed = useServerConfirmed();
   const allowed = useCanAccessCapability(capability);
+  const openUpgrade = useUpgradeModalStore((s) => s.openUpgrade);
 
   // While the server has not yet responded this session, render nothing rather
   // than the locked UI — prevents a flash of "locked" for paying users whose
   // cached profile is legitimate, and prevents premature reveal of the gate UI
   // to free users before we know their real access level.
   if (!confirmed) return null;
-  const openUpgrade = useUpgradeModalStore((s) => s.openUpgrade);
 
   if (allowed) return <>{children}</>;
 

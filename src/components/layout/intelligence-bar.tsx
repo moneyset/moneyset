@@ -11,7 +11,10 @@ import { useShellStore } from "@/store/shell-store";
 import { cn } from "@/lib/utils";
 import { useAuthModalStore } from "@/store/auth-modal-store";
 import { useUpgradeModalStore } from "@/store/upgrade-modal-store";
+import { useProfileCenterStore } from "@/store/profile-center-store";
 import { useAuthStore } from "@/store/auth-store";
+import { useAccessStore } from "@/store/access-store";
+import { hasFounderAccess } from "@/lib/access/founder";
 import { useMarketStore } from "@/store/market-store";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
 import { feedLatencyLabel, marketFeedStatusLabel, tapeAwaitingLine } from "@/lib/i18n/trust-surface";
@@ -49,7 +52,22 @@ export function IntelligenceBar() {
   const locale = useUiPrefsStore((s) => s.uiLocale);
   const openAuth = useAuthModalStore((s) => s.openAuth);
   const openUpgrade = useUpgradeModalStore((s) => s.openUpgrade);
-  useAuthStore((s) => s.status);
+  const openProfileCenter = useProfileCenterStore((s) => s.openProfileCenter);
+  const authStatus = useAuthStore((s) => s.status);
+  const profile = useAccessStore((s) => s.profile);
+  const serverConfirmed = useAccessStore((s) => s.serverConfirmed);
+  const signedIn = authStatus === "signed_in";
+  const isFounder = serverConfirmed && hasFounderAccess(profile);
+
+  const handleAccountClick = () => {
+    if (signedIn) openProfileCenter("overview");
+    else openAuth();
+  };
+
+  const handleFoundingClick = () => {
+    if (isFounder) openProfileCenter("founder");
+    else openUpgrade();
+  };
 
   const market = useMarketStore(
     useShallow((s) => ({
@@ -146,17 +164,22 @@ export function IntelligenceBar() {
 
           <button
             type="button"
-            onClick={openUpgrade}
-            className="ms-focus-ring inline-flex shrink-0 touch-manipulation items-center rounded-ms-md border border-ms-cognition/35 bg-ms-cognition/10 px-1.5 py-1 text-[10px] font-semibold tracking-wide text-ms-cognition transition-colors hover:border-ms-cognition/50 hover:bg-ms-cognition/15 min-[380px]:px-2.5 sm:py-1.5"
+            onClick={handleFoundingClick}
+            className={cn(
+              "ms-focus-ring inline-flex shrink-0 touch-manipulation items-center rounded-ms-md border px-1.5 py-1 text-[10px] font-semibold tracking-wide transition-colors min-[380px]:px-2.5 sm:py-1.5",
+              isFounder
+                ? "border-ms-warning/35 bg-ms-warning/10 text-ms-warning/90 hover:border-ms-warning/50"
+                : "border-ms-cognition/35 bg-ms-cognition/10 text-ms-cognition hover:border-ms-cognition/50 hover:bg-ms-cognition/15",
+            )}
           >
-            {pickLocale(locale, "Founding", "Founding")}
+            {isFounder ? pickLocale(locale, "Founder", "Founder") : pickLocale(locale, "Founding", "Founding")}
           </button>
 
           <button
             type="button"
             className="ms-focus-ring flex size-9 min-h-10 min-w-10 shrink-0 touch-manipulation items-center justify-center rounded-ms-md border border-ms-border/55 bg-ms-surface/35 text-ms-muted transition-colors hover:border-ms-border-mid hover:text-ms-text"
             aria-label={pickLocale(locale, "Account", "Аккаунт")}
-            onClick={openAuth}
+            onClick={handleAccountClick}
           >
             <UserRound className="size-4" strokeWidth={1.5} />
           </button>
@@ -217,17 +240,24 @@ export function IntelligenceBar() {
 
           <button
             type="button"
-            onClick={openUpgrade}
-            className="ms-focus-ring inline-flex shrink-0 touch-manipulation items-center rounded-ms-md border border-ms-cognition/28 bg-ms-cognition/8 px-3 py-1.5 text-[9.5px] font-semibold tracking-[0.08em] text-ms-cognition/85 transition-colors hover:border-ms-cognition/44 hover:bg-ms-cognition/12 hover:text-ms-cognition"
+            onClick={handleFoundingClick}
+            className={cn(
+              "ms-focus-ring inline-flex shrink-0 touch-manipulation items-center rounded-ms-md border px-3 py-1.5 text-[9.5px] font-semibold tracking-[0.08em] transition-colors",
+              isFounder
+                ? "border-ms-warning/30 bg-ms-warning/8 text-ms-warning/85 hover:border-ms-warning/44 hover:bg-ms-warning/12"
+                : "border-ms-cognition/28 bg-ms-cognition/8 text-ms-cognition/85 hover:border-ms-cognition/44 hover:bg-ms-cognition/12 hover:text-ms-cognition",
+            )}
           >
-            {pickLocale(locale, "Founding Access", "Founding Access")}
+            {isFounder
+              ? pickLocale(locale, "Founder Status", "Founder Status")
+              : pickLocale(locale, "Founding Access", "Founding Access")}
           </button>
 
           <button
             type="button"
             className="ms-focus-ring flex size-8 shrink-0 touch-manipulation items-center justify-center rounded-ms-md border border-ms-border/40 bg-ms-surface/25 text-ms-faint transition-colors hover:border-ms-border/60 hover:text-ms-muted"
             aria-label={pickLocale(locale, "Account", "Аккаунт")}
-            onClick={openAuth}
+            onClick={handleAccountClick}
           >
             <UserRound className="size-3.5" strokeWidth={1.4} />
           </button>

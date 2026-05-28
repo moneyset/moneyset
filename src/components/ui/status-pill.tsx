@@ -15,13 +15,15 @@ type StatusPillProps = {
   children: React.ReactNode;
   accent?: MsSemanticAccent;
   className?: string;
+  size?: "md" | "sm";
 };
 
-export function StatusPill({ children, accent = "neutral", className }: StatusPillProps) {
+export function StatusPill({ children, accent = "neutral", className, size = "md" }: StatusPillProps) {
   return (
     <span
       className={cn(
         "inline-flex max-w-full items-center rounded-ms-pill border px-2.5 py-0.5 text-[11px] font-medium leading-tight tracking-tight",
+        size === "sm" && "ms-status-pill--sm",
         accentMap[accent],
         className,
       )}

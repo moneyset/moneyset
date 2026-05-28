@@ -1,0 +1,153 @@
+/* Profile Center — premium account shell */
+
+.ms-profile-center__overlay {
+  touch-action: manipulation;
+}
+
+.ms-profile-center {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--ms-border) 40%, transparent),
+    0 24px 64px color-mix(in srgb, #000 42%, transparent);
+}
+
+.ms-profile-center__nav {
+  display: flex;
+  gap: 0.375rem;
+  margin-top: 0.875rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 0.125rem;
+}
+
+.ms-profile-center__nav::-webkit-scrollbar {
+  display: none;
+}
+
+.ms-profile-center__nav-btn {
+  flex-shrink: 0;
+  border-radius: var(--ms-radius-md, 0.375rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 35%, transparent);
+  background: color-mix(in srgb, var(--ms-elevated) 12%, transparent);
+  padding: 0.35rem 0.65rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ms-faint);
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.ms-profile-center__nav-btn:hover {
+  color: var(--ms-muted);
+  border-color: color-mix(in srgb, var(--ms-border) 55%, transparent);
+}
+
+.ms-profile-center__nav-btn--active {
+  color: var(--ms-cognition);
+  border-color: color-mix(in srgb, var(--ms-cognition) 35%, transparent);
+  background: color-mix(in srgb, var(--ms-cognition) 8%, transparent);
+}
+
+.ms-profile-center__hero {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  border-radius: var(--ms-radius-xl, 0.75rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 30%, transparent);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--ms-elevated) 22%, transparent),
+    color-mix(in srgb, var(--ms-surface) 40%, transparent)
+  );
+}
+
+.ms-profile-center__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border-radius: var(--ms-radius-lg, 0.5rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 45%, transparent);
+  background: color-mix(in srgb, var(--ms-elevated) 30%, transparent);
+  color: var(--ms-muted);
+}
+
+.ms-profile-center__panel {
+  border-radius: var(--ms-radius-xl, 0.75rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 28%, transparent);
+  background: color-mix(in srgb, var(--ms-elevated) 10%, transparent);
+  padding: 0.875rem;
+}
+
+.ms-profile-center__panel-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ms-text);
+}
+
+.ms-profile-center__panel-sub {
+  margin-top: 0.25rem;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: var(--ms-muted);
+}
+
+.ms-profile-center__row + .ms-profile-center__row {
+  margin-top: 0.75rem;
+}
+
+.ms-profile-center__row-label {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ms-faint);
+}
+
+.ms-profile-center__row-value {
+  margin-top: 0.2rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--ms-text);
+  overflow-wrap: anywhere;
+}
+
+.ms-profile-center__row-hint {
+  margin-top: 0.15rem;
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  color: var(--ms-muted);
+}
+
+.ms-profile-center__founder-card {
+  border-radius: var(--ms-radius-xl, 0.75rem);
+  border: 1px solid color-mix(in srgb, var(--ms-warning) 28%, transparent);
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--ms-warning) 6%, transparent),
+    color-mix(in srgb, var(--ms-elevated) 18%, transparent) 55%,
+    color-mix(in srgb, var(--ms-surface) 30%, transparent)
+  );
+  padding: 1rem;
+}
+
+.ms-profile-center__payment-row {
+  border-radius: var(--ms-radius-lg, 0.5rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 22%, transparent);
+  background: color-mix(in srgb, var(--ms-surface) 30%, transparent);
+  padding: 0.75rem;
+}
+
+@media (max-width: 639.98px) {
+  .ms-profile-center {
+    max-height: 94dvh;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}

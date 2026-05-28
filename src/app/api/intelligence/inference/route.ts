@@ -4,6 +4,7 @@ import { loadRequestProfile, profileHasFullAccess } from "@/lib/access/api-guard
 import { runIntelligenceOrchestrator } from "@/lib/intelligence/orchestrator";
 import { getCachedInference, shouldRunHeavyInference } from "@/lib/intelligence/inference-cache";
 import { fetchUnifiedMarketSnapshot } from "@/lib/intelligence/market-state-engine";
+import { sanitizeApiError } from "@/lib/services/shared/env";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -56,7 +57,7 @@ export async function GET(req: Request) {
     });
   } catch (e) {
     return NextResponse.json(
-      { ok: false, error: e instanceof Error ? e.message : "inference GET error" },
+      { ok: false, error: sanitizeApiError(e instanceof Error ? e.message : "Inference unavailable") },
       { status: 502 },
     );
   }
@@ -103,7 +104,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, bundle, source: "orchestrator" });
   } catch (e) {
     return NextResponse.json(
-      { ok: false, error: e instanceof Error ? e.message : "inference POST error" },
+      { ok: false, error: sanitizeApiError(e instanceof Error ? e.message : "Inference unavailable") },
       { status: 502 },
     );
   }

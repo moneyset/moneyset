@@ -1,0 +1,254 @@
+/* Replay Studio 2.0 — temporal timeline + state comparison */
+
+.ms-replay-timeline-nav {
+  border-radius: var(--ms-radius-xl, 0.75rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 28%, transparent);
+  background: color-mix(in srgb, var(--ms-elevated) 12%, transparent);
+  padding: 0.75rem;
+}
+
+.ms-replay-timeline-nav__label {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ms-faint);
+  margin-bottom: 0.625rem;
+}
+
+.ms-replay-timeline-nav__track {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.ms-replay-timeline-nav__track::-webkit-scrollbar {
+  display: none;
+}
+
+.ms-replay-timeline-nav__item {
+  display: flex;
+  align-items: center;
+  flex: 1 1 0;
+  min-width: 4.5rem;
+}
+
+.ms-replay-timeline-nav__slot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0.5rem 0.4rem;
+  border-radius: var(--ms-radius-md, 0.375rem);
+  border: 1px solid transparent;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.ms-replay-timeline-nav__slot:hover {
+  background: color-mix(in srgb, var(--ms-surface) 40%, transparent);
+}
+
+.ms-replay-timeline-nav__slot--active {
+  border-color: color-mix(in srgb, var(--ms-cognition) 35%, transparent);
+  background: color-mix(in srgb, var(--ms-cognition) 8%, transparent);
+}
+
+.ms-replay-timeline-nav__slot--now.ms-replay-timeline-nav__slot--active {
+  border-color: color-mix(in srgb, var(--ms-flow) 40%, transparent);
+  background: color-mix(in srgb, var(--ms-flow) 8%, transparent);
+}
+
+.ms-replay-timeline-nav__offset {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ms-text);
+}
+
+.ms-replay-timeline-nav__slot--now .ms-replay-timeline-nav__offset {
+  color: var(--ms-flow);
+}
+
+.ms-replay-timeline-nav__time {
+  font-size: 0.5625rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  color: var(--ms-faint);
+}
+
+.ms-replay-timeline-nav__change {
+  font-size: 0.5625rem;
+  line-height: 1.3;
+  color: var(--ms-muted);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.ms-replay-timeline-nav__connector {
+  flex-shrink: 0;
+  width: 0.75rem;
+  height: 1px;
+  background: color-mix(in srgb, var(--ms-border) 50%, transparent);
+}
+
+/* State comparison panel */
+.ms-replay-compare {
+  border-radius: var(--ms-radius-xl, 0.75rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 25%, transparent);
+  background: color-mix(in srgb, var(--ms-surface) 35%, transparent);
+  padding: 0.875rem;
+  min-width: 0;
+}
+
+.ms-replay-compare__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.ms-replay-compare__title {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ms-consensus);
+}
+
+.ms-replay-compare__range {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  color: var(--ms-faint);
+}
+
+.ms-replay-compare__summary {
+  margin-top: 0.5rem;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: var(--ms-muted);
+}
+
+.ms-replay-compare__grid {
+  margin-top: 0.75rem;
+  display: grid;
+  gap: 0.625rem;
+}
+
+.ms-replay-compare__cell {
+  padding: 0.5rem;
+  border-radius: var(--ms-radius-md, 0.375rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 18%, transparent);
+  background: color-mix(in srgb, var(--ms-elevated) 8%, transparent);
+}
+
+.ms-replay-compare__cell--wide {
+  grid-column: 1 / -1;
+}
+
+.ms-replay-compare__metric-label {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ms-faint);
+}
+
+.ms-replay-compare__metric-values {
+  margin-top: 0.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.6875rem;
+}
+
+.ms-replay-delta {
+  font-size: 0.5625rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.2rem;
+  border: 1px solid color-mix(in srgb, var(--ms-border) 35%, transparent);
+  color: var(--ms-faint);
+}
+
+.ms-replay-delta--up {
+  color: var(--ms-warning);
+  border-color: color-mix(in srgb, var(--ms-warning) 30%, transparent);
+}
+
+.ms-replay-delta--down {
+  color: var(--ms-flow);
+  border-color: color-mix(in srgb, var(--ms-flow) 30%, transparent);
+}
+
+.ms-replay-compare__meta {
+  margin-top: 0.75rem;
+  padding-top: 0.625rem;
+  border-top: 1px solid color-mix(in srgb, var(--ms-border) 15%, transparent);
+  list-style: none;
+  padding-left: 0;
+}
+
+.ms-replay-compare__meta li {
+  font-size: 0.625rem;
+  line-height: 1.45;
+  color: var(--ms-muted);
+  margin-top: 0.35rem;
+}
+
+.ms-replay-compare__meta-key {
+  display: inline-block;
+  min-width: 4.5rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ms-faint);
+  margin-right: 0.35rem;
+}
+
+.ms-replay-cinema--reduced .ms-replay-cinema__echo {
+  opacity: 0.35;
+}
+
+@media (max-width: 1023.98px) {
+  .ms-replay-timeline-nav__item {
+    min-width: 5rem;
+  }
+
+  .ms-replay-compare {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 639.98px) {
+  .ms-replay-timeline-nav {
+    padding: 0.625rem;
+  }
+
+  .ms-replay-timeline-nav__slot {
+    padding: 0.4rem 0.3rem;
+  }
+
+  .ms-replay-timeline-nav__offset {
+    font-size: 0.625rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-replay-cinema__frame {
+    animation: none !important;
+  }
+}

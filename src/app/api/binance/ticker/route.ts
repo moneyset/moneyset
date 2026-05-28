@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 
+import { applyRateLimit } from "@/lib/ops/api-guard-helpers";
+import { sanitizeApiError } from "@/lib/services/shared/env";
 import { BINANCE_FAPI_BASE } from "@/services/binance/constants";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
+  const limited = applyRateLimit({ req, route: "binance/ticker", limit: 60, windowMs: 60_000 });
+  if (limited) return limited;
+
   try {
     const { searchParams } = new URL(req.url);
     const symbol =
@@ -20,7 +25,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: true, lastPrice });
   } catch (e) {
     return NextResponse.json(
-      { ok: false, error: e instanceof Error ? e.message : "Binance ticker error" },
+      { ok: false, error: sanitizeApiError(e instanceof Error ? e.message : "Binance ticker error") },
       { status: 500 },
     );
   }

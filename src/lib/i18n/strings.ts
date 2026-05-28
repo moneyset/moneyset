@@ -2,6 +2,7 @@ import type { UiLocale } from "@/store/ui-prefs-store";
 
 export type I18nKey =
   | "nav.core"
+  | "nav.marketIndex"
   | "nav.execution"
   | "nav.scenarios"
   | "nav.ops"
@@ -121,6 +122,7 @@ type Dict = Record<I18nKey, string>;
 export const STRINGS: Record<UiLocale, Dict> = {
   en: {
     "nav.core": "Core",
+    "nav.marketIndex": "Market Index",
     "nav.execution": "Execution",
     "nav.scenarios": "Scenarios",
     "nav.ops": "Changes",
@@ -253,6 +255,7 @@ export const STRINGS: Record<UiLocale, Dict> = {
   },
   ru: {
     "nav.core": "Ядро",
+    "nav.marketIndex": "Market Index",
     "nav.execution": "Исполнение",
     "nav.scenarios": "Сценарии",
     "nav.ops": "Изменения",

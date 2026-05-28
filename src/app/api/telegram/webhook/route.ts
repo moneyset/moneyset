@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { logOpsEvent } from "@/lib/ops/operational-events";
 import { tgLinkChat, tgGetLatestState, tgGetChat, tgSetChatPrefs, tgDefaultLocaleForChat } from "@/services/telegram/memory";
 import { tgSendMessage } from "@/services/telegram/bot-api";
 import {
@@ -33,10 +34,15 @@ function cmd(text: string): { name: string; args: string[] } | null {
 export async function POST(req: Request) {
   try {
     const secret = process.env.TELEGRAM_WEBHOOK_SECRET?.trim();
+    if (process.env.NODE_ENV === "production" && !secret) {
+      logOpsEvent("telegram_webhook_rejected", { reason: "secret_missing" });
+      return NextResponse.json({ ok: false, error: "Webhook not configured" }, { status: 503 });
+    }
     if (secret) {
       const got = req.headers.get("x-telegram-bot-api-secret-token")?.trim();
       if (!got || got !== secret) {
-        return NextResponse.json({ ok: true });
+        logOpsEvent("telegram_webhook_rejected", { reason: "bad_secret" });
+        return NextResponse.json({ ok: false }, { status: 401 });
       }
     }
 
