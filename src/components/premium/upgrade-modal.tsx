@@ -6,6 +6,7 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/ui/status-pill";
 import { accessTierLabel } from "@/lib/access/capabilities";
+import { guestProfile } from "@/lib/access/roles";
 import { useAccessStore } from "@/store/access-store";
 import { useT } from "@/lib/i18n/use-t";
 import { useCheckoutModalStore } from "@/store/checkout-modal-store";
@@ -28,7 +29,7 @@ export function UpgradeModal({ open, onClose }: UpgradeModalProps) {
   const trialEndsAtTs = useAccessStore((s) => s.trialEndsAtTs);
   const trialStarted = useAccessStore((s) => s.trialStarted);
   const beginCognitionTrial = useAccessStore((s) => s.beginCognitionTrial);
-  const setTier = useAccessStore((s) => s.setTier);
+  const setProfile = useAccessStore((s) => s.setProfile);
   const openCheckout = useCheckoutModalStore((s) => s.openCheckout);
   const fullAccess = useFullPlatformAccess();
   const tierKind = accessTierLabel(profile);
@@ -157,7 +158,15 @@ export function UpgradeModal({ open, onClose }: UpgradeModalProps) {
               variant="outline"
               className="flex-1 text-[11px]"
               onClick={() => {
-                setTier("premium");
+                setProfile({
+                  role: "premium",
+                  accessTier: "premium",
+                  accessLevel: "premium",
+                  subscriptionStatus: "active",
+                  foundingAccess: false,
+                  premiumUntil: null,
+                  invitationUntil: null,
+                });
                 sub.setTierActive("premium", { provider: "nowpayments", periodDays: 30 });
                 onClose();
               }}
@@ -169,7 +178,7 @@ export function UpgradeModal({ open, onClose }: UpgradeModalProps) {
               variant="outline"
               className="flex-1 text-[11px]"
               onClick={() => {
-                setTier("free");
+                setProfile(guestProfile());
                 sub.setFree();
                 onClose();
               }}

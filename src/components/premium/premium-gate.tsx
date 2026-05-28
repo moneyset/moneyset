@@ -5,7 +5,7 @@ import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n/use-t";
-import { useCanAccessCapability } from "@/hooks/use-capabilities";
+import { useCanAccessCapability, useServerConfirmed } from "@/hooks/use-capabilities";
 import { useCanAccess } from "@/hooks/use-entitlements";
 import { useExtendedCognitionAccess } from "@/hooks/use-extended-cognition-access";
 import type { AccessCapability } from "@/lib/access/capabilities";
@@ -31,10 +31,15 @@ type PremiumGateProps = {
 };
 
 export function PremiumGate({ children, onUnlock, className, preview = true, feature, capability }: PremiumGateProps) {
+  const confirmed = useServerConfirmed();
   const extended = useExtendedCognitionAccess();
   const capAllowed = useCanAccessCapability(capability ?? "executionMap");
   const featureAllowed = useCanAccess(feature ?? "executionMap");
   const entitled = capability ? capAllowed : feature ? featureAllowed : extended;
+
+  // Render nothing until the server has confirmed this session's profile.
+  // Prevents the locked/blurred preview from flashing for paying users on reload.
+  if (!confirmed) return null;
   const t = useT();
   const locale = useUiPrefsStore((s) => s.uiLocale);
 

@@ -57,7 +57,20 @@ export const useSubscriptionStore = create<SubscriptionState>()(
 
       setStatus: (status) => set(() => ({ status, updatedAtTs: Date.now() })),
     }),
-    { name: "moneyset_subscription_v1", partialize: (s) => ({ tier: s.tier, status: s.status, provider: s.provider, currentPeriodEndTs: s.currentPeriodEndTs, lastInvoiceId: s.lastInvoiceId, updatedAtTs: s.updatedAtTs }), skipHydration: true },
+    {
+      name: "moneyset_subscription_v1",
+      partialize: (s) => ({
+        // tier/status intentionally excluded: entitlement-like fields must not be
+        // stored in localStorage. They are in-memory only — reset on every page load
+        // and re-populated from server state via the checkout/status flow.
+        // lastInvoiceId is persisted solely for the resume-on-reload UX (re-opening
+        // a pending payment after a refresh) — it carries no access authority.
+        lastInvoiceId: s.lastInvoiceId,
+        provider: s.provider,
+        updatedAtTs: s.updatedAtTs,
+      }),
+      skipHydration: true,
+    },
   ),
 );
 

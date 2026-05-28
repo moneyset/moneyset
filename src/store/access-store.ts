@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 import {
+  guestProfile,
   hasExtendedAccess,
   type ProfileAccess,
   type UserRole,
@@ -11,22 +12,17 @@ import {
 
 export type AccessTier = "free" | "premium";
 
-const defaultProfile: ProfileAccess = {
-  role: "guest",
-  accessTier: "free",
-  accessLevel: "free",
-  subscriptionStatus: "inactive",
-  foundingAccess: false,
-  premiumUntil: null,
-  invitationUntil: null,
-};
-
 type AccessState = {
-  tier: AccessTier;
   profile: ProfileAccess;
   trialEndsAtTs: number | null;
   trialStarted: boolean;
-  setTier: (tier: AccessTier) => void;
+  /**
+   * Set to true only after a server response has been written via setProfile().
+   * All premium gate hooks return false while this is false, regardless of whatever
+   * the localStorage cache contains. Not persisted — always starts false on each
+   * page load, so manually-edited localStorage entries cannot bypass access gates.
+   */
+  serverConfirmed: boolean;
   setProfile: (profile: ProfileAccess) => void;
   beginCognitionTrial: () => void;
   isPremium: () => boolean;
@@ -36,34 +32,36 @@ type AccessState = {
 export const useAccessStore = create<AccessState>()(
   persist(
     (set, get) => ({
-      tier: "free",
-      profile: defaultProfile,
+      profile: guestProfile(),
       trialEndsAtTs: null,
       trialStarted: false,
-      setTier: (tier) =>
-        set((s) => ({
-          tier,
-          profile: { ...s.profile, accessTier: tier },
-        })),
+      serverConfirmed: false,
+
       setProfile: (profile) =>
         set({
           profile,
-          tier: profile.accessTier === "premium" ? "premium" : "free",
+          // Every call to setProfile() comes from a server response (/api/access/me
+          // or /api/auth/telegram). Marking confirmed here is the ONLY way to unlock
+          // the premium gates — localStorage edits can never set this flag.
+          serverConfirmed: true,
         }),
+
       beginCognitionTrial: () =>
         set((s) => {
           if (process.env.NODE_ENV === "production") return s;
-          if (s.tier === "premium" || s.profile.foundingAccess || s.trialStarted) return s;
+          if (hasExtendedAccess(s.profile) || s.trialStarted) return s;
           return {
             trialStarted: true,
             trialEndsAtTs: Date.now() + 72 * 60 * 60 * 1000,
           };
         }),
-      isPremium: () => get().tier === "premium" || hasExtendedAccess(get().profile),
+
+      // Derives solely from server-validated profile — no redundant tier field.
+      isPremium: () => hasExtendedAccess(get().profile),
+
       hasExtendedCognition: () => {
         const s = get();
         if (hasExtendedAccess(s.profile)) return true;
-        if (s.tier === "premium") return true;
         if (process.env.NODE_ENV === "production") return false;
         return s.trialEndsAtTs != null && s.trialEndsAtTs > Date.now();
       },
@@ -71,10 +69,13 @@ export const useAccessStore = create<AccessState>()(
     {
       name: "moneyset_access_v2",
       partialize: (s) => ({
-        tier: s.tier,
+        // profile is server data; caching it prevents a visible "free flash" for
+        // legitimate paying users on reload. It does NOT grant access — gates also
+        // require serverConfirmed, which resets to false on every page load and is
+        // never persisted. A localStorage edit to profile is therefore harmless.
         profile: s.profile,
-        trialEndsAtTs: s.trialEndsAtTs,
-        trialStarted: s.trialStarted,
+        // trialEndsAtTs / trialStarted intentionally excluded: dev-only, session-scoped.
+        // serverConfirmed intentionally excluded: must re-confirm from server each load.
       }),
       skipHydration: true,
     },
@@ -82,4 +83,3 @@ export const useAccessStore = create<AccessState>()(
 );
 
 export type { UserRole };
-
