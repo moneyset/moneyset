@@ -6,8 +6,10 @@ import { useMemo, useState, type CSSProperties } from "react";
 import { CognitionInstantChips } from "@/components/cognition/cognition-instant-chips";
 import { CognitionPrimaryState } from "@/components/cognition/cognition-primary-state";
 import { SignatureMomentBanner } from "@/components/cognition/signature-moment-banner";
+import { MapZoneDetailCard } from "@/components/maps/map-zone-detail-card";
 import { useGlobalNarrative } from "@/hooks/use-global-narrative";
 import { useLiveSurfaceMotion } from "@/hooks/use-live-surface-motion";
+import { useMapFocus } from "@/hooks/use-map-focus";
 import {
   globalMacroRegimeClass,
   narrativeRegimeClass,
@@ -30,15 +32,28 @@ const FIELD_CLASS: Record<PressureFieldKind, string> = {
   transmission_arc: "ms-global-field--transmission",
 };
 
-function PressureFieldBlock({ cell }: { cell: PressureFieldCell }) {
+function PressureFieldBlock({
+  cell,
+  isSelected,
+  onTap,
+}: {
+  cell: PressureFieldCell;
+  isSelected: boolean;
+  onTap: () => void;
+}) {
   return (
     <article
+      role="button"
+      tabIndex={0}
+      aria-pressed={isSelected}
+      aria-label={cell.label}
       className={cn(
-        "ms-global-field",
+        "ms-global-field cursor-pointer",
         FIELD_CLASS[cell.kind],
-        cell.tone === "stress" && "ms-global-field--stress",
+        cell.tone === "stress"  && "ms-global-field--stress",
         cell.tone === "support" && "ms-global-field--support",
-        cell.pulsing && "ms-global-field--pulse",
+        cell.pulsing            && "ms-global-field--pulse",
+        isSelected              && "ms-global-field--selected",
       )}
       style={
         {
@@ -50,6 +65,8 @@ function PressureFieldBlock({ cell }: { cell: PressureFieldCell }) {
         } as CSSProperties
       }
       title={cell.read}
+      onClick={onTap}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onTap(); }}
     >
       <span className="ms-global-field__label">{cell.label}</span>
     </article>
@@ -69,6 +86,11 @@ export function GlobalPressureMatrix({
   const [matrixMode, setMatrixMode] = useState(true);
   const [focusMode, setFocusMode] = useState(false);
   const [replayOpen, setReplayOpen] = useState(false);
+  const { activeId: selectedFieldId, toggle: toggleField, clear: clearField, containerRef } = useMapFocus<string>();
+
+  const selectedField = selectedFieldId
+    ? bundle.pressureFields.find((c) => c.id === selectedFieldId) ?? null
+    : null;
 
   const theaterStyle = useMemo(
     () =>
@@ -87,6 +109,7 @@ export function GlobalPressureMatrix({
 
   return (
     <section
+      ref={containerRef}
       className={cn(
         "ms-global-matrix",
         "ms-signature-surface",
@@ -146,7 +169,16 @@ export function GlobalPressureMatrix({
           <div className="ms-global-matrix__grid" aria-hidden />
           <div className="ms-global-matrix__orb" aria-hidden />
 
-          {matrixMode ? bundle.pressureFields.map((cell) => <PressureFieldBlock key={cell.id} cell={cell} />) : null}
+          {matrixMode
+            ? bundle.pressureFields.map((cell) => (
+                <PressureFieldBlock
+                  key={cell.id}
+                  cell={cell}
+                  isSelected={selectedFieldId === cell.id}
+                  onTap={() => toggleField(cell.id)}
+                />
+              ))
+            : null}
 
           <svg className="ms-global-matrix__arcs" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
             {bundle.transmissions.map((t) => (
@@ -200,6 +232,21 @@ export function GlobalPressureMatrix({
             </p>
           ))}
         </div>
+
+        {/* Zone detail card — appears below canvas when a cell is tapped */}
+        {selectedField ? (
+          <MapZoneDetailCard
+            label={selectedField.label}
+            kindLabel={selectedField.kind.replace(/_/g, " ")}
+            read={selectedField.read}
+            tone={selectedField.tone}
+            onClose={clearField}
+          />
+        ) : (
+          <p className="ms-map-tap-hint lg:hidden">
+            {pickLocale(locale, "Tap any zone to read its signal.", "Нажмите зону, чтобы прочитать сигнал.")}
+          </p>
+        )}
 
         {!focusMode ? (
           <aside className="ms-global-matrix__aside">

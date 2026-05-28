@@ -5,11 +5,13 @@ import { useMemo, type CSSProperties } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { InterpretationLayer } from "@/components/intelligence/interpretation-blocks";
+import { MapZoneDetailCard } from "@/components/maps/map-zone-detail-card";
 import type { MapsTopologyCell, MapsTopologyLayer } from "@/lib/intelligence/maps-topology-view";
 import { deriveMapsTopologyBundle } from "@/lib/intelligence/maps-topology-view";
 import { hierarchySectionLabel } from "@/lib/i18n/section-ia";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { cn } from "@/lib/utils";
+import { useMapFocus } from "@/hooks/use-map-focus";
 import { useCognitionSimulationStore } from "@/store/cognition-simulation-store";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
 
@@ -27,50 +29,81 @@ function TopologyField({
   cells,
   simTick,
   compact,
+  locale,
 }: {
   cells: readonly MapsTopologyCell[];
   simTick: number;
   compact?: boolean;
+  locale: ReturnType<typeof useUiPrefsStore.getState>["uiLocale"];
 }) {
+  const { activeId, toggle, clear, containerRef } = useMapFocus<string>();
+  const selectedCell = activeId ? cells.find((c) => c.id === activeId) ?? null : null;
+
   return (
-    <div
-      className={cn(
-        "relative ms-maps-field overflow-hidden rounded-ms-lg border border-ms-border/18 bg-ms-surface/8",
-        compact ? "aspect-[16/11] min-h-[11rem]" : "aspect-[16/10] min-h-[12.5rem] sm:min-h-[14rem]",
-      )}
-      style={{ "--maps-tick": simTick } as CSSProperties}
-    >
-      <div className="pointer-events-none absolute inset-0 opacity-[0.14] ms-maps-field-grid" aria-hidden />
-      {cells.map((c, idx) => (
-        <div
-          key={c.id}
-          className={cn(
-            "ms-maps-cell absolute min-h-0 min-w-0 overflow-hidden rounded-ms-md border px-2.5 py-2 shadow-none backdrop-blur-[1px] transition-[opacity,transform] duration-700 ease-out",
-            cellClass(c.tone),
-            "ms-maps-cell-drift",
-          )}
-          style={
-            {
-              left: `${c.x}%`,
-              top: `${c.y}%`,
-              width: `${c.w}%`,
-              height: `${c.h}%`,
-              opacity: 0.22 + (c.emphasis / 100) * 0.62,
-              animationDelay: `${(idx * 2.1 + (simTick % 7) * 0.08).toFixed(2)}s`,
-            } as CSSProperties
-          }
-        >
-          <p className="text-pretty text-[9px] font-semibold leading-tight tracking-tight text-ms-text/90">{c.label}</p>
-          <p
+    <div ref={containerRef}>
+      <div
+        className={cn(
+          "relative ms-maps-field overflow-hidden rounded-ms-lg border border-ms-border/18 bg-ms-surface/8",
+          compact ? "aspect-[16/11] min-h-[11rem]" : "aspect-[16/10] min-h-[12.5rem] sm:min-h-[14rem]",
+        )}
+        style={{ "--maps-tick": simTick } as CSSProperties}
+        aria-label={pickLocale(locale, "Structural map field — tap a zone for detail", "Поле карты — нажмите зону для детали")}
+      >
+        <div className="pointer-events-none absolute inset-0 opacity-[0.14] ms-maps-field-grid" aria-hidden />
+        {cells.map((c, idx) => (
+          <div
+            key={c.id}
+            role="button"
+            tabIndex={0}
+            aria-pressed={activeId === c.id}
+            aria-label={c.label}
             className={cn(
-              "mt-0.5 text-pretty text-[8.5px] leading-snug text-ms-muted/95",
-              compact ? "line-clamp-2" : "line-clamp-3",
+              "ms-maps-cell absolute min-h-0 min-w-0 cursor-pointer overflow-hidden rounded-ms-md border px-2.5 py-2 shadow-none backdrop-blur-[1px] transition-[opacity,transform,outline] duration-700 ease-out",
+              cellClass(c.tone),
+              "ms-maps-cell-drift",
+              activeId === c.id && "ms-maps-cell--selected",
             )}
+            style={
+              {
+                left: `${c.x}%`,
+                top: `${c.y}%`,
+                width: `${c.w}%`,
+                height: `${c.h}%`,
+                opacity: 0.22 + (c.emphasis / 100) * 0.62,
+                animationDelay: `${(idx * 2.1 + (simTick % 7) * 0.08).toFixed(2)}s`,
+              } as CSSProperties
+            }
+            title={c.readLine}
+            onClick={() => toggle(c.id)}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") toggle(c.id); }}
           >
-            {c.readLine}
-          </p>
-        </div>
-      ))}
+            <p className="text-pretty text-[9px] font-semibold leading-tight tracking-tight text-ms-text/90">{c.label}</p>
+            <p
+              className={cn(
+                "mt-0.5 text-pretty text-[8.5px] leading-snug text-ms-muted/95",
+                compact ? "line-clamp-1" : "line-clamp-2",
+              )}
+            >
+              {c.readLine}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* Zone detail card — shown below the field, never overlays the canvas */}
+      {selectedCell ? (
+        <MapZoneDetailCard
+          label={selectedCell.label}
+          read={selectedCell.readLine}
+          note={selectedCell.executionNote}
+          tone={selectedCell.tone}
+          onClose={clear}
+        />
+      ) : (
+        <p className="ms-map-tap-hint lg:hidden">
+          {pickLocale(locale, "Tap any zone to read its signal.", "Нажмите зону, чтобы прочитать сигнал.")}
+        </p>
+      )}
     </div>
   );
 }
@@ -89,7 +122,7 @@ function TopologyLayerPanel({
   return (
     <InterpretationLayer title={layer.title}>
       <p className="text-[10px] leading-snug text-ms-faint">{layer.synopsis}</p>
-      <TopologyField cells={layer.cells} simTick={simTick} compact={compact} />
+      <TopologyField cells={layer.cells} simTick={simTick} compact={compact} locale={locale} />
       <p className="mt-2 text-[9px] leading-snug text-ms-muted/90">
         {pickLocale(locale, "How to use this:", "Как использовать это:")}{" "}
         <span className="text-ms-text/88">{layer.executionImplication}</span>

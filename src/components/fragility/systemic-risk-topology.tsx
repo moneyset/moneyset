@@ -5,8 +5,10 @@ import { useMemo, useState, type CSSProperties } from "react";
 
 import { CognitionPrimaryState } from "@/components/cognition/cognition-primary-state";
 import { SignatureMomentBanner } from "@/components/cognition/signature-moment-banner";
+import { MapZoneDetailCard } from "@/components/maps/map-zone-detail-card";
 import { useSystemicFragility } from "@/hooks/use-systemic-fragility";
 import { useLiveSurfaceMotion } from "@/hooks/use-live-surface-motion";
+import { useMapFocus } from "@/hooks/use-map-focus";
 import {
   systemicRiskStateClass,
   type SystemicFragilityLens,
@@ -28,15 +30,28 @@ const CELL_CLASS: Record<TopologyCellKind, string> = {
   leverage_cluster: "ms-systemic-cell--leverage",
 };
 
-function TopologyCellBlock({ cell }: { cell: TopologyCell }) {
+function TopologyCellBlock({
+  cell,
+  isSelected,
+  onTap,
+}: {
+  cell: TopologyCell;
+  isSelected: boolean;
+  onTap: () => void;
+}) {
   return (
     <article
+      role="button"
+      tabIndex={0}
+      aria-pressed={isSelected}
+      aria-label={cell.label}
       className={cn(
-        "ms-systemic-cell",
+        "ms-systemic-cell cursor-pointer",
         CELL_CLASS[cell.kind],
-        cell.tone === "stress" && "ms-systemic-cell--stress",
-        cell.tone === "support" && "ms-systemic-cell--support",
-        cell.pulsing && "ms-systemic-cell--pulse",
+        cell.tone === "stress"   && "ms-systemic-cell--stress",
+        cell.tone === "support"  && "ms-systemic-cell--support",
+        cell.pulsing             && "ms-systemic-cell--pulse",
+        isSelected               && "ms-systemic-cell--selected",
       )}
       style={
         {
@@ -48,6 +63,8 @@ function TopologyCellBlock({ cell }: { cell: TopologyCell }) {
         } as CSSProperties
       }
       title={cell.read}
+      onClick={onTap}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onTap(); }}
     >
       <span className="ms-systemic-cell__label text-pretty">{cell.label}</span>
     </article>
@@ -67,6 +84,11 @@ export function SystemicRiskTopology({
   const [topologyMode, setTopologyMode] = useState(true);
   const [focusMode, setFocusMode] = useState(false);
   const [replayOpen, setReplayOpen] = useState(false);
+  const { activeId: selectedCellId, toggle: toggleCell, clear: clearCell, containerRef } = useMapFocus<string>();
+
+  const selectedCell = selectedCellId
+    ? bundle.cells.find((c) => c.id === selectedCellId) ?? null
+    : null;
 
   const style = useMemo(
     () =>
@@ -85,6 +107,7 @@ export function SystemicRiskTopology({
 
   return (
     <section
+      ref={containerRef}
       className={cn(
         "ms-systemic-topology min-w-0",
         live.className,
@@ -179,9 +202,31 @@ export function SystemicRiskTopology({
           {topologyMode
             ? bundle.cells
                 .filter((c) => !focusMode || c.pulsing || c.kind === "instability_field" || c.kind === "fragility_pulse")
-                .map((cell) => <TopologyCellBlock key={cell.id} cell={cell} />)
+                .map((cell) => (
+                  <TopologyCellBlock
+                    key={cell.id}
+                    cell={cell}
+                    isSelected={selectedCellId === cell.id}
+                    onTap={() => toggleCell(cell.id)}
+                  />
+                ))
             : null}
         </div>
+
+        {/* Zone detail card — appears below canvas when a cell is tapped */}
+        {selectedCell ? (
+          <MapZoneDetailCard
+            label={selectedCell.label}
+            kindLabel={selectedCell.kind.replace(/_/g, " ")}
+            read={selectedCell.read}
+            tone={selectedCell.tone}
+            onClose={clearCell}
+          />
+        ) : (
+          <p className="ms-map-tap-hint lg:hidden">
+            {pickLocale(locale, "Tap any zone to read its signal.", "Нажмите зону, чтобы прочитать сигнал.")}
+          </p>
+        )}
 
         {!focusMode ? (
           <aside className="ms-systemic-topology__aside">
