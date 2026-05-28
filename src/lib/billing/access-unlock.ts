@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { billingProduct, type BillingProductId } from "@/lib/billing/catalog";
+import { ensureProfileRow } from "@/lib/supabase/ensure-profile";
 
 export type ProfileUnlockPatch = Readonly<Record<string, unknown>>;
 
@@ -49,6 +50,9 @@ export async function unlockProfileForProduct(
       .maybeSingle();
     if (existing?.last_payment_order_id === orderId) return { ok: true };
   }
+
+  const ensured = await ensureProfileRow(admin, userId);
+  if (!ensured.ok) return { ok: false, error: ensured.error };
 
   const patch = {
     ...profilePatchForProduct(productId),

@@ -5,6 +5,7 @@ import { entitlementsFor, guestProfile, roleFromProfile } from "@/lib/access/rol
 import { resolveRequestUserId } from "@/lib/access/request-user";
 import { sanitizeApiError } from "@/lib/services/shared/env";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { ensureProfileRow } from "@/lib/supabase/ensure-profile";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,7 @@ export const dynamic = "force-dynamic";
  * Pure read endpoint — returns profile, entitlements, and capabilities.
  *
  * Invariants:
- *   - NO database writes of any kind.
+ *   - Only writes a missing profile row (repair path when trigger did not run).
  *   - NO in-memory entitlement overrides based on Telegram ID.
  *   - NO founder grants, NO access upgrades, NO expiry mutations.
  *
@@ -32,6 +33,21 @@ export async function GET(req: Request) {
   if (!userId || !admin) {
     const profile = guestProfile();
     return NextResponse.json({ ok: true, profile, entitlements: entitlementsFor(profile) });
+  }
+
+  const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "").trim();
+  let email: string | null = null;
+  if (token) {
+    const { data: authData } = await admin.auth.getUser(token);
+    email = authData.user?.email ?? null;
+  }
+
+  const ensured = await ensureProfileRow(admin, userId, email);
+  if (!ensured.ok) {
+    return NextResponse.json(
+      { ok: false, error: sanitizeApiError(ensured.error ?? "profile_sync_failed") },
+      { status: 502 },
+    );
   }
 
   const { data, error } = await admin
