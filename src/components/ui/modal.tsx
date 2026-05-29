@@ -48,7 +48,7 @@ export function Modal({ open, onClose, title, description, children }: ModalProp
     <AnimatePresence>
       {open ? (
         <m.div
-          className="fixed inset-0 z-[var(--ms-z-modal,100)] flex items-end justify-center p-4 sm:items-center"
+          className="ms-modal-overlay fixed inset-0 z-[var(--ms-z-modal,100)] flex items-end justify-center p-4 sm:items-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -69,7 +69,7 @@ export function Modal({ open, onClose, title, description, children }: ModalProp
             exit={msFadeScale.exit}
             transition={msTransition.medium}
             className={cn(
-              "relative z-[1] w-full max-w-lg overflow-hidden rounded-ms-2xl border border-ms-border-strong",
+              "ms-modal-panel relative z-[1] w-full max-w-lg overflow-hidden rounded-ms-2xl border border-ms-border-strong",
               "bg-ms-surface shadow-ms-float",
             )}
           >
@@ -89,7 +89,7 @@ export function Modal({ open, onClose, title, description, children }: ModalProp
                 <X className="size-4" strokeWidth={1.75} />
               </button>
             </div>
-            {children ? <div className="max-h-[min(60vh,520px)] overflow-y-auto px-6 py-5">{children}</div> : null}
+            {children ? <div className="ms-modal-body px-6 py-5">{children}</div> : null}
           </m.div>
         </m.div>
       ) : null}

@@ -199,7 +199,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
       title={t("auth.title")}
       description={t("auth.subtitle")}
     >
-      <div className="space-y-3">
+      <div className="ms-auth-modal space-y-3">
         {!sb ? (
           <div className="rounded-ms-xl border border-ms-border bg-ms-elevated/25 p-4 text-[13px] leading-relaxed text-ms-muted">
             {t("auth.missingConfig")}
@@ -229,24 +229,26 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
             <Button
               type="button"
               variant="cognition"
-              className="w-full justify-between"
+              className="ms-auth-modal__method-btn w-full justify-between gap-2"
               disabled={isBusy}
               onClick={() => void handleTelegram()}
             >
-              <span className="flex items-center gap-2">
-                <span className="text-[14px]" aria-hidden>✈</span>
-                {inTelegram && hasInitData
-                  ? pickLocale(locale, "Continue with Telegram", "Продолжить через Telegram")
-                  : pickLocale(locale, "Open in Telegram", "Открыть в Telegram")}
+              <span className="flex min-w-0 flex-1 items-center gap-2 truncate">
+                <span className="shrink-0 text-[14px]" aria-hidden>✈</span>
+                <span className="truncate">
+                  {inTelegram && hasInitData
+                    ? pickLocale(locale, "Continue with Telegram", "Продолжить через Telegram")
+                    : pickLocale(locale, "Open in Telegram", "Открыть в Telegram")}
+                </span>
               </span>
-              <StatusPill accent="warning">
+              <StatusPill accent="warning" className="shrink-0">
                 {pickLocale(locale, "Primary", "Основной")}
               </StatusPill>
             </Button>
 
             {!inTelegram ? (
-              <div className="rounded-ms-xl border border-ms-border/50 bg-ms-elevated/10 px-4 py-3">
-                <p className="mb-2 text-[11px] leading-relaxed text-ms-muted">
+              <div className="ms-auth-modal__widget-block">
+                <p className="ms-auth-modal__hint mb-2">
                   {pickLocale(
                     locale,
                     "Or sign in here with Telegram (one tap, no app switch):",
@@ -261,15 +263,17 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
             <Button
               type="button"
               variant="outline"
-              className="w-full justify-between"
+              className="ms-auth-modal__method-btn w-full justify-between gap-2"
               onClick={() => void doOAuth()}
               disabled={!sb || isBusy}
             >
-              <span className="flex items-center gap-2">
-                <span className="font-semibold" aria-hidden>G</span>
-                {t("auth.google")}
+              <span className="flex min-w-0 flex-1 items-center gap-2 truncate">
+                <span className="shrink-0 font-semibold" aria-hidden>G</span>
+                <span className="truncate">{t("auth.google")}</span>
               </span>
-              <StatusPill accent="neutral">{pickLocale(locale, "Secure", "Безопасно")}</StatusPill>
+              <StatusPill accent="neutral" className="shrink-0">
+                {pickLocale(locale, "Secure", "Безопасно")}
+              </StatusPill>
             </Button>
 
             {/* ── Tertiary: Email ── */}
@@ -376,7 +380,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
         )}
 
         {note || telegramError ? (
-          <div className="rounded-ms-lg border border-ms-border bg-ms-elevated/20 px-3 py-2 text-[12px] text-ms-muted">
+          <div className="ms-auth-modal__hint rounded-ms-lg border border-ms-border bg-ms-elevated/20 px-3 py-2">
             {note ?? telegramError}
           </div>
         ) : null}

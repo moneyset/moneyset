@@ -1,0 +1,260 @@
+/* MONEYSET UX polish — layout stability, premium locks, modals, mobile (no redesign) */
+
+:root {
+  --ms-intel-bar-height-mobile: 5.25rem;
+  --ms-mobile-nav-height: 4.5rem;
+}
+
+/* ─── A. Header stability ─── */
+.ms-intel-command {
+  contain: layout style;
+}
+
+@media (max-width: 1023.98px) {
+  .ms-intel-command > .grid {
+    min-height: var(--ms-intel-bar-height-mobile);
+  }
+}
+
+.ms-intel-command-right-cluster {
+  min-width: 9.5rem;
+  justify-content: flex-end;
+}
+
+@media (min-width: 768px) {
+  .ms-intel-command-right-cluster {
+    min-width: 12rem;
+  }
+}
+
+.ms-intel-command__price-slot {
+  display: inline-flex;
+  min-width: 3.25rem;
+  max-width: 5.5rem;
+  justify-content: flex-end;
+}
+
+.ms-intel-command__signout-slot {
+  width: 2.25rem;
+  flex-shrink: 0;
+}
+
+.ms-intel-command__founding-btn {
+  min-width: 4.75rem;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .ms-intel-command__founding-btn {
+    min-width: 7.75rem;
+  }
+}
+
+.ms-brand-logo {
+  white-space: nowrap;
+  min-width: 4.75rem;
+}
+
+/* ─── B. Premium lock overlays ─── */
+.ms-premium-gate__preview-shell {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.ms-premium-gate--locked .ms-premium-gate__preview-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--ms-bg-canvas) 48%, transparent);
+}
+
+.ms-premium-gate__cognition-ribbon {
+  max-height: min(32%, 7.5rem);
+  overflow: hidden;
+}
+
+.ms-premium-gate__preview-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ms-premium-gate__access-dock .ms-premium-gate__dock-body {
+  overflow: hidden;
+}
+
+.ms-premium-gate__access-dock .ms-premium-gate__dock-title,
+.ms-premium-gate__access-dock .ms-premium-gate__dock-body-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 639.98px) {
+  .ms-premium-gate__cognition-ribbon {
+    display: none;
+  }
+
+  .ms-premium-gate__access-dock .ms-premium-gate__dock-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .ms-premium-gate__access-dock .ms-premium-gate__dock-cta {
+    width: 100%;
+  }
+}
+
+[data-theme="light"] .ms-premium-gate__preview-content {
+  opacity: 0.32 !important;
+}
+
+[data-theme="light"] .ms-premium-gate--locked .ms-premium-gate__preview-shell::after {
+  background: color-mix(in srgb, var(--ms-bg-canvas) 58%, transparent);
+}
+
+/* Platform access gate — align with premium gate treatment */
+.ms-platform-access-gate__preview {
+  overflow: hidden;
+  max-height: min(52dvh, 24rem);
+}
+
+.ms-platform-access-gate__overlay {
+  background: color-mix(in srgb, var(--ms-bg-canvas) 72%, transparent) !important;
+  backdrop-filter: blur(6px);
+}
+
+@media (max-width: 1023.98px) {
+  .ms-platform-access-gate__preview > * {
+    filter: none !important;
+    opacity: 0.28 !important;
+  }
+
+  .ms-platform-access-gate__overlay {
+    backdrop-filter: none;
+  }
+}
+
+/* ─── C. Chart / terrain overlap guard ─── */
+@media (max-width: 639.98px) {
+  .ms-exec-terrain-band--expanded {
+    width: 46% !important;
+  }
+
+  .ms-exec-terrain-annotation {
+    max-width: 40% !important;
+  }
+}
+
+/* ─── D. Modal + auth polish ─── */
+.ms-modal-overlay {
+  padding-top: max(1rem, var(--ms-safe-top));
+  padding-bottom: max(1rem, var(--ms-safe-bottom));
+  padding-left: max(1rem, var(--ms-safe-left));
+  padding-right: max(1rem, var(--ms-safe-right));
+}
+
+.ms-modal-panel {
+  max-height: min(88dvh, 640px);
+  display: flex;
+  flex-direction: column;
+}
+
+.ms-modal-body {
+  max-height: min(60dvh, 520px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ms-auth-modal__method-btn {
+  min-height: 2.75rem;
+}
+
+.ms-auth-modal__method-btn > span:first-child {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ms-auth-modal__widget-block {
+  border-radius: var(--ms-radius-xl, 0.75rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border-subtle) 55%, transparent);
+  background: color-mix(in srgb, var(--ms-bg-elevated) 12%, transparent);
+  padding: 0.875rem 1rem;
+}
+
+.ms-auth-modal__hint {
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--ms-text-secondary);
+}
+
+.ms-auth-page__hint {
+  margin-top: 0.5rem;
+  font-size: 10px;
+  line-height: 1.55;
+  color: rgba(88, 94, 110, 0.55);
+  text-align: center;
+}
+
+.ms-auth-page__widget-block {
+  margin-top: 0.5rem;
+  padding: 0.75rem 0.5rem;
+  border-radius: 2px;
+  border: 1px solid rgba(200, 204, 212, 0.08);
+  background: rgba(200, 204, 212, 0.03);
+}
+
+/* ─── E. Mobile nav height stability ─── */
+.ms-mobile-bottom-nav > div {
+  min-height: var(--ms-mobile-nav-height);
+}
+
+.ms-mobile-bottom-nav__link-label {
+  min-height: 0.875rem;
+  max-width: 100%;
+}
+
+/* ─── F. Desktop card rhythm ─── */
+@media (min-width: 1024px) {
+  .ms-page {
+    max-width: 100%;
+  }
+
+  .ms-desk-command-main__inner {
+    max-width: min(100%, 90rem);
+    margin-inline: auto;
+    width: 100%;
+  }
+}
+
+/* ─── G. Upgrade / paywall conversion ─── */
+.ms-upgrade-modal__price-block {
+  border-color: color-mix(in srgb, var(--ms-cognition) 28%, var(--ms-border-subtle)) !important;
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--ms-bg-surface) 88%, transparent),
+    color-mix(in srgb, var(--ms-bg-elevated) 40%, transparent)
+  );
+}
+
+.ms-upgrade-modal__cta-primary {
+  min-height: 2.875rem;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+
+/* Access sync banner — fixed overlay, no layout jump */
+.ms-access-sync-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 45;
+  padding-top: var(--ms-safe-top);
+}

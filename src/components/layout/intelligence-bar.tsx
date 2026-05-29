@@ -160,11 +160,11 @@ export function IntelligenceBar() {
         </p>
 
         <div className={cn("ms-intel-command-right-cluster flex shrink-0 items-center justify-end gap-1.5")}>
-          {market.price ? (
-            <span className="max-w-[5.5rem] truncate font-mono text-[11.5px] font-medium tabular-nums tracking-[-0.01em] text-ms-text/90 sm:max-w-[6.25rem]">
-              {market.price.toFixed(0)}
+          <span className="ms-intel-command__price-slot font-mono text-[11.5px] font-medium tabular-nums tracking-[-0.01em] text-ms-text/90 sm:max-w-[6.25rem]">
+            <span className={cn("block truncate text-right", !market.price && "opacity-0")} aria-hidden={!market.price}>
+              {market.price ? market.price.toFixed(0) : "0"}
             </span>
-          ) : null}
+          </span>
           <Link
             href="/settings"
             title={prefsLabel}
@@ -178,7 +178,7 @@ export function IntelligenceBar() {
             type="button"
             onClick={handleFoundingClick}
             className={cn(
-              "ms-focus-ring inline-flex shrink-0 touch-manipulation items-center rounded-ms-md border px-1.5 py-1 text-[10px] font-semibold tracking-wide transition-colors min-[380px]:px-2.5 sm:py-1.5",
+              "ms-intel-command__founding-btn ms-focus-ring inline-flex shrink-0 touch-manipulation items-center rounded-ms-md border px-1.5 py-1 text-[10px] font-semibold tracking-wide transition-colors min-[380px]:px-2.5 sm:py-1.5",
               isFounder
                 ? "border-ms-warning/35 bg-ms-warning/10 text-ms-warning/90 hover:border-ms-warning/50"
                 : "border-ms-cognition/35 bg-ms-cognition/10 text-ms-cognition hover:border-ms-cognition/50 hover:bg-ms-cognition/15",
@@ -195,16 +195,21 @@ export function IntelligenceBar() {
           >
             <UserRound className="size-4" strokeWidth={1.5} />
           </button>
-          {signedIn ? (
+          <span className="ms-intel-command__signout-slot">
             <button
               type="button"
-              className="ms-focus-ring flex size-9 min-h-10 min-w-10 shrink-0 touch-manipulation items-center justify-center rounded-ms-md border border-ms-border/55 bg-ms-surface/35 text-ms-muted transition-colors hover:border-ms-border-mid hover:text-ms-text"
+              className={cn(
+                "ms-focus-ring flex size-9 min-h-10 min-w-10 shrink-0 touch-manipulation items-center justify-center rounded-ms-md border border-ms-border/55 bg-ms-surface/35 text-ms-muted transition-colors hover:border-ms-border-mid hover:text-ms-text",
+                !signedIn && "pointer-events-none invisible",
+              )}
               aria-label={pickLocale(locale, "Sign out", "Выйти")}
+              aria-hidden={!signedIn}
+              tabIndex={signedIn ? 0 : -1}
               onClick={() => void handleSignOut()}
             >
               <LogOut className="size-3.5" strokeWidth={1.5} />
             </button>
-          ) : null}
+          </span>
         </div>
 
         <div className="col-span-3 min-w-0 border-t border-ms-border/20 pt-1.5">
@@ -213,7 +218,7 @@ export function IntelligenceBar() {
       </div>
 
       {/* Desktop row */}
-      <div className="hidden min-h-[var(--ms-intel-bar-height)] gap-5 px-6 py-0 md:flex md:items-center">
+      <div className="hidden min-h-[var(--ms-intel-bar-height)] w-full gap-5 px-6 py-0 md:flex md:items-center">
         <div className="flex min-w-0 flex-1 items-center gap-4">
           <div className="flex min-w-0 items-center gap-3">
             <BrandLogo size="md" />
@@ -245,17 +250,18 @@ export function IntelligenceBar() {
         </div>
 
         <div className={cn("ms-intel-command-right-cluster flex shrink-0 items-center gap-2.5 md:justify-end")}>
-          {market.price ? (
-            <div className="flex items-center gap-1.5">
-              <span className="font-mono text-[10px] text-ms-faint/70 tracking-[0.04em]">{inst}</span>
-              <span className="font-mono text-[13px] font-medium tabular-nums tracking-[-0.01em] text-ms-text/92">
-                {market.price.toFixed(0)}
-              </span>
-            </div>
-          ) : (
+          <span className="ms-intel-command__price-slot hidden items-center gap-1.5 sm:inline-flex">
+            <span className="font-mono text-[10px] text-ms-faint/70 tracking-[0.04em]">{inst}</span>
+            <span className={cn("font-mono text-[13px] font-medium tabular-nums tracking-[-0.01em] text-ms-text/92", !market.price && "opacity-0")}>
+              {market.price ? market.price.toFixed(0) : "0"}
+            </span>
+          </span>
+          {!market.price ? (
             <span className="hidden max-w-[14rem] truncate text-[10.5px] text-ms-faint xl:inline">{tapeAwaitingLine(locale)}</span>
-          )}
-          {latency ? <span className="hidden tabular-nums text-[9.5px] tracking-[0.02em] text-ms-faint/60 lg:inline">{latency}</span> : null}
+          ) : null}
+          <span className={cn("hidden tabular-nums text-[9.5px] tracking-[0.02em] text-ms-faint/60 lg:inline", !latency && "opacity-0")}>
+            {latency || "—"}
+          </span>
 
           <Link
             href="/settings"
@@ -270,7 +276,7 @@ export function IntelligenceBar() {
             type="button"
             onClick={handleFoundingClick}
             className={cn(
-              "ms-focus-ring inline-flex shrink-0 touch-manipulation items-center rounded-ms-md border px-3 py-1.5 text-[9.5px] font-semibold tracking-[0.08em] transition-colors",
+              "ms-intel-command__founding-btn ms-focus-ring inline-flex shrink-0 touch-manipulation items-center rounded-ms-md border px-3 py-1.5 text-[9.5px] font-semibold tracking-[0.08em] transition-colors",
               isFounder
                 ? "border-ms-warning/30 bg-ms-warning/8 text-ms-warning/85 hover:border-ms-warning/44 hover:bg-ms-warning/12"
                 : "border-ms-cognition/28 bg-ms-cognition/8 text-ms-cognition/85 hover:border-ms-cognition/44 hover:bg-ms-cognition/12 hover:text-ms-cognition",
@@ -289,16 +295,21 @@ export function IntelligenceBar() {
           >
             <UserRound className="size-3.5" strokeWidth={1.4} />
           </button>
-          {signedIn ? (
+          <span className="ms-intel-command__signout-slot">
             <button
               type="button"
-              className="ms-focus-ring flex size-8 shrink-0 touch-manipulation items-center justify-center rounded-ms-md border border-ms-border/40 bg-ms-surface/25 text-ms-faint transition-colors hover:border-ms-border/60 hover:text-ms-muted"
+              className={cn(
+                "ms-focus-ring flex size-8 shrink-0 touch-manipulation items-center justify-center rounded-ms-md border border-ms-border/40 bg-ms-surface/25 text-ms-faint transition-colors hover:border-ms-border/60 hover:text-ms-muted",
+                !signedIn && "pointer-events-none invisible",
+              )}
               aria-label={pickLocale(locale, "Sign out", "Выйти")}
+              aria-hidden={!signedIn}
+              tabIndex={signedIn ? 0 : -1}
               onClick={() => void handleSignOut()}
             >
               <LogOut className="size-3.5" strokeWidth={1.4} />
             </button>
-          ) : null}
+          </span>
         </div>
       </div>
     </header>

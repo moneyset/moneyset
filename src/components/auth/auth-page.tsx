@@ -107,8 +107,10 @@ export function AuthPage() {
           </button>
 
           {!inTelegram ? (
-            <div className="ms-auth-page__note">
-              <p>{pickLocale(locale, "One-tap sign-in (browser)", "Вход одним тапом (браузер)")}</p>
+            <div className="ms-auth-page__widget-block">
+              <p className="text-[9px] uppercase tracking-[0.14em] text-ms-faint/70">
+                {pickLocale(locale, "One-tap sign-in (browser)", "Вход одним тапом (браузер)")}
+              </p>
               <TelegramLoginWidget nextPath="/" />
             </div>
           ) : null}
@@ -139,7 +141,7 @@ export function AuthPage() {
         {telegramError || oauthError ? (
           <p className="ms-auth-page__error">{telegramError ?? oauthError}</p>
         ) : null}
-        {telegramHint ? <p className="ms-auth-page__note">{telegramHint}</p> : null}
+        {telegramHint ? <p className="ms-auth-page__hint">{telegramHint}</p> : null}
 
         {/* Separator */}
         <div className="ms-auth-page__divider">

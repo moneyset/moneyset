@@ -67,8 +67,8 @@ export function MobileBottomNav() {
                 />
                 <span
                   className={cn(
-                    "max-w-full truncate text-center text-[10px] font-medium leading-tight text-ms-muted group-hover:text-ms-text sm:text-[11px]",
-                    !showLabels && "sr-only",
+                    "ms-mobile-bottom-nav__link-label max-w-full truncate text-center text-[10px] font-medium leading-tight text-ms-muted group-hover:text-ms-text sm:text-[11px]",
+                    !showLabels && "opacity-0",
                   )}
                 >
                   {t(item.labelKey)}

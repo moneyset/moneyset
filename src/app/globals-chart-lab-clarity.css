@@ -257,3 +257,13 @@
     grid-template-columns: 1fr !important;
   }
 }
+
+@media (max-width: 639.98px) {
+  .ms-exec-terrain-band--expanded {
+    width: 46% !important;
+  }
+
+  .ms-exec-terrain-annotation {
+    max-width: 40% !important;
+  }
+}

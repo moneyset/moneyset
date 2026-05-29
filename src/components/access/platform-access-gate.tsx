@@ -36,14 +36,14 @@ export function PlatformAccessGate({
   if (allowed) return <>{children}</>;
 
   return (
-    <div className={cn("relative min-h-[min(52dvh,24rem)] overflow-hidden rounded-ms-xl", className)}>
+    <div className={cn("ms-platform-access-gate relative min-h-[min(52dvh,24rem)] overflow-hidden rounded-ms-xl", className)}>
       <div
-        className="pointer-events-none select-none blur-[2px] saturate-[0.72] contrast-[0.92] opacity-[0.38]"
+        className="ms-platform-access-gate__preview pointer-events-none select-none blur-[3px] saturate-[0.68] contrast-[0.92] opacity-[0.32]"
         aria-hidden
       >
         {children}
       </div>
-      <div className="absolute inset-0 z-[1] flex flex-col items-center justify-center bg-ms-canvas/45 px-6 py-10 text-center backdrop-blur-[2px]">
+      <div className="ms-platform-access-gate__overlay absolute inset-0 z-[1] flex flex-col items-center justify-center bg-ms-canvas/45 px-6 py-10 text-center backdrop-blur-[6px]">
         <div className="flex size-10 items-center justify-center rounded-ms-md border border-ms-border/40 bg-ms-elevated/20 text-ms-muted">
           <Lock className="size-4" strokeWidth={1.35} aria-hidden />
         </div>

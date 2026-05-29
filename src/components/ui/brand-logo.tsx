@@ -21,6 +21,7 @@ export function BrandLogo({ className, href = "/", size = "md" }: BrandLogoProps
       className={cn(
         "inline-block font-medium uppercase text-ms-muted/80 transition-colors hover:text-ms-muted",
         sizes[size],
+        "ms-brand-logo",
         className,
       )}
     >

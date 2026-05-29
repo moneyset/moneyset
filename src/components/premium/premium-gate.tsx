@@ -80,19 +80,21 @@ export function PremiumGate({ children, onUnlock, className, preview = true, fea
 
       <div className="absolute inset-0 z-[2] flex items-end justify-center p-3 sm:items-center sm:p-4">
         <div className="ms-premium-gate__access-dock w-full max-w-md rounded-ms-xl border border-ms-border/24 bg-ms-surface/72 px-3 py-3 shadow-[0_12px_48px_-24px_rgba(0,0,0,0.55)] backdrop-blur-md sm:px-4 sm:py-3.5">
-          <div className="flex items-start gap-3">
+          <div className="ms-premium-gate__dock-row flex items-start gap-3">
             <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-ms-md border border-ms-border/40 bg-ms-elevated/18 text-ms-dim sm:size-9">
               <Lock className="size-3.5 sm:size-4" strokeWidth={1.35} aria-hidden />
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="ms-data-label text-ms-warning/80">{t("gate.lockedTitle")}</p>
-              <p className="mt-1 text-[11px] leading-snug text-ms-muted sm:text-[12px] sm:leading-relaxed">{t("gate.lockedBody")}</p>
+            <div className="ms-premium-gate__dock-body min-w-0 flex-1">
+              <p className="ms-premium-gate__dock-title ms-data-label text-ms-warning/80">{t("gate.lockedTitle")}</p>
+              <p className="ms-premium-gate__dock-body-text mt-1 text-[11px] leading-snug text-ms-muted sm:text-[12px] sm:leading-relaxed">
+                {t("gate.lockedBody")}
+              </p>
             </div>
             <Button
               type="button"
               variant="cognition"
               size="sm"
-              className="shrink-0 text-[11px] font-medium tracking-tight"
+              className="ms-premium-gate__dock-cta shrink-0 text-[11px] font-medium tracking-tight"
               onClick={onUnlock}
             >
               {t("gate.cta")}

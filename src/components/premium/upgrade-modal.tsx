@@ -54,7 +54,7 @@ export function UpgradeModal({ open, onClose }: UpgradeModalProps) {
         ) : null}
 
         {/* Outcome-first value block */}
-        <div className="rounded-ms-xl border border-ms-border-mid/70 bg-ms-surface/25 p-4">
+        <div className="ms-upgrade-modal__price-block rounded-ms-xl border border-ms-border-mid/70 bg-ms-surface/25 p-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <p className="ms-data-label text-ms-warning/85">{t("upgrade.foundingColumnTitle")}</p>
             <StatusPill accent={fullAccess ? "warning" : "neutral"}>
@@ -105,7 +105,7 @@ export function UpgradeModal({ open, onClose }: UpgradeModalProps) {
             <Button
               type="button"
               variant="cognition"
-              className="w-full"
+              className="ms-upgrade-modal__cta-primary w-full"
               onClick={() => {
                 openCheckout("founding_access");
                 onClose();

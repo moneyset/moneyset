@@ -59,10 +59,14 @@
     display: none !important;
   }
 
-  /* Softer premium gate — no blur (laggy on Android / TG) */
+  /* Premium gate on mobile — opaque scrim instead of readable half-content (blur disabled for perf) */
   .ms-premium-gate__preview-content {
     filter: none !important;
-    opacity: 0.5 !important;
+    opacity: 0.28 !important;
+  }
+
+  .ms-premium-gate--locked .ms-premium-gate__preview-shell::after {
+    background: color-mix(in srgb, var(--ms-bg-canvas) 62%, transparent);
   }
 
   .ms-premium-gate__access-dock {
