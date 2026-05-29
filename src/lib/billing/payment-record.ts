@@ -137,8 +137,7 @@ export async function markPaymentPaid(
 }
 
 /**
- * Look up a payment record by invoice ID.
- * Returns null if not found.
+ * Look up a payment record by invoice ID (stored as idempotency_key).
  */
 export async function getPaymentByInvoiceId(
   admin: SupabaseClient,
@@ -152,6 +151,39 @@ export async function getPaymentByInvoiceId(
 
   if (error || !data) return null;
   return data as PaymentRecord;
+}
+
+/** Look up a payment record by platform order_id. */
+export async function getPaymentByOrderId(
+  admin: SupabaseClient,
+  orderId: string,
+): Promise<PaymentRecord | null> {
+  const { data, error } = await admin
+    .from("payments")
+    .select("*")
+    .eq("order_id", orderId)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  if (error || !data?.length) return null;
+  return data[0] as PaymentRecord;
+}
+
+/**
+ * Resolve the payments.idempotency_key for webhook/status updates.
+ * Always prefer invoice_id; fall back to an existing row matched by order_id.
+ */
+export async function resolvePaymentIdempotencyKey(
+  admin: SupabaseClient,
+  args: { invoiceId?: string | null; orderId: string },
+): Promise<string> {
+  const invoiceId = args.invoiceId?.trim();
+  if (invoiceId) return invoiceId;
+
+  const byOrder = await getPaymentByOrderId(admin, args.orderId);
+  if (byOrder?.idempotency_key) return byOrder.idempotency_key;
+
+  return args.orderId;
 }
 
 /**

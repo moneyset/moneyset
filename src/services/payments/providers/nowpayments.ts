@@ -11,6 +11,16 @@ import type { PaymentProvider } from "@/services/payments/provider";
 
 const NOWPAYMENTS_BASE = "https://api.nowpayments.io/v1";
 
+type NowPaymentRow = Readonly<{
+  payment_id?: string | number;
+  payment_status?: string;
+  order_id?: string;
+  price_amount?: number | string;
+  pay_currency?: string;
+  actually_paid?: number | string;
+  pay_amount?: number | string;
+}>;
+
 function hasConfig(): boolean {
   return Boolean(process.env.NOWPAYMENTS_API_KEY?.trim());
 }
@@ -19,6 +29,99 @@ function resolveProductId(input: CreateInvoiceInput): BillingProductId {
   if (input.productId) return input.productId;
   if (input.tier === "premium" || input.tier === "pro") return "premium_monthly";
   return "founding_access";
+}
+
+function extractPaymentRows(json: unknown): NowPaymentRow[] {
+  if (Array.isArray(json)) return json as NowPaymentRow[];
+  const obj = (json ?? {}) as Record<string, unknown>;
+  if (Array.isArray(obj.data)) return obj.data as NowPaymentRow[];
+  if (Array.isArray(obj.payments)) return obj.payments as NowPaymentRow[];
+  return [];
+}
+
+const PAID_STATUSES = new Set(["finished", "confirmed"]);
+const CONFIRMING_STATUSES = new Set(["confirming", "waiting", "partially_paid", "sending"]);
+const FAILED_STATUSES = new Set(["failed", "refunded"]);
+
+function mapProviderPaymentStatus(raw: string | undefined): InvoiceStatus {
+  const s = (raw ?? "unknown").toLowerCase();
+  if (PAID_STATUSES.has(s)) return "paid";
+  if (CONFIRMING_STATUSES.has(s)) return "confirming";
+  if (s === "expired") return "expired";
+  if (FAILED_STATUSES.has(s)) return "failed";
+  return "unpaid";
+}
+
+function paymentPriority(status: string | undefined): number {
+  const s = (status ?? "").toLowerCase();
+  if (PAID_STATUSES.has(s)) return 4;
+  if (CONFIRMING_STATUSES.has(s)) return 3;
+  if (s === "expired" || FAILED_STATUSES.has(s)) return 1;
+  return 2;
+}
+
+function pickBestPayment(rows: NowPaymentRow[]): NowPaymentRow | null {
+  if (!rows.length) return null;
+  return [...rows].sort(
+    (a, b) => paymentPriority(b.payment_status) - paymentPriority(a.payment_status),
+  )[0];
+}
+
+function parseAmount(raw: unknown): number | null {
+  if (typeof raw === "number" && Number.isFinite(raw)) return raw;
+  if (typeof raw === "string") {
+    const n = parseFloat(raw);
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
+}
+
+function mapPaymentRow(row: NowPaymentRow, invoiceId: string) {
+  const providerOrderId =
+    typeof row.order_id === "string" ? row.order_id.trim() || null : null;
+  const providerPriceAmount =
+    parseAmount(row.price_amount) ??
+    parseAmount(row.actually_paid) ??
+    parseAmount(row.pay_amount);
+  const providerPayCurrency =
+    typeof row.pay_currency === "string" ? row.pay_currency.trim().toLowerCase() || null : null;
+
+  return {
+    ok: true as const,
+    provider: "nowpayments" as const,
+    invoiceId,
+    status: mapProviderPaymentStatus(row.payment_status),
+    providerOrderId,
+    providerPriceAmount,
+    providerPayCurrency,
+    providerPaymentId:
+      row.payment_id !== undefined && row.payment_id !== null
+        ? String(row.payment_id)
+        : null,
+    expiresAtTs: null,
+  };
+}
+
+async function fetchPaymentsByInvoiceId(apiKey: string, invoiceId: string): Promise<NowPaymentRow[]> {
+  const qs = new URLSearchParams({
+    invoiceid: invoiceId,
+    limit: "10",
+    orderBy: "desc",
+    sortBy: "created_at",
+  });
+  const res = await fetch(`${NOWPAYMENTS_BASE}/payment/?${qs.toString()}`, {
+    headers: { "x-api-key": apiKey },
+    cache: "no-store",
+  });
+
+  if (res.status === 404) return [];
+  if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    throw new Error(`NOWPayments status error (${res.status}): ${txt.slice(0, 240)}`);
+  }
+
+  const json = (await res.json()) as unknown;
+  return extractPaymentRows(json);
 }
 
 export const nowPaymentsProvider: PaymentProvider = {
@@ -116,7 +219,6 @@ export const nowPaymentsProvider: PaymentProvider = {
       if (process.env.NODE_ENV === "production") {
         return { ok: false, error: "Payment provider not configured" };
       }
-      // Development stub — returns safe "unpaid" so no unlock is triggered
       return {
         ok: true,
         provider: "nowpayments",
@@ -130,51 +232,28 @@ export const nowPaymentsProvider: PaymentProvider = {
     }
 
     const apiKey = process.env.NOWPAYMENTS_API_KEY!.trim();
-    const res = await fetch(`${NOWPAYMENTS_BASE}/invoice/${encodeURIComponent(invoiceId)}`, {
-      headers: { "x-api-key": apiKey },
-      cache: "no-store",
-    });
-    if (!res.ok) {
-      const txt = await res.text().catch(() => "");
-      return { ok: false, error: `NOWPayments status error (${res.status}): ${txt.slice(0, 240)}` };
+
+    try {
+      const payments = await fetchPaymentsByInvoiceId(apiKey, invoiceId);
+      const best = pickBestPayment(payments);
+      if (best) return mapPaymentRow(best, invoiceId);
+
+      // Invoice exists but user has not started a payment yet — not an error.
+      return {
+        ok: true,
+        provider: "nowpayments",
+        invoiceId,
+        status: "unpaid",
+        providerOrderId: null,
+        providerPriceAmount: null,
+        providerPayCurrency: null,
+        expiresAtTs: null,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e instanceof Error ? e.message : "NOWPayments status error",
+      };
     }
-    const json = (await res.json()) as unknown;
-    const obj = (json ?? {}) as Record<string, unknown>;
-
-    const s = String((obj.invoice_status ?? obj.status ?? "unknown") as string).toLowerCase();
-    const status: InvoiceStatus =
-      s.includes("paid") || s.includes("finished")
-        ? "paid"
-        : s.includes("confirm")
-          ? "confirming"
-          : s.includes("expired")
-            ? "expired"
-            : s.includes("fail")
-              ? "failed"
-              : "unpaid";
-
-    // Retrieve the authoritative order_id and price from the provider response.
-    // These are what was embedded at invoice creation time — clients cannot alter them.
-    const providerOrderId =
-      typeof obj.order_id === "string" ? obj.order_id.trim() || null : null;
-    const providerPriceAmount =
-      typeof obj.price_amount === "number"
-        ? obj.price_amount
-        : typeof obj.price_amount === "string"
-          ? parseFloat(obj.price_amount) || null
-          : null;
-    const providerPayCurrency =
-      typeof obj.pay_currency === "string" ? obj.pay_currency.trim().toLowerCase() || null : null;
-
-    return {
-      ok: true,
-      provider: "nowpayments",
-      invoiceId,
-      status,
-      providerOrderId,
-      providerPriceAmount,
-      providerPayCurrency,
-      expiresAtTs: null,
-    };
   },
 };

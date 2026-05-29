@@ -6,6 +6,7 @@ import {
   createPendingPayment,
   getPaymentByInvoiceId,
   markPaymentPaid,
+  resolvePaymentIdempotencyKey,
 } from "@/lib/billing/payment-record";
 import { verifyNowPaymentsIpnSignature } from "@/lib/billing/nowpayments-ipn";
 import { checkRateLimit, rateLimitKey } from "@/lib/billing/rate-limit";
@@ -81,7 +82,8 @@ export async function POST(req: Request) {
 
   // ── 2. Check payment status ──────────────────────────────────────────────
   const status = (body.payment_status ?? "").toLowerCase();
-  const isPaid = status === "finished" || status === "confirmed" || status === "sent";
+  const isPaid =
+    status === "finished" || status === "confirmed" || status === "sent";
   if (!isPaid) {
     return NextResponse.json({ ok: true, ignored: true, status });
   }
@@ -144,14 +146,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Billing service unavailable" }, { status: 503 });
   }
 
-  // Use invoice_id as the idempotency key (more stable than payment_id)
-  const invoiceIdRaw = body.invoice_id ?? body.payment_id ?? null;
-  const idempotencyKey = invoiceIdRaw !== null ? String(invoiceIdRaw).trim() : orderId;
+  const invoiceIdRaw =
+    body.invoice_id !== undefined && body.invoice_id !== null
+      ? String(body.invoice_id).trim()
+      : null;
+  const idempotencyKey = await resolvePaymentIdempotencyKey(admin, {
+    invoiceId: invoiceIdRaw,
+    orderId,
+  });
 
-  // Check for existing record
   const existing = await getPaymentByInvoiceId(admin, idempotencyKey);
   if (existing?.status === "paid") {
-    // Already processed — respond OK to prevent NOWPayments from retrying
+    await unlockProfileForProduct(admin, userId, productId, orderId);
     return NextResponse.json({ ok: true, alreadyProcessed: true, orderId });
   }
 
@@ -179,7 +185,7 @@ export async function POST(req: Request) {
   // Mark as paid
   const currency = (body.pay_currency ?? body.outcome_currency ?? "").toLowerCase() || null;
   const markResult = await markPaymentPaid(admin, idempotencyKey, {
-    paidAmount,
+    paidAmount: paidAmount ?? amountToCheck,
     currency,
     webhookPayload: body,
   });
@@ -192,13 +198,7 @@ export async function POST(req: Request) {
     );
   }
 
-  // If another concurrent request already processed this payment, stop here.
-  // The profile unlock already happened — no need to repeat it.
-  if (markResult.alreadyPaid) {
-    return NextResponse.json({ ok: true, alreadyProcessed: true, orderId });
-  }
-
-  // ── 6. Unlock entitlement ────────────────────────────────────────────────
+  // Always ensure profile unlock — idempotent via last_payment_order_id.
   const unlockResult = await unlockProfileForProduct(admin, userId, productId, orderId);
   if (!unlockResult.ok) {
     console.error("[billing/webhook] unlockProfileForProduct error:", unlockResult.error);
@@ -206,6 +206,10 @@ export async function POST(req: Request) {
       { ok: false, error: "Access upgrade could not be applied" },
       { status: 502 },
     );
+  }
+
+  if (markResult.alreadyPaid) {
+    return NextResponse.json({ ok: true, alreadyProcessed: true, orderId, unlocked: true });
   }
 
   return NextResponse.json({

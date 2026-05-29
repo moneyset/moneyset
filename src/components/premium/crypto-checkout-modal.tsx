@@ -41,8 +41,10 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
       tier: s.tier,
       status: s.status,
       lastInvoiceId: s.lastInvoiceId,
+      lastPaymentUrl: s.lastPaymentUrl,
       provider: s.provider,
       setPendingInvoice: s.setPendingInvoice,
+      clearPendingInvoice: s.clearPendingInvoice,
       setTierActive: s.setTierActive,
     })),
   );
@@ -107,6 +109,7 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
           profile?: Parameters<typeof setProfile>[0];
         };
         if (profileJson.ok && profileJson.profile) setProfile(profileJson.profile);
+        sub.clearPendingInvoice();
         setNote(
           pickLocale(
             locale,
@@ -145,7 +148,11 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
       const json = (await res.json()) as CreateInvoiceResult;
       setInvoice(json);
       if (json.ok) {
-        sub.setPendingInvoice({ provider: json.provider, invoiceId: json.invoiceId });
+        sub.setPendingInvoice({
+          provider: json.provider,
+          invoiceId: json.invoiceId,
+          paymentUrl: json.paymentUrl ?? null,
+        });
         pollTicksRef.current = 0;
         if (json.paymentUrl) void check({ invoiceId: json.invoiceId });
       }
@@ -307,9 +314,9 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
               )}
 
               {/* Payment URL */}
-              {invoice && invoice.ok && invoice.paymentUrl ? (
+              {(invoice && invoice.ok && invoice.paymentUrl) || sub.lastPaymentUrl ? (
                 <a
-                  href={invoice.paymentUrl}
+                  href={(invoice && invoice.ok && invoice.paymentUrl) || sub.lastPaymentUrl || "#"}
                   target="_blank"
                   rel="noreferrer"
                   className="ms-focus-ring flex w-full items-center justify-center gap-2 rounded-ms-lg border border-ms-cognition/40 bg-ms-cognition/8 px-4 py-3 text-[13px] font-medium text-ms-text hover:border-ms-cognition/60 hover:bg-ms-cognition/12 transition-colors"

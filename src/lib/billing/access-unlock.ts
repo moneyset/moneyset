@@ -54,8 +54,26 @@ export async function unlockProfileForProduct(
   const ensured = await ensureProfileRow(admin, userId);
   if (!ensured.ok) return { ok: false, error: ensured.error };
 
-  const patch = {
-    ...profilePatchForProduct(productId),
+  let patch = profilePatchForProduct(productId);
+
+  if (productId === "premium_monthly") {
+    const product = billingProduct(productId);
+    const days = product?.subscriptionDays ?? 30;
+    const { data: row } = await admin
+      .from("profiles")
+      .select("premium_until")
+      .eq("id", userId)
+      .maybeSingle();
+    const existingUntil = row?.premium_until ? new Date(row.premium_until).getTime() : 0;
+    const baseMs = Math.max(Date.now(), existingUntil);
+    patch = {
+      ...patch,
+      premium_until: new Date(baseMs + days * 24 * 60 * 60_000).toISOString(),
+    };
+  }
+
+  patch = {
+    ...patch,
     ...(orderId ? { last_payment_order_id: orderId } : {}),
   };
   const { error } = await admin.from("profiles").update(patch).eq("id", userId);

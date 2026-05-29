@@ -21,6 +21,7 @@ export type SubscriptionRecord = Readonly<{
   provider: PaymentProviderId | null;
   currentPeriodEndTs: number | null;
   lastInvoiceId: string | null;
+  lastPaymentUrl: string | null;
   updatedAtTs: number | null;
 }>;
 

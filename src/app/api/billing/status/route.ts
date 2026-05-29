@@ -110,8 +110,8 @@ export async function GET(req: Request) {
 
     // ── Payment is "paid" — full verification before granting access ─────────
 
-    // 1. Get the order_id from the PROVIDER — not from the client
-    const providerOrderId = result.providerOrderId;
+    // 1. Get the order_id from the PROVIDER — fall back to our payment record
+    const providerOrderId = result.providerOrderId ?? existingRecord?.order_id ?? null;
     if (!providerOrderId) {
       return NextResponse.json(
         { ok: false, error: "Provider returned no order reference. Contact support." },
@@ -146,7 +146,8 @@ export async function GET(req: Request) {
     }
 
     // 5. Amount integrity — reject null amounts (do not silently skip the check)
-    const providerAmount = result.providerPriceAmount;
+    const providerAmount =
+      result.providerPriceAmount ?? existingRecord?.expected_amount ?? null;
     if (providerAmount === null) {
       return NextResponse.json(
         {
@@ -187,9 +188,11 @@ export async function GET(req: Request) {
     });
 
     if (!markResult.ok) {
-      // markPaymentPaid failed — could be a record-not-found race in an edge case,
-      // but we proceed to unlock anyway so the user is not stranded. Logged for monitoring.
       console.error("[billing/status] markPaymentPaid failed:", markResult.error);
+      return NextResponse.json(
+        { ok: false, error: "Payment record could not be updated. Please contact support." },
+        { status: 502 },
+      );
     }
 
     // If concurrent webhook already processed and unlocked, still call unlock

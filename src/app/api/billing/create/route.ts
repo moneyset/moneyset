@@ -61,7 +61,7 @@ export async function POST(req: Request) {
 
     // Create authoritative server-side payment record when invoice is generated
     if (admin) {
-      await createPendingPayment(admin, {
+      const pending = await createPendingPayment(admin, {
         idempotencyKey: result.invoiceId,
         userId,
         productId,
@@ -70,6 +70,13 @@ export async function POST(req: Request) {
         expectedAmount: product.priceUsd,
         currency: result.payCurrency.toLowerCase(),
       });
+      if (!pending.ok) {
+        console.error("[billing/create] createPendingPayment failed:", pending.error);
+        return NextResponse.json(
+          { ok: false, error: "Could not persist payment record. Try again." },
+          { status: 502 },
+        );
+      }
     }
 
     return NextResponse.json(result);

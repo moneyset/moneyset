@@ -11,7 +11,12 @@ type SubscriptionState = SubscriptionRecord & {
     args?: { provider?: PaymentProviderId; periodDays?: number | null },
   ) => void;
   setFree: () => void;
-  setPendingInvoice: (args: { provider: PaymentProviderId; invoiceId: string }) => void;
+  setPendingInvoice: (args: {
+    provider: PaymentProviderId;
+    invoiceId: string;
+    paymentUrl?: string | null;
+  }) => void;
+  clearPendingInvoice: () => void;
   setStatus: (status: SubscriptionRecord["status"]) => void;
 };
 
@@ -21,6 +26,7 @@ const initial: SubscriptionRecord = {
   provider: null,
   currentPeriodEndTs: null,
   lastInvoiceId: null,
+  lastPaymentUrl: null,
   updatedAtTs: null,
 };
 
@@ -47,11 +53,20 @@ export const useSubscriptionStore = create<SubscriptionState>()(
           updatedAtTs: Date.now(),
         })),
 
-      setPendingInvoice: ({ provider, invoiceId }) =>
+      setPendingInvoice: ({ provider, invoiceId, paymentUrl }) =>
         set((s) => ({
           provider,
           lastInvoiceId: invoiceId,
+          lastPaymentUrl: paymentUrl ?? s.lastPaymentUrl,
           status: s.status === "active" ? s.status : "inactive",
+          updatedAtTs: Date.now(),
+        })),
+
+      clearPendingInvoice: () =>
+        set((s) => ({
+          lastInvoiceId: null,
+          lastPaymentUrl: null,
+          status: s.status,
           updatedAtTs: Date.now(),
         })),
 
@@ -66,6 +81,7 @@ export const useSubscriptionStore = create<SubscriptionState>()(
         // lastInvoiceId is persisted solely for the resume-on-reload UX (re-opening
         // a pending payment after a refresh) — it carries no access authority.
         lastInvoiceId: s.lastInvoiceId,
+        lastPaymentUrl: s.lastPaymentUrl,
         provider: s.provider,
         updatedAtTs: s.updatedAtTs,
       }),

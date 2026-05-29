@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "check:env": "node scripts/check-env.mjs",
     "verify:deploy": "node scripts/verify-deployment.mjs",
     "verify:sections": "node scripts/verify-sections.mjs",

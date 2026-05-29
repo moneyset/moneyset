@@ -3,10 +3,11 @@
 import { useCallback, useEffect } from "react";
 
 import type { ProfileAccess } from "@/lib/access/roles";
-import { guestProfile } from "@/lib/access/roles";
+import { guestProfile, hasExtendedAccess } from "@/lib/access/roles";
 import { authHeadersForUser } from "@/lib/access/request-user";
 import { useAccessStore } from "@/store/access-store";
 import { useAuthStore } from "@/store/auth-store";
+import { useSubscriptionStore } from "@/store/subscription-store";
 
 const MAX_ATTEMPTS = 3;
 const RETRY_MS = [0, 2_000, 6_000];
@@ -61,6 +62,22 @@ export function useProfileAccess() {
       useAccessStore.getState().registerProfileSyncRetry(null);
     };
   }, [load]);
+
+  // After checkout, webhook may unlock access while the modal is closed — poll profile sync.
+  const pendingInvoiceId = useSubscriptionStore((s) => s.lastInvoiceId);
+  const profile = useAccessStore((s) => s.profile);
+  const serverConfirmed = useAccessStore((s) => s.serverConfirmed);
+
+  useEffect(() => {
+    if (!user?.id || !pendingInvoiceId) return;
+    if (serverConfirmed && hasExtendedAccess(profile)) return;
+
+    const id = window.setInterval(() => {
+      void load();
+    }, 15_000);
+
+    return () => window.clearInterval(id);
+  }, [user?.id, pendingInvoiceId, serverConfirmed, profile, load]);
 
   return { retry: load };
 }
