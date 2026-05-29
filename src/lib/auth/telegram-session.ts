@@ -4,12 +4,15 @@ import { roleFromProfile } from "@/lib/access/roles";
 import type { ProfileAccess } from "@/lib/access/roles";
 import { isFounderTelegramId } from "@/lib/access/founder";
 import { telegramAuthEmail, telegramAuthPassword } from "@/lib/auth/telegram-credentials";
+import { ensureProfileRow } from "@/lib/supabase/ensure-profile";
 
 export type TelegramSessionResult = Readonly<{
   ok: boolean;
   session?: Session;
   userId?: string;
   profile?: ProfileAccess;
+  isNewUser?: boolean;
+  isReturning?: boolean;
   error?: string;
 }>;
 
@@ -24,11 +27,14 @@ export async function establishTelegramSession(
 
   let session: Session | null = null;
   let userId: string | null = null;
+  let isNewUser = false;
+  let isReturning = false;
 
   const signIn = await admin.auth.signInWithPassword({ email, password });
   if (signIn.data.session) {
     session = signIn.data.session;
     userId = signIn.data.user?.id ?? null;
+    isReturning = true;
   } else {
     const created = await admin.auth.admin.createUser({
       email,
@@ -43,6 +49,7 @@ export async function establishTelegramSession(
     if (created.error && !created.error.message.toLowerCase().includes("already")) {
       return { ok: false, error: created.error.message };
     }
+    isNewUser = !created.error;
     userId = created.data.user?.id ?? null;
     const retry = await admin.auth.signInWithPassword({ email, password });
     session = retry.data.session;
@@ -53,16 +60,32 @@ export async function establishTelegramSession(
     return { ok: false, error: "Could not establish session" };
   }
 
+  await admin.auth.admin.updateUserById(userId, {
+    user_metadata: {
+      telegram_id: tgId,
+      telegram_username: username ?? null,
+      auth_provider: "telegram",
+    },
+  });
+
   const isFounder = isFounderTelegramId(tgId);
+  const ensured = await ensureProfileRow(admin, userId, email);
+  if (!ensured.ok) {
+    return { ok: false, error: ensured.error ?? "profile_sync_failed" };
+  }
 
   await admin.from("profiles").upsert(
     {
       id: userId,
+      email,
       telegram_user_id: tgId,
       updated_at: new Date().toISOString(),
       ...(isFounder
         ? {
+            role: "premium",
+            access_tier: "premium",
             access_level: "founding",
+            subscription_status: "founding",
             founding_access: true,
             premium_until: null,
           }
@@ -74,5 +97,5 @@ export async function establishTelegramSession(
   const { data: profileRow } = await admin.from("profiles").select("*").eq("id", userId).maybeSingle();
   const profile = roleFromProfile(profileRow ?? {});
 
-  return { ok: true, session, userId, profile };
+  return { ok: true, session, userId, profile, isNewUser, isReturning };
 }

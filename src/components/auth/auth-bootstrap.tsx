@@ -1,12 +1,22 @@
 "use client";
 
+import type { Session } from "@supabase/supabase-js";
 import { useEffect } from "react";
 
 import { supabaseBrowser } from "@/lib/supabase/browser";
 import { clearClientSession } from "@/lib/auth/sign-out";
+import type { EntryMode } from "@/store/entry-store";
 import { useAuthStore } from "@/store/auth-store";
 import { useAccessStore } from "@/store/access-store";
 import { useEntryStore } from "@/store/entry-store";
+
+function entryModeFromSession(session: Session): Exclude<EntryMode, "unknown"> {
+  const meta = session.user.user_metadata as { telegram_id?: unknown } | undefined;
+  if (typeof meta?.telegram_id === "number" || typeof meta?.telegram_id === "string") {
+    return "telegram";
+  }
+  return "account";
+}
 
 /**
  * Initialises session state and subscribes to auth changes (browser-only).
@@ -40,7 +50,7 @@ export function AuthBootstrap() {
       if (data.session) {
         setAuth(data.session);
         if (!useEntryStore.getState().entryComplete) {
-          useEntryStore.getState().completeEntry("account");
+          useEntryStore.getState().completeEntry(entryModeFromSession(data.session));
         }
         useAccessStore.getState().retryProfileSync?.();
       } else {
@@ -58,7 +68,7 @@ export function AuthBootstrap() {
       if (session) {
         setAuth(session);
         if (!useEntryStore.getState().entryComplete) {
-          useEntryStore.getState().completeEntry("account");
+          useEntryStore.getState().completeEntry(entryModeFromSession(session));
         }
         useAccessStore.getState().retryProfileSync?.();
       } else {

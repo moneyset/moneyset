@@ -3,6 +3,7 @@ export type TgSendMessage = Readonly<{
   text: string;
   parse_mode?: "HTML" | "MarkdownV2";
   disable_web_page_preview?: boolean;
+  reply_markup?: Record<string, unknown>;
 }>;
 
 export async function tgSendMessage(payload: TgSendMessage): Promise<void> {

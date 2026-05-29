@@ -13,6 +13,7 @@ export type OpsEventKind =
   | "api_rate_limited"
   | "startup_env_missing"
   | "telegram_webhook_rejected"
+  | "telegram_auth"
   | "health_degraded";
 
 type OpsDetail = Record<string, string | number | boolean | null>;

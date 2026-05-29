@@ -4,6 +4,7 @@ import { LazyMotion, domAnimation } from "framer-motion";
 import type { ReactNode } from "react";
 
 import { TelegramWebAppBridge } from "@/components/layout/telegram-webapp-bridge";
+import { TelegramAuthBootstrap } from "@/components/auth/telegram-auth-bootstrap";
 import { TelegramInstitutionalIntro } from "@/components/telegram/telegram-institutional-intro";
 import { PersistRehydration } from "@/providers/persist-rehydration";
 import { ThemeProvider } from "@/providers/theme-provider";
@@ -21,6 +22,7 @@ export function ClientProviders({ children }: { children: ReactNode }) {
       <PersistRehydration />
       <ThemeProvider>
         <TelegramWebAppBridge />
+        <TelegramAuthBootstrap />
         <TelegramInstitutionalIntro />
         <AuthBootstrap />
         <AccessSyncBanner />

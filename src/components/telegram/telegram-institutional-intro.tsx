@@ -6,12 +6,15 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { Button } from "@/components/ui/button";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { readTelegramInitData } from "@/lib/auth/telegram-client";
 import { msTransition } from "@/lib/theme";
+import { useAuthStore } from "@/store/auth-store";
+import { useEntryStore } from "@/store/entry-store";
 
 const STORAGE_KEY = "moneyset_tg_institutional_intro_done_v1";
 
 function isTelegramWebApp(): boolean {
-  return typeof window !== "undefined" && Boolean(window.Telegram?.WebApp);
+  return readTelegramInitData() !== null;
 }
 
 function readDone(): boolean {
@@ -33,13 +36,19 @@ function persistDone(): void {
 /** First-time Telegram Mini App — institutional entry only; does not replace Cognition onboarding. */
 export function TelegramInstitutionalIntro() {
   const reduceMotion = useReducedMotion();
+  const authStatus = useAuthStore((s) => s.status);
+  const entryComplete = useEntryStore((s) => s.entryComplete);
   const [eligible, setEligible] = useState(false);
   const [step, setStep] = useState(0);
   const done = step >= 5;
 
   useEffect(() => {
+    if (authStatus === "signed_in" || entryComplete) {
+      setEligible(false);
+      return;
+    }
     setEligible(isTelegramWebApp() && !readDone());
-  }, []);
+  }, [authStatus, entryComplete]);
 
   const advance = useCallback(() => setStep((s) => Math.min(s + 1, 5)), []);
   const finalize = useCallback(() => {

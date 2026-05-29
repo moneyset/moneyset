@@ -15,7 +15,8 @@ import { useAuthStore } from "@/store/auth-store";
 import { useShallow } from "zustand/react/shallow";
 import { authModalPolicyNote } from "@/lib/i18n/trust-surface";
 import { useTelegramAuth } from "@/hooks/use-telegram-auth";
-import { openInExternalBrowser } from "@/lib/auth/telegram-client";
+import { TelegramLoginWidget } from "@/components/auth/telegram-login-widget";
+import { openInExternalBrowser, openTelegramMiniApp } from "@/lib/auth/telegram-client";
 
 type AuthModalProps = {
   open: boolean;
@@ -52,8 +53,8 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   const locale = useUiPrefsStore((s) => s.uiLocale);
   const auth = useAuthStore(useShallow((s) => ({ status: s.status, user: s.user })));
   const sb = useMemo(() => supabaseBrowser(), []);
-  const { signInWithTelegram, busy: telegramBusy, hasInitData } = useTelegramAuth();
-  const inTelegram = typeof window !== "undefined" && Boolean(window.Telegram?.WebApp);
+  const { signInWithTelegram, busy: telegramBusy, hasInitData, error: telegramError } = useTelegramAuth();
+  const inTelegram = hasInitData;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -74,9 +75,14 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
       if (ok) onClose();
       return;
     }
-    // Outside Telegram — open the Mini App link
-    const bot = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME?.trim();
-    window.open(bot ? `https://t.me/${bot}` : "https://t.me", "_blank", "noopener,noreferrer");
+    openTelegramMiniApp();
+    setNote(
+      pickLocale(
+        locale,
+        "Telegram opened — tap Start, then Open MONEYSET. Sign-in completes automatically inside the app.",
+        "Telegram открыт — нажмите Start, затем «Открыть MONEYSET». Вход выполняется автоматически.",
+      ),
+    );
   };
 
   const doOAuth = async () => {
@@ -238,6 +244,19 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
               </StatusPill>
             </Button>
 
+            {!inTelegram ? (
+              <div className="rounded-ms-xl border border-ms-border/50 bg-ms-elevated/10 px-4 py-3">
+                <p className="mb-2 text-[11px] leading-relaxed text-ms-muted">
+                  {pickLocale(
+                    locale,
+                    "Or sign in here with Telegram (one tap, no app switch):",
+                    "Или войдите здесь через Telegram (один тап, без переключения):",
+                  )}
+                </p>
+                <TelegramLoginWidget nextPath="/" className="flex justify-center" />
+              </div>
+            ) : null}
+
             {/* ── Secondary: Google ── */}
             <Button
               type="button"
@@ -356,9 +375,9 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
           </div>
         )}
 
-        {note ? (
+        {note || telegramError ? (
           <div className="rounded-ms-lg border border-ms-border bg-ms-elevated/20 px-3 py-2 text-[12px] text-ms-muted">
-            {note}
+            {note ?? telegramError}
           </div>
         ) : null}
       </div>

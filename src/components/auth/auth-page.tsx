@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { useTelegramAuth } from "@/hooks/use-telegram-auth";
-import { openInExternalBrowser } from "@/lib/auth/telegram-client";
+import { TelegramLoginWidget } from "@/components/auth/telegram-login-widget";
+import { openInExternalBrowser, openTelegramMiniApp } from "@/lib/auth/telegram-client";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { supabaseBrowser, authCallbackUrl } from "@/lib/supabase/browser";
 import { useAuthStore } from "@/store/auth-store";
@@ -19,8 +20,9 @@ export function AuthPage() {
   const { signInWithTelegram, busy: telegramBusy, error: telegramError, hasInitData } = useTelegramAuth();
   const [googleBusy, setGoogleBusy] = useState(false);
   const [oauthError, setOauthError] = useState<string | null>(null);
+  const [telegramHint, setTelegramHint] = useState<string | null>(null);
   const sb = useMemo(() => (typeof window !== "undefined" ? supabaseBrowser() : null), []);
-  const inTelegram = typeof window !== "undefined" && Boolean(window.Telegram?.WebApp);
+  const inTelegram = hasInitData;
 
   useEffect(() => {
     const err = new URLSearchParams(window.location.search).get("error");
@@ -39,8 +41,14 @@ export function AuthPage() {
       await signInWithTelegram();
       return;
     }
-    const bot = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME?.trim();
-    window.open(bot ? `https://t.me/${bot}` : "https://t.me", "_blank", "noopener,noreferrer");
+    openTelegramMiniApp();
+    setTelegramHint(
+      pickLocale(
+        locale,
+        "Telegram opened — tap Start, then Open MONEYSET. You return here signed in automatically.",
+        "Telegram открыт — нажмите Start, затем «Открыть MONEYSET». Вход выполняется автоматически.",
+      ),
+    );
   };
 
   const handleGoogle = async () => {
@@ -98,6 +106,13 @@ export function AuthPage() {
             </span>
           </button>
 
+          {!inTelegram ? (
+            <div className="ms-auth-page__note">
+              <p>{pickLocale(locale, "One-tap sign-in (browser)", "Вход одним тапом (браузер)")}</p>
+              <TelegramLoginWidget nextPath="/" />
+            </div>
+          ) : null}
+
           {/* Secondary: Google */}
           <button
             type="button"
@@ -124,6 +139,7 @@ export function AuthPage() {
         {telegramError || oauthError ? (
           <p className="ms-auth-page__error">{telegramError ?? oauthError}</p>
         ) : null}
+        {telegramHint ? <p className="ms-auth-page__note">{telegramHint}</p> : null}
 
         {/* Separator */}
         <div className="ms-auth-page__divider">

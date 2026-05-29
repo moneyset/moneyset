@@ -4,7 +4,7 @@ import { AnimatePresence, m } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 
 import { useTelegramAuth } from "@/hooks/use-telegram-auth";
-import { openInExternalBrowser } from "@/lib/auth/telegram-client";
+import { openInExternalBrowser, openTelegramMiniApp } from "@/lib/auth/telegram-client";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { msEase, msTransition } from "@/lib/theme/motion";
 import { cn } from "@/lib/utils";
@@ -15,10 +15,6 @@ import { useEntryStore } from "@/store/entry-store";
 import { useUiPrefsStore, type UiLocale } from "@/store/ui-prefs-store";
 
 const TOTAL = 5;
-
-function isTelegramWebApp(): boolean {
-  return typeof window !== "undefined" && Boolean(window.Telegram?.WebApp);
-}
 
 /* ─── Screen 1 — Identity ───────────────────────────────────────────────── */
 function Screen1({ locale }: { locale: UiLocale }) {
@@ -229,12 +225,13 @@ export function MoneysetEntryOnboarding() {
   const setGuest = useAuthStore((s) => s.setGuest);
   const openCheckout = useCheckoutModalStore((s) => s.openCheckout);
   const { signInWithTelegram, busy: telegramBusy, hasInitData } = useTelegramAuth();
-  const inTelegram = isTelegramWebApp();
+  const inTelegram = hasInitData;
   const sb = useMemo(() => (typeof window !== "undefined" ? supabaseBrowser() : null), []);
 
   useEffect(() => setMounted(true), []);
 
   if (!mounted || entryComplete) return null;
+  if (inTelegram && hasInitData) return null;
 
   const busy = telegramBusy || googleBusy;
 
@@ -254,8 +251,7 @@ export function MoneysetEntryOnboarding() {
       await signInWithTelegram();
       return;
     }
-    const bot = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME?.trim();
-    window.open(bot ? `https://t.me/${bot}` : "https://t.me", "_blank", "noopener,noreferrer");
+    openTelegramMiniApp();
   };
 
   const continueWithGoogle = async () => {

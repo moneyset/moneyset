@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { isTelegramIntegrationEnabled, telegramDisabledResponse } from "@/lib/ops/feature-flags";
 import { logOpsEvent } from "@/lib/ops/operational-events";
+import { publicSiteUrl } from "@/lib/services/shared/env";
 import { tgLinkChat, tgGetLatestState, tgGetChat, tgSetChatPrefs, tgDefaultLocaleForChat } from "@/services/telegram/memory";
 import { tgSendMessage } from "@/services/telegram/bot-api";
 import {
@@ -83,11 +84,25 @@ export async function POST(req: Request) {
         }
         return NextResponse.json({ ok: true });
       }
-      await reply(
-        locale === "ru"
-          ? "<b>MONEYSET</b>\nКоманды: /posture /danger /scenario /consensus /regime /summary\nСвязка: /link CODE"
-          : "<b>MONEYSET</b>\nCommands: /posture /danger /scenario /consensus /regime /summary\nLink: /link CODE",
-      );
+      await tgSendMessage({
+        chat_id: chatId,
+        text:
+          locale === "ru"
+            ? "<b>MONEYSET</b>\nОткройте приложение — вход через Telegram выполняется автоматически.\n\nКоманды: /posture /danger /scenario /consensus /regime /summary\nСвязка: /link CODE"
+            : "<b>MONEYSET</b>\nOpen the app — Telegram sign-in runs automatically.\n\nCommands: /posture /danger /scenario /consensus /regime /summary\nLink: /link CODE",
+        parse_mode: "HTML",
+        disable_web_page_preview: true,
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: locale === "ru" ? "Открыть MONEYSET" : "Open MONEYSET",
+                web_app: { url: publicSiteUrl() },
+              },
+            ],
+          ],
+        },
+      });
       return NextResponse.json({ ok: true });
     }
 
