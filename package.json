@@ -12,7 +12,8 @@
     "verify:deploy": "node scripts/verify-deployment.mjs",
     "verify:sections": "node scripts/verify-sections.mjs",
     "verify:placeholders": "node scripts/verify-placeholders.mjs",
-    "apply:schema": "node scripts/apply-core-schema.mjs"
+    "apply:schema": "node scripts/apply-core-schema.mjs",
+    "verify:schema": "node scripts/verify-schema.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",

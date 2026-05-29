@@ -9,7 +9,7 @@
  *   SUPABASE_ACCESS_TOKEN="sbp_..." NEXT_PUBLIC_SUPABASE_URL="https://<ref>.supabase.co" node scripts/apply-core-schema.mjs
  *
  * Option C — Supabase Dashboard → SQL Editor → paste:
- *   supabase/migrations/20260528_bootstrap_core_schema.sql
+ *   supabase/migrations/20260529_production_schema_complete.sql
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -44,7 +44,7 @@ function projectRefFromUrl(raw) {
 
 loadDotEnvLocal();
 
-const sqlPath = join(process.cwd(), "supabase/migrations/20260528_bootstrap_core_schema.sql");
+const sqlPath = join(process.cwd(), "supabase/migrations/20260529_production_schema_complete.sql");
 const sql = readFileSync(sqlPath, "utf8");
 
 const dbUrl = process.env.DATABASE_URL?.trim() || process.env.SUPABASE_DB_URL?.trim();
@@ -101,6 +101,6 @@ if (dbUrl) {
   // done
 } else {
   console.error("Missing DATABASE_URL/SUPABASE_DB_URL or SUPABASE_ACCESS_TOKEN + project ref.");
-  console.error("Run supabase/migrations/20260528_bootstrap_core_schema.sql in Supabase SQL Editor instead.");
+  console.error("Run supabase/migrations/20260529_production_schema_complete.sql in Supabase SQL Editor instead.");
   process.exit(1);
 }
