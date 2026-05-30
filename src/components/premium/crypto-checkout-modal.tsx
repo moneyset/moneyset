@@ -7,7 +7,7 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/ui/status-pill";
 import { billingProduct } from "@/lib/billing/catalog";
-import { authHeadersForUser } from "@/lib/access/request-user";
+import { hasClientAuthToken, resolveClientAuthHeaders } from "@/lib/access/client-auth-headers";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { useAccessStore } from "@/store/access-store";
 import { useAuthModalStore } from "@/store/auth-modal-store";
@@ -31,7 +31,6 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
   const productId = useCheckoutModalStore((s) => s.productId);
   const product = billingProduct(productId);
   const user = useAuthStore((s) => s.user);
-  const session = useAuthStore((s) => s.session);
   const authStatus = useAuthStore((s) => s.status);
   const openAuth = useAuthModalStore((s) => s.openAuth);
   const setProfile = useAccessStore((s) => s.setProfile);
@@ -42,7 +41,9 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
   const setTierActive = useSubscriptionStore((s) => s.setTierActive);
 
   const currency = "USDT" as const;
+  const authReady = authStatus !== "unknown";
   const signedIn = authStatus === "signed_in" && Boolean(user?.id);
+  const canPoll = authReady && signedIn;
   const [busy, setBusy] = useState(false);
   const [invoice, setInvoice] = useState<CreateInvoiceResult | null>(null);
   const [poll, setPoll] = useState<InvoiceStatusResult | null>(null);
@@ -75,12 +76,27 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
   const check = useCallback(async (opts?: { invoiceId?: string }) => {
     const pollInvoiceId = opts?.invoiceId ?? invoiceId;
     if (!pollInvoiceId) return;
+
+    if (!authReady) return;
+
+    if (!signedIn || !(await hasClientAuthToken())) {
+      setNote(
+        pickLocale(
+          locale,
+          "Sign in to check payment status.",
+          "Войдите, чтобы проверить статус оплаты.",
+        ),
+      );
+      return;
+    }
+
     setBusy(true);
     setNote(null);
     try {
+      const authHeaders = await resolveClientAuthHeaders();
       const qs = new URLSearchParams({ invoiceId: pollInvoiceId });
       const res = await fetch(`/api/billing/status?${qs.toString()}`, {
-        headers: authHeadersForUser(user?.id ?? null, session?.access_token ?? null),
+        headers: authHeaders,
         cache: "no-store",
       });
       const json = (await res.json()) as InvoiceStatusResult;
@@ -93,7 +109,7 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
         });
         // Refresh authoritative server-side profile
         const me = await fetch("/api/access/me", {
-          headers: authHeadersForUser(user?.id ?? null, session?.access_token ?? null),
+          headers: authHeaders,
           cache: "no-store",
         });
         const profileJson = (await me.json()) as {
@@ -110,7 +126,20 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
           ),
         );
       }
-      if (!json.ok) setNote("error" in json ? json.error : null);
+      if (!json.ok) {
+        const err = "error" in json ? json.error : null;
+        if (res.status === 401) {
+          setNote(
+            pickLocale(
+              locale,
+              "Sign in to check payment status.",
+              "Войдите, чтобы проверить статус оплаты.",
+            ),
+          );
+        } else {
+          setNote(err);
+        }
+      }
     } catch {
       setNote(
         pickLocale(locale, "Could not verify payment. Try again.", "Не удалось проверить оплату."),
@@ -118,7 +147,17 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
     } finally {
       setBusy(false);
     }
-  }, [invoiceId, user?.id, session?.access_token, productId, product?.subscriptionDays, locale, setProfile, setTierActive, clearPendingInvoice]);
+  }, [
+    invoiceId,
+    authReady,
+    signedIn,
+    productId,
+    product?.subscriptionDays,
+    locale,
+    setProfile,
+    setTierActive,
+    clearPendingInvoice,
+  ]);
 
   const create = async () => {
     if (!signedIn) {
@@ -129,11 +168,12 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
     setNote(null);
     setBusy(true);
     try {
+      const authHeaders = await resolveClientAuthHeaders();
       const res = await fetch("/api/billing/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...authHeadersForUser(user?.id ?? null, session?.access_token ?? null),
+          ...authHeaders,
         },
         body: JSON.stringify({ productId, payCurrency: currency }),
       });
@@ -160,10 +200,10 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
 
   const paid = poll?.ok && poll.status === "paid";
 
-  // Auto-poll every 12 s for up to 30 minutes while the modal is open
-  // and an invoice is active. Stops immediately when paid.
+  // Auto-poll every 12 s for up to 30 minutes while the modal is open,
+  // an invoice is active, and the user is authenticated. Stops when paid.
   useEffect(() => {
-    if (!open || !invoiceId) return;
+    if (!open || !invoiceId || !canPoll) return;
     if (paid) return;
 
     pollTicksRef.current = 0;
@@ -186,7 +226,7 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
     }, POLL_INTERVAL_MS);
 
     return () => window.clearInterval(id);
-  }, [open, invoiceId, paid, check, locale]);
+  }, [open, invoiceId, paid, canPoll, check, locale]);
 
   const confirming = poll?.ok && (poll.status === "confirming" || poll.status === "unpaid");
   const hasInvoice = Boolean(invoiceId);
@@ -297,11 +337,17 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
               {/* Resume notice */}
               {isResumedInvoice && (
                 <div className="rounded-ms-lg border border-ms-border/60 bg-ms-elevated/15 px-3 py-2 text-[11px] text-ms-muted">
-                  {pickLocale(
-                    locale,
-                    "Resuming previous payment session — checking your transaction status.",
-                    "Возобновляем предыдущую оплату — проверяем статус транзакции.",
-                  )}
+                  {canPoll
+                    ? pickLocale(
+                        locale,
+                        "Resuming previous payment session — checking your transaction status.",
+                        "Возобновляем предыдущую оплату — проверяем статус транзакции.",
+                      )
+                    : pickLocale(
+                        locale,
+                        "Resuming previous payment session — sign in to check status.",
+                        "Возобновляем предыдущую оплату — войдите, чтобы проверить статус.",
+                      )}
                 </div>
               )}
 
@@ -329,34 +375,57 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
               )}
 
               {/* Poll status */}
-              <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="flex-1"
-                  disabled={busy}
-                  onClick={() => void check()}
-                >
-                  {busy
-                    ? pickLocale(locale, "Checking…", "Проверяем…")
-                    : pickLocale(locale, "Check payment status", "Проверить статус")}
-                </Button>
-                {poll?.ok && (
-                  <StatusPill accent={paid ? "warning" : "neutral"}>
-                    {paid
-                      ? pickLocale(locale, "Paid", "Оплачено")
-                      : poll.status === "confirming"
-                        ? pickLocale(locale, "Confirming", "Подтверждается")
-                        : poll.status === "expired"
-                          ? pickLocale(locale, "Expired", "Истёк")
-                          : pickLocale(locale, "Awaiting", "Ожидание")}
-                  </StatusPill>
-                )}
-              </div>
+              {!canPoll ? (
+                <div className="rounded-ms-lg border border-ms-border/60 bg-ms-elevated/15 px-3 py-3 text-center text-[12px] text-ms-muted">
+                  <p>
+                    {authReady
+                      ? pickLocale(
+                          locale,
+                          "Sign in to check payment status for this invoice.",
+                          "Войдите, чтобы проверить статус оплаты по этому счёту.",
+                        )
+                      : pickLocale(locale, "Loading session…", "Загружаем сессию…")}
+                  </p>
+                  {authReady && !signedIn && (
+                    <button
+                      type="button"
+                      onClick={openAuth}
+                      className="mt-2 text-ms-cognition/80 hover:text-ms-cognition"
+                    >
+                      {pickLocale(locale, "Sign in →", "Войти →")}
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    disabled={busy}
+                    onClick={() => void check()}
+                  >
+                    {busy
+                      ? pickLocale(locale, "Checking…", "Проверяем…")
+                      : pickLocale(locale, "Check payment status", "Проверить статус")}
+                  </Button>
+                  {poll?.ok && (
+                    <StatusPill accent={paid ? "warning" : "neutral"}>
+                      {paid
+                        ? pickLocale(locale, "Paid", "Оплачено")
+                        : poll.status === "confirming"
+                          ? pickLocale(locale, "Confirming", "Подтверждается")
+                          : poll.status === "expired"
+                            ? pickLocale(locale, "Expired", "Истёк")
+                            : pickLocale(locale, "Awaiting", "Ожидание")}
+                    </StatusPill>
+                  )}
+                </div>
+              )}
 
               {/* Waiting hint */}
-              {hasInvoice && !paid && (
+              {hasInvoice && !paid && canPoll && (
                 <p className="text-[11px] leading-relaxed text-ms-faint">
                   {pickLocale(
                     locale,
