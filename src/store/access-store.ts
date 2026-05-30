@@ -6,6 +6,7 @@ import { persist } from "zustand/middleware";
 import {
   guestProfile,
   hasExtendedAccess,
+  normalizeProfileAccess,
   type ProfileAccess,
   type UserRole,
 } from "@/lib/access/roles";
@@ -46,18 +47,14 @@ export const useAccessStore = create<AccessState>()(
 
       setProfile: (profile) =>
         set({
-          profile,
+          profile: normalizeProfileAccess(profile),
           serverConfirmed: true,
           syncStatus: "confirmed",
         }),
 
       setSyncLoading: () => set({ syncStatus: "loading" }),
 
-      setSyncError: () =>
-        set((s) => ({
-          syncStatus: "error",
-          serverConfirmed: s.serverConfirmed || hasExtendedAccess(s.profile),
-        })),
+      setSyncError: () => set({ syncStatus: "error" }),
 
       registerProfileSyncRetry: (fn) => set({ retryProfileSync: fn }),
 
@@ -93,6 +90,15 @@ export const useAccessStore = create<AccessState>()(
         // serverConfirmed intentionally excluded: must re-confirm from server each load.
       }),
       skipHydration: true,
+      merge: (persisted, current) => {
+        const cached = normalizeProfileAccess(
+          (persisted as { profile?: unknown } | undefined)?.profile,
+        );
+        if (current.serverConfirmed) {
+          return { ...current, profile: current.profile };
+        }
+        return { ...current, profile: cached };
+      },
     },
   ),
 );

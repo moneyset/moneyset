@@ -97,6 +97,21 @@ export function guestProfile(): ProfileAccess {
   return defaultProfile;
 }
 
+/** Coerce persisted or partial client profile rows into a safe ProfileAccess shape. */
+export function normalizeProfileAccess(raw: unknown): ProfileAccess {
+  if (!raw || typeof raw !== "object") return guestProfile();
+  const p = raw as Partial<ProfileAccess>;
+  return roleFromProfile({
+    role: p.role,
+    access_tier: p.accessTier,
+    access_level: p.accessLevel,
+    subscription_status: p.subscriptionStatus,
+    founding_access: p.foundingAccess,
+    premium_until: p.premiumUntil,
+    invitation_until: p.invitationUntil,
+  });
+}
+
 export function hasExtendedAccess(profile: ProfileAccess): boolean {
   if (profile.role === "admin" || profile.accessLevel === "admin") return true;
   if (profile.role === "beta") return true;

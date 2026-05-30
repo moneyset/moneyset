@@ -17,7 +17,6 @@ import {
   X,
 } from "lucide-react";
 import { createPortal } from "react-dom";
-import { useShallow } from "zustand/react/shallow";
 
 import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/ui/status-pill";
@@ -26,6 +25,7 @@ import {
   accessPlanLabel,
   formatAccountDate,
   formatAccountDateTime,
+  formatPaymentAmount,
   FOUNDER_INCLUDED_SYSTEMS,
   maskAccountEmail,
   paymentStatusLabel,
@@ -105,23 +105,19 @@ function InfoRow({ label, value, hint }: { label: string; value: string; hint?: 
 
 function TelegramConnectionBlock() {
   const locale = useUiPrefsStore((s) => s.uiLocale);
-  const tg = useTelegramStore(
-    useShallow((s) => ({
-      status: s.status,
-      linkCode: s.linkCode,
-      setPending: s.setPending,
-      reset: s.reset,
-    })),
-  );
+  const tgStatus = useTelegramStore((s) => s.status);
+  const tgLinkCode = useTelegramStore((s) => s.linkCode);
+  const setPending = useTelegramStore((s) => s.setPending);
+  const resetTg = useTelegramStore((s) => s.reset);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
     const poll = async () => {
-      if (tg.status !== "pending" || !tg.linkCode) return;
+      if (tgStatus !== "pending" || !tgLinkCode) return;
       try {
-        const res = await fetch(`/api/telegram/link-status?code=${encodeURIComponent(tg.linkCode)}`, { cache: "no-store" });
+        const res = await fetch(`/api/telegram/link-status?code=${encodeURIComponent(tgLinkCode)}`, { cache: "no-store" });
         const json = (await res.json()) as Record<string, unknown>;
         if (!alive) return;
         if (json.ok && json.status === "linked" && json.chatId) {
@@ -138,7 +134,7 @@ function TelegramConnectionBlock() {
       alive = false;
       window.clearInterval(id);
     };
-  }, [tg.status, tg.linkCode, locale]);
+  }, [tgStatus, tgLinkCode, locale]);
 
   const startLink = async () => {
     setBusy(true);
@@ -147,7 +143,7 @@ function TelegramConnectionBlock() {
       const res = await fetch("/api/telegram/link-code", { method: "POST" });
       const json = (await res.json()) as { ok: boolean; code?: string };
       if (!json.ok || !json.code) throw new Error("Link error");
-      tg.setPending(json.code);
+      setPending(json.code);
     } catch (e) {
       setNote(e instanceof Error ? e.message : "Telegram link error");
     } finally {
@@ -156,7 +152,7 @@ function TelegramConnectionBlock() {
   };
 
   const botUsername = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME?.trim();
-  const deeplink = botUsername && tg.linkCode ? `https://t.me/${botUsername}?start=${tg.linkCode}` : null;
+  const deeplink = botUsername && tgLinkCode ? `https://t.me/${botUsername}?start=${tgLinkCode}` : null;
 
   return (
     <div className="ms-profile-center__panel">
@@ -177,10 +173,10 @@ function TelegramConnectionBlock() {
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <StatusPill accent={tg.status === "linked" ? "warning" : "neutral"}>
-          {tg.status === "linked"
+        <StatusPill accent={tgStatus === "linked" ? "warning" : "neutral"}>
+          {tgStatus === "linked"
             ? pickLocale(locale, "Connected", "Подключён")
-            : tg.status === "pending"
+            : tgStatus === "pending"
               ? pickLocale(locale, "Awaiting link", "Ожидание")
               : pickLocale(locale, "Not connected", "Не подключён")}
         </StatusPill>
@@ -191,17 +187,17 @@ function TelegramConnectionBlock() {
           <Link2 className="size-3.5" strokeWidth={1.5} />
           {pickLocale(locale, "Connect Telegram", "Подключить Telegram")}
         </Button>
-        {tg.status !== "unlinked" ? (
-          <Button type="button" variant="ghost" size="sm" className="flex-1" onClick={tg.reset} disabled={busy}>
+        {tgStatus !== "unlinked" ? (
+          <Button type="button" variant="ghost" size="sm" className="flex-1" onClick={resetTg} disabled={busy}>
             {pickLocale(locale, "Reset link", "Сбросить")}
           </Button>
         ) : null}
       </div>
 
-      {tg.linkCode ? (
+      {tgLinkCode ? (
         <div className="mt-4 space-y-2 rounded-ms-lg border border-ms-border/25 bg-ms-surface/25 p-3">
           <p className="ms-data-label text-ms-faint">{pickLocale(locale, "Link code", "Код связки")}</p>
-          <p className="font-mono text-[12px] text-ms-text">{tg.linkCode}</p>
+          <p className="font-mono text-[12px] text-ms-text">{tgLinkCode}</p>
           <p className="text-[11px] leading-relaxed text-ms-muted">
             {pickLocale(locale, "Send /link CODE to the bot, or open the link below.", "Отправьте /link CODE боту или откройте ссылку.")}
           </p>
@@ -259,7 +255,7 @@ function PaymentHistoryBlock() {
                 </div>
                 <div className="shrink-0 text-end">
                   <p className="font-mono text-[12px] tabular-nums text-ms-text">
-                    ${p.amount.toFixed(0)} {p.currency}
+                    ${formatPaymentAmount(p.amount)} {p.currency}
                   </p>
                   <StatusPill accent={p.status === "paid" ? "warning" : "neutral"} className="mt-1 text-[8px]">
                     {paymentStatusLabel(locale, p.status as PaymentStatus)}
@@ -280,7 +276,8 @@ export function ProfileCenterModal({ open, onClose, initialSection = "overview" 
   const setSection = useProfileCenterStore((s) => s.setSection);
   const profile = useAccessStore((s) => s.profile);
   const serverConfirmed = useAccessStore((s) => s.serverConfirmed);
-  const auth = useAuthStore(useShallow((s) => ({ status: s.status, user: s.user })));
+  const authStatus = useAuthStore((s) => s.status);
+  const authUser = useAuthStore((s) => s.user);
   const openCheckout = useCheckoutModalStore((s) => s.openCheckout);
   const tgStatus = useTelegramStore((s) => s.status);
   const sb = useMemo(() => supabaseBrowser(), []);
@@ -311,12 +308,12 @@ export function ProfileCenterModal({ open, onClose, initialSection = "overview" 
     };
   }, [open]);
 
-  const signedIn = auth.status === "signed_in" && Boolean(auth.user?.id);
+  const signedIn = authStatus === "signed_in" && Boolean(authUser?.id);
   const isFounder = serverConfirmed && hasFounderAccess(profile);
   const isPremium = serverConfirmed && hasFullPlatformAccess(profile);
-  const email = auth.user?.email ?? null;
-  const telegramUsername = auth.user?.user_metadata?.telegram_username
-    ? `@${String(auth.user.user_metadata.telegram_username)}`
+  const email = authUser?.email ?? null;
+  const telegramUsername = authUser?.user_metadata?.telegram_username
+    ? `@${String(authUser.user_metadata.telegram_username)}`
     : null;
 
   const handleSignOut = async () => {

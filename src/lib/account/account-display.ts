@@ -7,6 +7,11 @@ import type { PaymentStatus } from "@/lib/billing/payment-record";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import type { UiLocale } from "@/store/ui-prefs-store";
 
+export function formatPaymentAmount(amount: number | null | undefined): string {
+  const value = typeof amount === "number" && Number.isFinite(amount) ? amount : 0;
+  return value.toFixed(0);
+}
+
 export function formatAccountDate(value: number | string | null | undefined): string {
   if (!value) return "—";
   const d = new Date(typeof value === "number" ? value : value);
@@ -78,7 +83,7 @@ export function accessPlanDetail(locale: UiLocale, profile: ProfileAccess): stri
   );
 }
 
-export function subscriptionStatusLabel(locale: UiLocale, status: SubscriptionStatus): string {
+export function subscriptionStatusLabel(locale: UiLocale, status: SubscriptionStatus | string | null | undefined): string {
   const map: Record<SubscriptionStatus, { en: string; ru: string }> = {
     inactive: { en: "Inactive", ru: "Неактивна" },
     trial: { en: "Trial", ru: "Пробный период" },
@@ -88,11 +93,12 @@ export function subscriptionStatusLabel(locale: UiLocale, status: SubscriptionSt
     expired: { en: "Expired", ru: "Истекла" },
     canceled: { en: "Canceled", ru: "Отменена" },
   };
-  const entry = map[status];
+  const key = status && status in map ? (status as SubscriptionStatus) : "inactive";
+  const entry = map[key];
   return locale === "ru" ? entry.ru : entry.en;
 }
 
-export function paymentStatusLabel(locale: UiLocale, status: PaymentStatus): string {
+export function paymentStatusLabel(locale: UiLocale, status: PaymentStatus | string | null | undefined): string {
   const map: Record<PaymentStatus, { en: string; ru: string }> = {
     pending: { en: "Pending", ru: "Ожидание" },
     confirming: { en: "Confirming", ru: "Подтверждение" },
@@ -100,7 +106,8 @@ export function paymentStatusLabel(locale: UiLocale, status: PaymentStatus): str
     expired: { en: "Expired", ru: "Истекло" },
     failed: { en: "Failed", ru: "Ошибка" },
   };
-  const entry = map[status];
+  const key = status && status in map ? (status as PaymentStatus) : "pending";
+  const entry = map[key];
   return locale === "ru" ? entry.ru : entry.en;
 }
 
