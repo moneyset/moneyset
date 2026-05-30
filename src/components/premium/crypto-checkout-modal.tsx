@@ -243,6 +243,7 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
     <Modal
       open={open}
       onClose={() => onClose()}
+      variant="premium"
       title={pickLocale(locale, "Founding Access", "Founding Access")}
       description={pickLocale(
         locale,
@@ -250,9 +251,9 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
         "Пожизненная глубина интеллекта — слой исполнения, структурные зоны и полный доступ к платформе.",
       )}
     >
-      <div className="space-y-4">
+      <div className="ms-checkout-modal ms-checkout-modal--premium">
         {/* Order summary */}
-        <div className="rounded-ms-xl border border-ms-border bg-ms-surface/35 p-4">
+        <div className="ms-checkout-modal__summary">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="ms-data-label text-ms-faint">
@@ -270,7 +271,7 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
               )}
             </div>
             <div className="text-right">
-              <p className="font-mono text-[20px] font-semibold tabular-nums text-ms-text">
+              <p className="ms-checkout-modal__price font-mono tabular-nums text-ms-text">
                 ${product?.priceUsd ?? "—"}
               </p>
               <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-ms-faint">
@@ -294,7 +295,7 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
         </div>
 
         {/* Action zone */}
-        <div className="rounded-ms-xl border border-ms-border bg-ms-elevated/20 p-4">
+        <div className="ms-checkout-modal__action">
           {!hasInvoice ? (
             <>
               <p className="mb-3 text-[12px] leading-relaxed text-ms-muted">
@@ -448,13 +449,13 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
         </div>
 
         {/* Trust note */}
-        <div className="flex items-start gap-2 px-1">
+        <div className="ms-checkout-modal__trust">
           <Shield
-            className="mt-0.5 size-3.5 flex-shrink-0 text-ms-warning/60"
+            className="mt-0.5 size-3.5 flex-shrink-0 text-ms-warning/70"
             strokeWidth={1.5}
             aria-hidden
           />
-          <p className="text-[11px] leading-snug text-ms-faint">
+          <p>
             {pickLocale(
               locale,
               "Access activates automatically once your payment is confirmed.",

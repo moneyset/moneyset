@@ -14,11 +14,22 @@ type ModalProps = {
   title: string;
   description?: string;
   children?: React.ReactNode;
+  variant?: "default" | "premium";
+  wordmark?: string;
 };
 
-export function Modal({ open, onClose, title, description, children }: ModalProps) {
+export function Modal({
+  open,
+  onClose,
+  title,
+  description,
+  children,
+  variant = "default",
+  wordmark = "MONEYSET",
+}: ModalProps) {
   const titleId = useId();
   const [mounted, setMounted] = useState(false);
+  const premium = variant === "premium";
 
   useEffect(() => {
     setMounted(true);
@@ -48,7 +59,10 @@ export function Modal({ open, onClose, title, description, children }: ModalProp
     <AnimatePresence>
       {open ? (
         <m.div
-          className="ms-modal-overlay fixed inset-0 z-[var(--ms-z-modal,100)] flex items-end justify-center p-4 sm:items-center"
+          className={cn(
+            "ms-modal-overlay fixed inset-0 z-[var(--ms-z-modal,100)] flex items-end justify-center p-4 sm:items-center",
+            premium && "ms-modal-overlay--premium",
+          )}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -56,7 +70,10 @@ export function Modal({ open, onClose, title, description, children }: ModalProp
         >
           <button
             type="button"
-            className="absolute inset-0 bg-ms-overlay backdrop-blur-md"
+            className={cn(
+              "absolute inset-0 bg-ms-overlay backdrop-blur-md",
+              premium && "backdrop-blur-[14px] saturate-[1.15]",
+            )}
             aria-label="Close dialog"
             onClick={onClose}
           />
@@ -70,26 +87,52 @@ export function Modal({ open, onClose, title, description, children }: ModalProp
             transition={msTransition.medium}
             className={cn(
               "ms-modal-panel relative z-[1] w-full max-w-lg overflow-hidden rounded-ms-2xl border border-ms-border-strong",
-              "bg-ms-surface shadow-ms-float",
+              premium
+                ? "ms-modal-panel--premium bg-transparent shadow-none"
+                : "bg-ms-surface shadow-ms-float",
             )}
           >
-            <div className="flex items-start justify-between gap-4 border-b border-ms-border px-6 py-5">
+            <div
+              className={cn(
+                "flex items-start justify-between gap-4 border-b border-ms-border",
+                premium ? "ms-modal-header--premium px-0 py-0" : "px-6 py-5",
+              )}
+            >
               <div className="min-w-0 space-y-1">
-                <h2 id={titleId} className="ms-headline text-ms-text">
+                {premium ? <p className="ms-modal-wordmark">{wordmark}</p> : null}
+                <h2
+                  id={titleId}
+                  className={cn(premium ? "ms-modal-title--premium" : "ms-headline text-ms-text")}
+                >
                   {title}
                 </h2>
-                {description ? <p className="ms-intelligence-summary text-sm">{description}</p> : null}
+                {description ? (
+                  <p
+                    className={cn(
+                      premium ? "ms-modal-desc--premium" : "ms-intelligence-summary text-sm",
+                    )}
+                  >
+                    {description}
+                  </p>
+                ) : null}
               </div>
               <button
                 type="button"
                 onClick={onClose}
-                className="ms-focus-ring flex size-9 shrink-0 items-center justify-center rounded-ms-md border border-ms-border text-ms-muted transition-colors hover:border-ms-border-mid hover:text-ms-text"
+                className={cn(
+                  "ms-focus-ring flex size-9 shrink-0 items-center justify-center rounded-ms-md border border-ms-border text-ms-muted transition-colors hover:border-ms-border-mid hover:text-ms-text",
+                  premium && "ms-modal-close--premium",
+                )}
                 aria-label="Close"
               >
                 <X className="size-4" strokeWidth={1.75} />
               </button>
             </div>
-            {children ? <div className="ms-modal-body px-6 py-5">{children}</div> : null}
+            {children ? (
+              <div className={cn(premium ? "ms-modal-body--premium" : "ms-modal-body px-6 py-5")}>
+                {children}
+              </div>
+            ) : null}
           </m.div>
         </m.div>
       ) : null}

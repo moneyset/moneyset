@@ -1,0 +1,573 @@
+/* ─── MONEYSET Premium Modals — Luxury Fintech Shell ───────────────────────
+   Glass depth, gold cognition accents, institutional hierarchy.
+   Scoped to customer-facing modals + onboarding — no layout changes.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Shared premium modal shell ─────────────────────────────────────────── */
+.ms-modal-panel--premium {
+  position: relative;
+  max-width: min(100%, 26rem);
+  border: 1px solid color-mix(in srgb, rgba(220, 224, 232, 0.22) 55%, var(--ms-border-strong));
+  background:
+    linear-gradient(
+      168deg,
+      color-mix(in srgb, rgba(255, 255, 255, 0.06) 100%, transparent) 0%,
+      color-mix(in srgb, var(--ms-surface) 92%, transparent) 38%,
+      color-mix(in srgb, var(--ms-canvas) 88%, transparent) 100%
+    );
+  backdrop-filter: blur(28px) saturate(1.35);
+  -webkit-backdrop-filter: blur(28px) saturate(1.35);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, rgba(255, 255, 255, 0.04) 100%, transparent),
+    0 2px 0 color-mix(in srgb, rgba(255, 255, 255, 0.03) 100%, transparent) inset,
+    0 -32px 80px color-mix(in srgb, #000 55%, transparent),
+    0 24px 64px color-mix(in srgb, #000 38%, transparent);
+  overflow: hidden;
+}
+
+.ms-modal-panel--premium::before {
+  pointer-events: none;
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 42%;
+  background: radial-gradient(
+    ellipse 90% 70% at 50% -20%,
+    color-mix(in srgb, var(--ms-cognition) 14%, transparent),
+    transparent 68%
+  );
+  opacity: 0.85;
+  z-index: 0;
+}
+
+.ms-modal-panel--premium::after {
+  pointer-events: none;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 1.25rem;
+  right: 1.25rem;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, rgba(255, 255, 255, 0.28) 100%, transparent) 50%,
+    transparent
+  );
+  z-index: 1;
+}
+
+.ms-modal-panel--premium .ms-modal-header--premium {
+  position: relative;
+  z-index: 2;
+  border-bottom: 1px solid color-mix(in srgb, var(--ms-border) 35%, transparent);
+  background: color-mix(in srgb, var(--ms-elevated) 8%, transparent);
+  padding: 1.35rem 1.35rem 1.15rem;
+}
+
+.ms-modal-panel--premium .ms-modal-body--premium {
+  position: relative;
+  z-index: 2;
+  padding: 1.15rem 1.35rem 1.35rem;
+}
+
+.ms-modal-panel--premium .ms-modal-wordmark {
+  margin: 0 0 0.65rem;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.38em;
+  padding-left: 0.38em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ms-text) 42%, transparent);
+}
+
+.ms-modal-panel--premium .ms-modal-title--premium {
+  margin: 0;
+  font-size: clamp(1.15rem, 4.2vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--ms-text);
+}
+
+.ms-modal-panel--premium .ms-modal-desc--premium {
+  margin: 0.5rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--ms-muted) 92%, var(--ms-text));
+  max-width: 28ch;
+}
+
+.ms-modal-panel--premium .ms-modal-close--premium {
+  border-color: color-mix(in srgb, var(--ms-border) 45%, transparent);
+  background: color-mix(in srgb, var(--ms-elevated) 18%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+/* ── Trust strip (auth / checkout) ──────────────────────────────────────── */
+.ms-premium-trust {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.75rem 0.875rem;
+  margin-bottom: 1rem;
+  border-radius: var(--ms-radius-lg, 0.5rem);
+  border: 1px solid color-mix(in srgb, var(--ms-cognition) 18%, var(--ms-border));
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--ms-cognition) 6%, transparent),
+    color-mix(in srgb, var(--ms-elevated) 14%, transparent)
+  );
+}
+
+.ms-premium-trust__icon {
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+  color: color-mix(in srgb, var(--ms-cognition) 75%, var(--ms-warning));
+}
+
+.ms-premium-trust__text {
+  margin: 0;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--ms-muted) 95%, var(--ms-text));
+}
+
+.ms-premium-trust__text strong {
+  display: block;
+  margin-bottom: 0.15rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ms-text) 78%, transparent);
+}
+
+/* ── Auth modal ─────────────────────────────────────────────────────────── */
+.ms-auth-modal--premium {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.ms-auth-modal--premium .ms-auth-modal__method-btn {
+  min-height: 3rem;
+  border-radius: var(--ms-radius-lg, 0.5rem);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  box-shadow: 0 1px 0 color-mix(in srgb, rgba(255, 255, 255, 0.04) 100%, transparent) inset;
+}
+
+.ms-auth-modal--premium .ms-auth-modal__method-btn[class*="cognition"] {
+  border: 1px solid color-mix(in srgb, var(--ms-cognition) 35%, var(--ms-border));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ms-cognition) 14%, transparent),
+    color-mix(in srgb, var(--ms-cognition) 6%, transparent)
+  );
+}
+
+.ms-auth-modal--premium .ms-auth-modal__widget-block {
+  padding: 1rem;
+  border-radius: var(--ms-radius-xl, 0.75rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 40%, transparent);
+  background: color-mix(in srgb, var(--ms-elevated) 16%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.ms-auth-modal--premium .ms-auth-modal__email-card {
+  border-radius: var(--ms-radius-xl, 0.75rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 38%, transparent);
+  background: color-mix(in srgb, var(--ms-elevated) 12%, transparent);
+  overflow: hidden;
+}
+
+.ms-auth-modal--premium .ms-auth-modal__email-toggle {
+  padding: 0.875rem 1rem;
+}
+
+.ms-auth-modal--premium .ms-auth-modal__input-wrap {
+  border-radius: var(--ms-radius-md, 0.375rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 50%, transparent);
+  background: color-mix(in srgb, var(--ms-canvas) 65%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.ms-auth-modal--premium .ms-auth-modal__signed-in {
+  padding: 1rem;
+  border-radius: var(--ms-radius-xl, 0.75rem);
+  border: 1px solid color-mix(in srgb, var(--ms-cognition) 22%, var(--ms-border));
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--ms-cognition) 5%, transparent),
+    color-mix(in srgb, var(--ms-surface) 40%, transparent)
+  );
+}
+
+.ms-auth-modal--premium .ms-auth-modal__hint {
+  padding: 0.75rem 0.875rem;
+  border-radius: var(--ms-radius-lg, 0.5rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 35%, transparent);
+  background: color-mix(in srgb, var(--ms-elevated) 14%, transparent);
+  font-size: 0.6875rem;
+  line-height: 1.55;
+}
+
+/* ── Profile center premium shell ───────────────────────────────────────── */
+.ms-profile-center--premium {
+  border: 1px solid color-mix(in srgb, rgba(220, 224, 232, 0.2) 50%, var(--ms-border-strong));
+  background:
+    linear-gradient(
+      175deg,
+      color-mix(in srgb, rgba(255, 255, 255, 0.05) 100%, transparent) 0%,
+      color-mix(in srgb, var(--ms-surface) 94%, transparent) 42%,
+      color-mix(in srgb, var(--ms-canvas) 90%, transparent) 100%
+    );
+  backdrop-filter: blur(32px) saturate(1.3);
+  -webkit-backdrop-filter: blur(32px) saturate(1.3);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, rgba(255, 255, 255, 0.03) 100%, transparent),
+    0 28px 80px color-mix(in srgb, #000 48%, transparent);
+}
+
+.ms-profile-center--premium::before {
+  pointer-events: none;
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 38%;
+  background: radial-gradient(
+    ellipse 85% 65% at 50% -15%,
+    color-mix(in srgb, var(--ms-cognition) 10%, transparent),
+    transparent 70%
+  );
+  z-index: 0;
+}
+
+.ms-profile-center--premium .ms-profile-center__header--premium {
+  position: relative;
+  z-index: 1;
+  border-bottom: 1px solid color-mix(in srgb, var(--ms-border) 32%, transparent);
+  background: color-mix(in srgb, var(--ms-elevated) 10%, transparent);
+  padding: 1.25rem 1.25rem 1rem;
+}
+
+.ms-profile-center--premium .ms-profile-center__body--premium {
+  position: relative;
+  z-index: 1;
+  padding: 1.15rem 1.25rem 1.25rem;
+}
+
+.ms-profile-center--premium .ms-profile-center__eyebrow {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ms-cognition) 55%, var(--ms-faint));
+}
+
+.ms-profile-center--premium .ms-profile-center__title {
+  margin-top: 0.45rem;
+  font-size: clamp(1.1rem, 4vw, 1.28rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.ms-profile-center--premium .ms-profile-center__hero {
+  padding: 1rem;
+  border-radius: var(--ms-radius-xl, 0.75rem);
+  border: 1px solid color-mix(in srgb, var(--ms-cognition) 20%, var(--ms-border));
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--ms-cognition) 7%, transparent),
+    color-mix(in srgb, var(--ms-elevated) 18%, transparent) 55%,
+    color-mix(in srgb, var(--ms-surface) 35%, transparent)
+  );
+  box-shadow: 0 1px 0 color-mix(in srgb, rgba(255, 255, 255, 0.04) 100%, transparent) inset;
+}
+
+.ms-profile-center--premium .ms-profile-center__avatar {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--ms-radius-lg, 0.5rem);
+  border-color: color-mix(in srgb, var(--ms-cognition) 25%, var(--ms-border));
+  background: color-mix(in srgb, var(--ms-cognition) 8%, transparent);
+  color: color-mix(in srgb, var(--ms-cognition) 70%, var(--ms-text));
+}
+
+.ms-profile-center--premium .ms-profile-center__panel {
+  padding: 1rem;
+  border-radius: var(--ms-radius-xl, 0.75rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 32%, transparent);
+  background: color-mix(in srgb, var(--ms-elevated) 14%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.ms-profile-center--premium .ms-profile-center__nav-btn {
+  padding: 0.45rem 0.75rem;
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  border-radius: var(--ms-radius-md, 0.375rem);
+}
+
+.ms-profile-center--premium .ms-profile-center__payment-row {
+  padding: 0.875rem;
+  border-color: color-mix(in srgb, var(--ms-border) 28%, transparent);
+  background: color-mix(in srgb, var(--ms-surface) 35%, transparent);
+}
+
+.ms-profile-center__overlay--premium {
+  backdrop-filter: blur(14px) saturate(1.2);
+}
+
+.ms-profile-center__overlay--premium > button:first-child {
+  background: color-mix(in srgb, var(--ms-canvas) 72%, transparent) !important;
+}
+
+/* ── Upgrade / premium access modal ─────────────────────────────────────── */
+.ms-upgrade-modal--premium {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.ms-upgrade-modal--premium .ms-upgrade-modal__hero {
+  position: relative;
+  padding: 1.15rem;
+  border-radius: var(--ms-radius-xl, 0.75rem);
+  border: 1px solid color-mix(in srgb, var(--ms-cognition) 32%, var(--ms-border));
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--ms-cognition) 12%, transparent) 0%,
+    color-mix(in srgb, var(--ms-surface) 55%, transparent) 45%,
+    color-mix(in srgb, var(--ms-elevated) 20%, transparent) 100%
+  );
+  box-shadow:
+    0 1px 0 color-mix(in srgb, rgba(255, 255, 255, 0.05) 100%, transparent) inset,
+    0 16px 48px color-mix(in srgb, #000 22%, transparent);
+}
+
+.ms-upgrade-modal--premium .ms-upgrade-modal__hero::before {
+  pointer-events: none;
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 45%;
+  height: 55%;
+  background: radial-gradient(
+    ellipse at 100% 0%,
+    color-mix(in srgb, var(--ms-warning) 12%, transparent),
+    transparent 70%
+  );
+  border-radius: inherit;
+}
+
+.ms-upgrade-modal--premium .ms-upgrade-modal__price {
+  margin-top: 0.75rem;
+  font-size: clamp(1.75rem, 6vw, 2.125rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ms-text);
+}
+
+.ms-upgrade-modal--premium .ms-upgrade-modal__outcome-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+  margin-top: 0.875rem;
+}
+
+@media (min-width: 480px) {
+  .ms-upgrade-modal--premium .ms-upgrade-modal__outcome-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.ms-upgrade-modal--premium .ms-upgrade-modal__outcome-card {
+  padding: 0.75rem;
+  border-radius: var(--ms-radius-md, 0.375rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 30%, transparent);
+  background: color-mix(in srgb, var(--ms-canvas) 50%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.ms-upgrade-modal--premium .ms-upgrade-modal__free-tier {
+  padding: 1rem;
+  border-radius: var(--ms-radius-xl, 0.75rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 28%, transparent);
+  background: color-mix(in srgb, var(--ms-elevated) 10%, transparent);
+}
+
+.ms-upgrade-modal--premium .ms-upgrade-modal__cta-primary {
+  min-height: 3rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-radius: var(--ms-radius-lg, 0.5rem);
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--ms-cognition) 22%, transparent);
+}
+
+/* ── Checkout / payment modal ───────────────────────────────────────────── */
+.ms-checkout-modal--premium {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.ms-checkout-modal--premium .ms-checkout-modal__summary {
+  padding: 1.1rem 1.15rem;
+  border-radius: var(--ms-radius-xl, 0.75rem);
+  border: 1px solid color-mix(in srgb, var(--ms-cognition) 22%, var(--ms-border));
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--ms-cognition) 6%, transparent),
+    color-mix(in srgb, var(--ms-surface) 42%, transparent)
+  );
+}
+
+.ms-checkout-modal--premium .ms-checkout-modal__price {
+  font-size: clamp(1.5rem, 5vw, 1.875rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.ms-checkout-modal--premium .ms-checkout-modal__action {
+  padding: 1.1rem 1.15rem;
+  border-radius: var(--ms-radius-xl, 0.75rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 32%, transparent);
+  background: color-mix(in srgb, var(--ms-elevated) 12%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.ms-checkout-modal--premium .ms-checkout-modal__trust {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: var(--ms-radius-lg, 0.5rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 28%, transparent);
+  background: color-mix(in srgb, var(--ms-canvas) 40%, transparent);
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: var(--ms-muted);
+}
+
+/* ── Entry onboarding premium lift ──────────────────────────────────────── */
+.ms-ob--premium {
+  background:
+    radial-gradient(ellipse 80% 45% at 50% -5%, rgba(200, 204, 212, 0.04) 0%, transparent 55%),
+    #020204;
+}
+
+.ms-ob--premium::before {
+  background:
+    radial-gradient(ellipse 70% 38% at 50% 5%, color-mix(in srgb, var(--ms-cognition) 8%, transparent) 0%, transparent 62%),
+    radial-gradient(ellipse 100% 50% at 50% 112%, rgba(6, 6, 12, 0.75) 0%, transparent 52%);
+}
+
+.ms-ob--premium .ms-ob__wordmark {
+  font-size: clamp(1.05rem, 4.5vw, 1.45rem);
+  text-shadow: 0 0 48px color-mix(in srgb, var(--ms-cognition) 18%, transparent);
+}
+
+.ms-ob--premium .ms-ob__benefits {
+  margin: 1.5rem 0 0;
+  width: 100%;
+  max-width: 20rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: left;
+}
+
+.ms-ob--premium .ms-ob__benefit {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--ms-radius-md, 0.375rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 25%, transparent);
+  background: color-mix(in srgb, rgba(255, 255, 255, 0.02) 100%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.ms-ob--premium .ms-ob__benefit-dot {
+  margin-top: 0.35rem;
+  width: 4px;
+  height: 4px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ms-cognition) 75%, var(--ms-warning));
+  box-shadow: 0 0 8px color-mix(in srgb, var(--ms-cognition) 40%, transparent);
+}
+
+.ms-ob--premium .ms-ob__benefit-text {
+  margin: 0;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--ms-muted) 92%, var(--ms-text));
+}
+
+.ms-ob--premium .ms-ob__auth-btn {
+  min-height: 3rem;
+  border-radius: var(--ms-radius-lg, 0.5rem);
+  box-shadow: 0 1px 0 color-mix(in srgb, rgba(255, 255, 255, 0.04) 100%, transparent) inset;
+}
+
+.ms-ob--premium .ms-ob__auth-btn--primary {
+  border-color: color-mix(in srgb, var(--ms-cognition) 30%, rgba(220, 224, 232, 0.28));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ms-cognition) 12%, transparent),
+    color-mix(in srgb, var(--ms-cognition) 5%, transparent)
+  );
+}
+
+.ms-ob--premium .ms-ob__section-row {
+  padding: 0.85rem 0.75rem;
+  border-radius: var(--ms-radius-md, 0.375rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 22%, transparent);
+  background: color-mix(in srgb, rgba(255, 255, 255, 0.015) 100%, transparent);
+  margin-bottom: 0.4rem;
+}
+
+.ms-ob--premium .ms-ob__nav {
+  border-top-color: color-mix(in srgb, var(--ms-cognition) 12%, rgba(200, 204, 212, 0.065));
+  background: color-mix(in srgb, #020204 85%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+/* ── Mobile / Mini App ──────────────────────────────────────────────────── */
+@media (max-width: 639.98px) {
+  .ms-modal-panel--premium {
+    max-height: 94dvh;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    margin-bottom: 0;
+  }
+
+  .ms-modal-overlay:has(.ms-modal-panel--premium) {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .ms-modal-panel--premium .ms-modal-header--premium,
+  .ms-modal-panel--premium .ms-modal-body--premium {
+    padding-left: 1.15rem;
+    padding-right: 1.15rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-modal-panel--premium,
+  .ms-profile-center--premium {
+    backdrop-filter: none;
+  }
+}

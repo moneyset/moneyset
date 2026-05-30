@@ -26,6 +26,7 @@
 @import "./globals-intel-system.css";
 @import "./globals-legal.css";
 @import "./globals-ux-polish.css";
+@import "./globals-premium-modals.css";
 
 @theme inline {
   --font-sans: var(--font-geist-sans);

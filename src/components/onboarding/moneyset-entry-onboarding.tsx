@@ -18,12 +18,33 @@ const TOTAL = 5;
 
 /* ─── Screen 1 — Identity ───────────────────────────────────────────────── */
 function Screen1({ locale }: { locale: UiLocale }) {
+  const benefits = [
+    pickLocale(locale, "Live market structure — posture before price", "Живая структура рынка — поза до цены"),
+    pickLocale(locale, "Execution layer & invalidation logic", "Слой исполнения и логика снятия"),
+    pickLocale(locale, "Founding Access · lifetime depth", "Founding Access · пожизненная глубина"),
+  ];
+
   return (
     <div className="ms-ob__screen ms-ob__screen--identity">
       <p className="ms-ob__wordmark">MONEYSET</p>
       <p className="ms-ob__tag">
         {pickLocale(locale, "Market Structure Before Consensus", "Структура рынка до консенсуса")}
       </p>
+      <p className="ms-ob__lead">
+        {pickLocale(
+          locale,
+          "Institutional-grade intelligence for traders who read structure, not noise.",
+          "Институциональный интеллект для тех, кто читает структуру, а не шум.",
+        )}
+      </p>
+      <div className="ms-ob__benefits">
+        {benefits.map((text) => (
+          <div key={text} className="ms-ob__benefit">
+            <span className="ms-ob__benefit-dot" aria-hidden />
+            <p className="ms-ob__benefit-text">{text}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -81,11 +102,11 @@ function Screen3({ locale }: { locale: UiLocale }) {
   return (
     <div className="ms-ob__screen">
       <p className="ms-ob__eyebrow">{pickLocale(locale, "How To Use It", "Как пользоваться")}</p>
-      <div className="ms-ob__section-list">
+      <div className="ms-ob__section-list ms-ob__section-list--premium">
         {SECTIONS.map((s, i) => (
           <m.div
             key={s.en}
-            className="ms-ob__section-row"
+            className="ms-ob__section-row ms-ob__section-row--premium"
             initial={{ opacity: 0, x: -6 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.28, ease: msEase, delay: 0.06 + i * 0.07 }}
@@ -275,7 +296,7 @@ export function MoneysetEntryOnboarding() {
 
   return (
     <m.div
-      className="ms-ob"
+      className="ms-ob ms-ob--premium"
       role="dialog"
       aria-modal="true"
       aria-label={pickLocale(locale, "MONEYSET onboarding", "Вступление MONEYSET")}

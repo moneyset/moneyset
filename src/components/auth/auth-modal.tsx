@@ -186,19 +186,34 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
         setEmailExpanded(false);
         onClose();
       }}
+      variant="premium"
       title={t("auth.title")}
       description={t("auth.subtitle")}
     >
-      <div className="ms-auth-modal space-y-3">
+      <div className="ms-auth-modal ms-auth-modal--premium">
         {!sb ? (
-          <div className="rounded-ms-xl border border-ms-border bg-ms-elevated/25 p-4 text-[13px] leading-relaxed text-ms-muted">
+          <div className="ms-auth-modal__hint rounded-ms-xl border border-ms-border bg-ms-elevated/25 p-4 text-[13px] leading-relaxed text-ms-muted">
             {t("auth.missingConfig")}
+          </div>
+        ) : null}
+
+        {authStatus !== "signed_in" || !authUser ? (
+          <div className="ms-premium-trust" role="note">
+            <Shield className="ms-premium-trust__icon size-4" strokeWidth={1.5} aria-hidden />
+            <p className="ms-premium-trust__text">
+              <strong>{pickLocale(locale, "Institutional access", "Институциональный доступ")}</strong>
+              {pickLocale(
+                locale,
+                "Encrypted session on this device. No feed, no noise — structure-first intelligence.",
+                "Шифрованная сессия на устройстве. Без ленты и шума — интеллект через структуру.",
+              )}
+            </p>
           </div>
         ) : null}
 
         {/* ── Signed-in state ── */}
         {authStatus === "signed_in" && authUser ? (
-          <div className="rounded-ms-xl border border-ms-border bg-ms-surface/35 p-4">
+          <div className="ms-auth-modal__signed-in">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="ms-data-label text-ms-faint">{t("auth.signedInAs")}</p>
@@ -269,10 +284,10 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
             </Button>
 
             {/* ── Tertiary: Email ── */}
-            <div className="rounded-ms-xl border border-ms-border/50 bg-ms-elevated/10">
+            <div className="ms-auth-modal__email-card">
               <button
                 type="button"
-                className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-ms-elevated/20"
+                className="ms-auth-modal__email-toggle flex w-full items-center justify-between text-left transition-colors hover:bg-ms-elevated/20"
                 onClick={() => setEmailExpanded((v) => !v)}
                 aria-expanded={emailExpanded}
               >
@@ -292,7 +307,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
               {emailExpanded ? (
                 <div className="border-t border-ms-border/30 px-4 pb-4 pt-3">
                   <label className="ms-data-label text-ms-faint">{t("auth.emailLabel")}</label>
-                  <div className="mt-2 flex items-center gap-2 rounded-ms-md border border-ms-border bg-ms-surface/60 px-3 py-2">
+                  <div className="ms-auth-modal__input-wrap mt-2 flex items-center gap-2 px-3 py-2">
                     <Mail className="size-4 text-ms-muted" strokeWidth={1.5} aria-hidden />
                     <input
                       value={email}
@@ -307,7 +322,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                   <label className="ms-data-label mt-3 block text-ms-faint">
                     {pickLocale(locale, "Password", "Пароль")}
                   </label>
-                  <div className="mt-2 flex items-center gap-2 rounded-ms-md border border-ms-border bg-ms-surface/60 px-3 py-2">
+                  <div className="ms-auth-modal__input-wrap mt-2 flex items-center gap-2 px-3 py-2">
                     <input
                       type="password"
                       value={password}
@@ -372,7 +387,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
         )}
 
         {note || telegramError ? (
-          <div className="ms-auth-modal__hint rounded-ms-lg border border-ms-border bg-ms-elevated/20 px-3 py-2">
+          <div className="ms-auth-modal__hint">
             {note ?? mapTelegramAuthError(locale, telegramError)}
           </div>
         ) : null}

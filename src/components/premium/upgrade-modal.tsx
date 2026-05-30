@@ -45,26 +45,29 @@ export function UpgradeModal({ open, onClose }: UpgradeModalProps) {
   const showDevControls = process.env.NODE_ENV === "development";
 
   return (
-    <Modal open={open} onClose={onClose} title={t("upgrade.title")} description={t("upgrade.subtitle")}>
-      <div className="space-y-4">
+    <Modal open={open} onClose={onClose} variant="premium" title={t("upgrade.title")} description={t("upgrade.subtitle")}>
+      <div className="ms-upgrade-modal ms-upgrade-modal--premium">
         {trialLive && trialEndsAtTs ? (
           <p className="rounded-ms-lg border border-ms-border/60 bg-ms-elevated/20 px-3 py-2 font-mono text-[11px] leading-snug text-ms-muted">
             {trialAccessEndsLine(locale, trialEndsAtTs)}
           </p>
         ) : null}
 
-        {/* Outcome-first value block */}
-        <div className="ms-upgrade-modal__price-block rounded-ms-xl border border-ms-border-mid/70 bg-ms-surface/25 p-4">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <p className="ms-data-label text-ms-warning/85">{t("upgrade.foundingColumnTitle")}</p>
-            <StatusPill accent={fullAccess ? "warning" : "neutral"}>
-              {fullAccess ? t("upgrade.foundingActive") : t("upgrade.foundingInactive")}
-            </StatusPill>
-          </div>
-          <p className="mt-2 text-[12px] leading-relaxed text-ms-text/80">{t("upgrade.foundingLead")}</p>
+        <div className="ms-upgrade-modal__hero">
+          <div className="relative z-[1]">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <p className="ms-data-label text-ms-warning/85">{t("upgrade.foundingColumnTitle")}</p>
+              <StatusPill accent={fullAccess ? "warning" : "neutral"}>
+                {fullAccess ? t("upgrade.foundingActive") : t("upgrade.foundingInactive")}
+              </StatusPill>
+            </div>
+            <p className="mt-2 text-[13px] leading-relaxed text-ms-text/85">{t("upgrade.foundingLead")}</p>
+            <p className="ms-upgrade-modal__price">$149</p>
+            <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-ms-faint">
+              {pickLocale(locale, "Lifetime · one payment", "Пожизненно · один платёж")}
+            </p>
 
-          {/* Three outcome questions */}
-          <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <div className="ms-upgrade-modal__outcome-grid">
             {[
               {
                 q: pickLocale(locale, "What do I gain?", "Что я получаю?"),
@@ -79,12 +82,12 @@ export function UpgradeModal({ open, onClose }: UpgradeModalProps) {
                 a: pickLocale(locale, "When to act, when to wait, when the thesis breaks", "Когда действовать, когда ждать, когда тезис ломается"),
               },
             ].map((item) => (
-              <div key={item.q} className="rounded-ms-md border border-ms-border/30 bg-ms-elevated/15 px-3 py-2.5">
+              <div key={item.q} className="ms-upgrade-modal__outcome-card">
                 <p className="font-mono text-[9px] uppercase tracking-[0.12em] text-ms-faint">{item.q}</p>
                 <p className="mt-1 text-[11px] leading-snug text-ms-muted">{item.a}</p>
               </div>
             ))}
-          </div>
+            </div>
 
           <ul className="mt-3 space-y-1.5 pl-3 text-[11px] leading-snug text-ms-muted sm:text-[12px]">
             {[
@@ -117,10 +120,10 @@ export function UpgradeModal({ open, onClose }: UpgradeModalProps) {
               {t("upgrade.close")}
             </Button>
           </div>
+          </div>
         </div>
 
-        {/* Free tier — what's included */}
-        <div className="rounded-ms-xl border border-ms-border/50 bg-ms-elevated/10 p-4">
+        <div className="ms-upgrade-modal__free-tier">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="flex items-center gap-2">
               <Lock className="size-4 text-ms-muted" strokeWidth={1.5} aria-hidden />

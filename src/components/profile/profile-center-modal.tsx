@@ -347,7 +347,7 @@ export function ProfileCenterModal({ open, onClose, initialSection = "overview" 
     <AnimatePresence>
       {open ? (
         <m.div
-          className="ms-profile-center__overlay fixed inset-0 z-[110] flex items-end justify-center sm:items-center sm:p-4"
+          className="ms-profile-center__overlay ms-profile-center__overlay--premium fixed inset-0 z-[110] flex items-end justify-center sm:items-center sm:p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -368,16 +368,16 @@ export function ProfileCenterModal({ open, onClose, initialSection = "overview" 
             animate={msFadeScale.animate}
             exit={msFadeScale.exit}
             transition={msTransition.medium}
-            className="ms-profile-center relative z-[1] flex max-h-[min(92dvh,720px)] w-full flex-col overflow-hidden rounded-t-ms-2xl border border-ms-border-strong bg-ms-surface shadow-ms-float sm:max-w-xl sm:rounded-ms-2xl"
+            className="ms-profile-center ms-profile-center--premium relative z-[1] flex max-h-[min(92dvh,720px)] w-full flex-col overflow-hidden rounded-t-ms-2xl sm:max-w-xl sm:rounded-ms-2xl"
           >
             {/* Header */}
-            <div className="shrink-0 border-b border-ms-border/25 px-4 py-4 sm:px-5">
+            <div className="ms-profile-center__header--premium shrink-0">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-ms-faint">
+                  <p className="ms-profile-center__eyebrow">
                     {pickLocale(locale, "Account Center", "Центр аккаунта")}
                   </p>
-                  <h2 id="ms-profile-center-title" className="mt-1 text-[1.05rem] font-semibold tracking-tight text-ms-text sm:text-[1.15rem]">
+                  <h2 id="ms-profile-center-title" className="ms-profile-center__title text-ms-text">
                     {signedIn
                       ? pickLocale(locale, "Your access & identity", "Ваш доступ и идентичность")
                       : pickLocale(locale, "Sign in to continue", "Войдите для продолжения")}
@@ -399,7 +399,7 @@ export function ProfileCenterModal({ open, onClose, initialSection = "overview" 
             </div>
 
             {/* Body */}
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-4 py-4 sm:px-5 sm:py-5">
+            <div className="ms-profile-center__body--premium min-h-0 flex-1 overflow-y-auto overscroll-y-contain">
               {!signedIn ? (
                 <div className="space-y-4">
                   <p className="text-[13px] leading-relaxed text-ms-muted">
