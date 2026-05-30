@@ -63,8 +63,12 @@ export function TelegramSettingsCard() {
       if (!json.ok || !json.code) throw new Error("Link code error");
       tg.setPending(json.code);
       setNote(null);
-    } catch (e) {
-      setNote(e instanceof Error ? e.message : "Telegram link error");
+    } catch {
+      setNote(
+        uiLocale === "ru"
+          ? "Не удалось начать подключение Telegram. Попробуйте снова."
+          : "Could not start Telegram linking. Try again.",
+      );
     } finally {
       setBusy(false);
     }
@@ -74,7 +78,11 @@ export function TelegramSettingsCard() {
   const deeplink = botUsername && tg.linkCode ? `https://t.me/${botUsername}?start=${tg.linkCode}` : null;
 
   return (
-    <CognitionPanel eyebrow="Companion" accent="cognition" title="TELEGRAM">
+    <CognitionPanel
+      eyebrow={uiLocale === "ru" ? "Компаньон" : "Companion"}
+      accent="cognition"
+      title={uiLocale === "ru" ? "Telegram" : "Telegram"}
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="ms-intelligence-summary">

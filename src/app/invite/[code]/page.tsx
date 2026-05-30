@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { authHeadersForUser } from "@/lib/access/request-user";
 import { normalizeInviteCode } from "@/lib/access/invitation";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
+import { mapAuthRedirectError } from "@/lib/i18n/user-messages";
 import { useAccessStore } from "@/store/access-store";
 import { useAuthModalStore } from "@/store/auth-modal-store";
 import { useAuthStore } from "@/store/auth-store";
@@ -50,7 +51,10 @@ export default function InviteRedeemPage() {
       const json = (await res.json()) as { ok: boolean; error?: string; profile?: Parameters<typeof setProfile>[0] };
       if (!json.ok) {
         setStatus("error");
-        setMessage(json.error ?? pickLocale(locale, "Redemption failed", "Активация не удалась"));
+        setMessage(
+          mapAuthRedirectError(locale, json.error) ??
+            pickLocale(locale, "This invitation could not be activated.", "Приглашение не удалось активировать."),
+        );
         return;
       }
       if (json.profile) setProfile(json.profile);

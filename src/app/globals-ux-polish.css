@@ -128,12 +128,13 @@
 
 @media (max-width: 1023.98px) {
   .ms-platform-access-gate__preview > * {
-    filter: none !important;
-    opacity: 0.28 !important;
+    filter: blur(2px) saturate(0.75) !important;
+    opacity: 0.32 !important;
   }
 
   .ms-platform-access-gate__overlay {
-    backdrop-filter: none;
+    backdrop-filter: blur(4px);
+    background: color-mix(in srgb, var(--ms-bg-canvas) 78%, transparent) !important;
   }
 }
 

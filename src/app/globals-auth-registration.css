@@ -56,6 +56,30 @@
   text-align: center;
 }
 
+.ms-auth-page__value {
+  padding-bottom: 1.25rem;
+  text-align: center;
+}
+
+.ms-auth-page__value-lead {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: rgba(158, 164, 176, 0.78);
+}
+
+.ms-auth-page__value-points {
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: rgba(120, 126, 140, 0.62);
+}
+
 /* Separator rule */
 .ms-auth-page__rule {
   width: 100%;

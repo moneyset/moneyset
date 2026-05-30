@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTelegramAuth } from "@/hooks/use-telegram-auth";
 import { TelegramLoginWidget } from "@/components/auth/telegram-login-widget";
 import { openInExternalBrowser, openTelegramMiniApp } from "@/lib/auth/telegram-client";
+import { mapAuthRedirectError, mapAuthFormError, mapTelegramAuthError } from "@/lib/i18n/user-messages";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { supabaseBrowser, authCallbackUrl } from "@/lib/supabase/browser";
 import { useAuthStore } from "@/store/auth-store";
@@ -26,8 +27,8 @@ export function AuthPage() {
 
   useEffect(() => {
     const err = new URLSearchParams(window.location.search).get("error");
-    if (err) setOauthError(decodeURIComponent(err));
-  }, []);
+    if (err) setOauthError(mapAuthRedirectError(locale, decodeURIComponent(err)) ?? null);
+  }, [locale]);
 
   const busy = telegramBusy || googleBusy;
 
@@ -56,8 +57,8 @@ export function AuthPage() {
       setOauthError(
         pickLocale(
           locale,
-          "Open in browser to continue with Google — OAuth is blocked inside Telegram.",
-          "Откройте в браузере для входа через Google — OAuth в Telegram недоступен.",
+          "Open in your browser to continue with Google — not available inside Telegram.",
+          "Откройте в браузере для входа через Google — внутри Telegram недоступно.",
         ),
       );
       openInExternalBrowser(`${window.location.origin}/auth`);
@@ -70,6 +71,8 @@ export function AuthPage() {
         provider: "google",
         options: { redirectTo: authCallbackUrl(), skipBrowserRedirect: false },
       });
+    } catch (e) {
+      setOauthError(mapAuthFormError(locale, e instanceof Error ? e.message : "Sign-in failed"));
     } finally {
       setGoogleBusy(false);
     }
@@ -86,6 +89,21 @@ export function AuthPage() {
           </p>
         </div>
 
+        <div className="ms-auth-page__value">
+          <p className="ms-auth-page__value-lead">
+            {pickLocale(
+              locale,
+              "Institutional-grade market intelligence — posture, scenarios, and execution structure in one war-room surface.",
+              "Институциональный рыночный интеллект — поза, сценарии и структура исполнения в одном war-room пространстве.",
+            )}
+          </p>
+          <ul className="ms-auth-page__value-points" aria-label={pickLocale(locale, "Member access includes", "В доступ входит")}>
+            <li>{pickLocale(locale, "Saved access across devices", "Сохранённый доступ на устройствах")}</li>
+            <li>{pickLocale(locale, "Full intelligence depth & execution layer", "Полная глубина интеллекта и слой исполнения")}</li>
+            <li>{pickLocale(locale, "Founding Access · lifetime upgrade path", "Founding Access · пожизненный апгрейд")}</li>
+          </ul>
+        </div>
+
         {/* Separator */}
         <div className="ms-auth-page__rule" aria-hidden />
 
@@ -100,9 +118,11 @@ export function AuthPage() {
           >
             <span className="ms-auth-page__btn-icon" aria-hidden>✈</span>
             <span>
-              {inTelegram && hasInitData
-                ? pickLocale(locale, "Continue with Telegram", "Продолжить через Telegram")
-                : pickLocale(locale, "Open in Telegram", "Открыть в Telegram")}
+              {busy
+                ? pickLocale(locale, "Signing in…", "Вход…")
+                : inTelegram && hasInitData
+                  ? pickLocale(locale, "Continue with Telegram", "Продолжить через Telegram")
+                  : pickLocale(locale, "Open in Telegram", "Открыть в Telegram")}
             </span>
           </button>
 
@@ -139,7 +159,9 @@ export function AuthPage() {
 
         {/* Error */}
         {telegramError || oauthError ? (
-          <p className="ms-auth-page__error">{telegramError ?? oauthError}</p>
+          <p className="ms-auth-page__error">
+            {mapTelegramAuthError(locale, telegramError) ?? oauthError}
+          </p>
         ) : null}
         {telegramHint ? <p className="ms-auth-page__hint">{telegramHint}</p> : null}
 

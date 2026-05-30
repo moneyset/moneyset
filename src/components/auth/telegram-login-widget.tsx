@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 
 import { telegramBotUsername, telegramLoginCallbackUrl } from "@/lib/auth/telegram-links";
+import { pickLocale } from "@/lib/i18n/cognition-dict";
+import { useUiPrefsStore } from "@/store/ui-prefs-store";
 
 type TelegramLoginWidgetProps = Readonly<{
   nextPath?: string;
@@ -11,6 +13,7 @@ type TelegramLoginWidgetProps = Readonly<{
 
 /** Browser-only Telegram Login Widget (one-click, cookie session via callback). */
 export function TelegramLoginWidget({ nextPath = "/", className }: TelegramLoginWidgetProps) {
+  const locale = useUiPrefsStore((s) => s.uiLocale);
   const hostRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -34,7 +37,13 @@ export function TelegramLoginWidget({ nextPath = "/", className }: TelegramLogin
     };
   }, [nextPath]);
 
-  if (!telegramBotUsername()) return null;
+  if (!telegramBotUsername()) {
+    return (
+      <p className="text-center text-[11px] leading-relaxed text-ms-faint">
+        {pickLocale(locale, "Telegram sign-in is not available on this build.", "Вход через Telegram недоступен в этой сборке.")}
+      </p>
+    );
+  }
 
   return <div ref={hostRef} className={className} data-ms-telegram-login-widget />;
 }

@@ -9,6 +9,7 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { billingProduct } from "@/lib/billing/catalog";
 import { hasClientAuthToken, resolveClientAuthHeaders } from "@/lib/access/client-auth-headers";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
+import { mapBillingUserMessage } from "@/lib/i18n/user-messages";
 import { useAccessStore } from "@/store/access-store";
 import { useAuthModalStore } from "@/store/auth-modal-store";
 import { useAuthStore } from "@/store/auth-store";
@@ -137,7 +138,7 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
             ),
           );
         } else {
-          setNote(err);
+          setNote(mapBillingUserMessage(locale, err));
         }
       }
     } catch {
@@ -188,7 +189,7 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
         pollTicksRef.current = 0;
         if (json.paymentUrl) void check({ invoiceId: json.invoiceId });
       }
-      if (!json.ok) setNote("error" in json ? json.error : null);
+      if (!json.ok) setNote(mapBillingUserMessage(locale, "error" in json ? json.error : null));
     } catch {
       setNote(
         pickLocale(locale, "Could not create invoice. Try again.", "Не удалось создать счёт."),
@@ -242,11 +243,11 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
     <Modal
       open={open}
       onClose={() => onClose()}
-      title={pickLocale(locale, "Complete your access", "Оформление доступа")}
+      title={pickLocale(locale, "Founding Access", "Founding Access")}
       description={pickLocale(
         locale,
-        "Pay in USDT via NOWPayments — settlement is automatic.",
-        "Оплата USDT через NOWPayments — зачисление автоматическое.",
+        "Lifetime intelligence depth — execution layer, structural zones, and full platform access.",
+        "Пожизненная глубина интеллекта — слой исполнения, структурные зоны и полный доступ к платформе.",
       )}
     >
       <div className="space-y-4">
@@ -278,7 +279,7 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
             </div>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <StatusPill accent="neutral">USDT · TRC-20</StatusPill>
+            <StatusPill accent="neutral">{pickLocale(locale, "USDT", "USDT")}</StatusPill>
             {paid && (
               <StatusPill accent="warning">
                 {pickLocale(locale, "Payment received", "Оплата получена")}
@@ -300,8 +301,8 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
                 {signedIn
                   ? pickLocale(
                       locale,
-                      "Tap below to generate a USDT payment address. You will be redirected to NOWPayments to complete the transfer.",
-                      "Нажмите ниже для генерации адреса USDT. Вы будете перенаправлены на NOWPayments для перевода.",
+                      "Generate a secure USDT payment link. Complete the transfer on the checkout page — access activates after confirmation.",
+                      "Создайте защищённую ссылку USDT. Завершите перевод на странице оплаты — доступ активируется после подтверждения.",
                     )
                   : pickLocale(
                       locale,
@@ -429,8 +430,8 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
                 <p className="text-[11px] leading-relaxed text-ms-faint">
                   {pickLocale(
                     locale,
-                    "Checks automatically every 12 seconds for up to 30 minutes. Access activates immediately after confirmation.",
-                    "Проверка каждые 12 сек в течение 30 минут. Доступ активируется сразу после подтверждения.",
+                    "We check automatically after you pay. Confirmation usually takes a few minutes.",
+                    "Проверяем автоматически после оплаты. Подтверждение обычно занимает несколько минут.",
                   )}
                 </p>
               )}
@@ -456,8 +457,8 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
           <p className="text-[11px] leading-snug text-ms-faint">
             {pickLocale(
               locale,
-              "Settlement is fully automatic. Your access tier is updated server-side within seconds of confirmation.",
-              "Зачисление полностью автоматическое. Уровень доступа обновляется на сервере в течение секунд после подтверждения.",
+              "Access activates automatically once your payment is confirmed.",
+              "Доступ активируется автоматически после подтверждения оплаты.",
             )}
           </p>
         </div>

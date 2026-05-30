@@ -9,6 +9,7 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { useT } from "@/lib/i18n/use-t";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
 import { supabaseBrowser, authCallbackUrl } from "@/lib/supabase/browser";
+import { mapAuthFormError, mapTelegramAuthError } from "@/lib/i18n/user-messages";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { clearClientSession } from "@/lib/auth/sign-out";
 import { useAuthStore } from "@/store/auth-store";
@@ -30,21 +31,8 @@ function isValidPassword(v: string): boolean {
   return v.length >= 8;
 }
 
-function friendlyAuthError(message: string): string {
-  const lower = message.toLowerCase();
-  if (lower.includes("invalid login") || lower.includes("invalid credentials")) {
-    return "Email or password is incorrect.";
-  }
-  if (lower.includes("email not confirmed")) {
-    return "Confirm your email before signing in.";
-  }
-  if (lower.includes("user already registered")) {
-    return "An account with this email already exists. Try signing in.";
-  }
-  if (lower.includes("password")) {
-    return "Use at least 8 characters for your password.";
-  }
-  return message.length > 120 ? "Could not complete sign-in. Please try again." : message;
+function friendlyAuthError(message: string, locale: ReturnType<typeof useUiPrefsStore.getState>["uiLocale"]): string {
+  return mapAuthFormError(locale, message);
 }
 
 export function AuthModal({ open, onClose }: AuthModalProps) {
@@ -91,8 +79,8 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
       setNote(
         pickLocale(
           locale,
-          "Google sign-in opens in your browser — Telegram cannot complete OAuth inside the Mini App.",
-          "Вход через Google откроется в браузере — OAuth в Mini App недоступен.",
+          "Google sign-in opens in your browser — not available inside the Telegram app.",
+          "Вход через Google откроется в браузере — внутри Telegram недоступен.",
         ),
       );
       openInExternalBrowser(`${window.location.origin}/auth`);
@@ -103,7 +91,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     try {
       await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: oauthRedirectTo } });
     } catch (e) {
-      setNote(friendlyAuthError(e instanceof Error ? e.message : "Auth error"));
+      setNote(friendlyAuthError(e instanceof Error ? e.message : "Auth error", locale));
     } finally {
       setBusy(false);
     }
@@ -121,7 +109,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
       if (error) throw error;
       setNote(t("auth.magicSent"));
     } catch (e) {
-      setNote(friendlyAuthError(e instanceof Error ? e.message : "Auth error"));
+      setNote(friendlyAuthError(e instanceof Error ? e.message : "Auth error", locale));
     } finally {
       setBusy(false);
     }
@@ -136,7 +124,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
       if (error) throw error;
       onClose();
     } catch (e) {
-      setNote(friendlyAuthError(e instanceof Error ? e.message : "Auth error"));
+      setNote(friendlyAuthError(e instanceof Error ? e.message : "Auth error", locale));
     } finally {
       setBusy(false);
     }
@@ -153,9 +141,11 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
         options: { emailRedirectTo: oauthRedirectTo },
       });
       if (error) throw error;
-      setNote("Account created. Confirm your email if prompted, then sign in.");
+      setNote(
+        pickLocale(locale, "Account created. Confirm your email if prompted, then sign in.", "Аккаунт создан. Подтвердите email при необходимости, затем войдите."),
+      );
     } catch (e) {
-      setNote(friendlyAuthError(e instanceof Error ? e.message : "Auth error"));
+      setNote(friendlyAuthError(e instanceof Error ? e.message : "Auth error", locale));
     } finally {
       setBusy(false);
     }
@@ -168,9 +158,9 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     try {
       const { error } = await sb.auth.resetPasswordForEmail(email.trim(), { redirectTo: oauthRedirectTo });
       if (error) throw error;
-      setNote("Password reset link sent. Check your email.");
+      setNote(pickLocale(locale, "Password reset link sent. Check your email.", "Ссылка для сброса отправлена. Проверьте почту."));
     } catch (e) {
-      setNote(friendlyAuthError(e instanceof Error ? e.message : "Auth error"));
+      setNote(friendlyAuthError(e instanceof Error ? e.message : "Auth error", locale));
     } finally {
       setBusy(false);
     }
@@ -236,9 +226,11 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
               <span className="flex min-w-0 flex-1 items-center gap-2 truncate">
                 <span className="shrink-0 text-[14px]" aria-hidden>✈</span>
                 <span className="truncate">
-                  {inTelegram && hasInitData
-                    ? pickLocale(locale, "Continue with Telegram", "Продолжить через Telegram")
-                    : pickLocale(locale, "Open in Telegram", "Открыть в Telegram")}
+                  {isBusy
+                    ? pickLocale(locale, "Signing in…", "Вход…")
+                    : inTelegram && hasInitData
+                      ? pickLocale(locale, "Continue with Telegram", "Продолжить через Telegram")
+                      : pickLocale(locale, "Open in Telegram", "Открыть в Telegram")}
                 </span>
               </span>
               <StatusPill accent="warning" className="shrink-0">
@@ -381,7 +373,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
         {note || telegramError ? (
           <div className="ms-auth-modal__hint rounded-ms-lg border border-ms-border bg-ms-elevated/20 px-3 py-2">
-            {note ?? telegramError}
+            {note ?? mapTelegramAuthError(locale, telegramError)}
           </div>
         ) : null}
       </div>

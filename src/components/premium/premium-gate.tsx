@@ -89,6 +89,9 @@ export function PremiumGate({ children, onUnlock, className, preview = true, fea
               <p className="ms-premium-gate__dock-body-text mt-1 text-[11px] leading-snug text-ms-muted sm:text-[12px] sm:leading-relaxed">
                 {t("gate.lockedBody")}
               </p>
+              <p className="ms-premium-gate__dock-mobile-preview mt-2 font-mono text-[9px] leading-snug text-ms-faint/80 sm:hidden">
+                {premiumGatePreviewPosture(locale)}
+              </p>
             </div>
             <Button
               type="button"

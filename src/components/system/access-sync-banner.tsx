@@ -19,12 +19,12 @@ export function AccessSyncBanner() {
       <p className="ms-access-sync-banner__text">
         {pickLocale(
           locale,
-          "Could not verify account access. Premium surfaces stay locked until sync succeeds.",
-          "Не удалось подтвердить доступ. Премиум-разделы заблокированы до успешной синхронизации.",
+          "We couldn't load your membership status. Retry to unlock premium surfaces.",
+          "Не удалось загрузить статус членства. Повторите, чтобы открыть премиум-разделы.",
         )}
       </p>
       <button type="button" className="ms-access-sync-banner__retry ms-focus-ring" onClick={() => void retry()}>
-        {pickLocale(locale, "Retry sync", "Повторить")}
+        {pickLocale(locale, "Retry", "Повторить")}
       </button>
     </div>
   );

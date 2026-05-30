@@ -9,8 +9,8 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { StatusPill } from "@/components/ui/status-pill";
 import { useAccessStore } from "@/store/access-store";
 import { useExtendedCognitionAccess } from "@/hooks/use-extended-cognition-access";
-import { useUpgradeModalStore } from "@/store/upgrade-modal-store";
 import { useProfileCenterStore } from "@/store/profile-center-store";
+import { useAuthModalStore } from "@/store/auth-modal-store";
 import { useAuthStore } from "@/store/auth-store";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
 import { trialAccessEndsLine } from "@/lib/i18n/trust-surface";
@@ -32,8 +32,8 @@ export function SettingsPanel() {
   const trialEndsAtTs = useAccessStore((s) => s.trialEndsAtTs);
   const extended = useExtendedCognitionAccess();
   const locale = useUiPrefsStore((s) => s.uiLocale);
-  const openUpgrade = useUpgradeModalStore((s) => s.openUpgrade);
   const openProfileCenter = useProfileCenterStore((s) => s.openProfileCenter);
+  const openAuth = useAuthModalStore((s) => s.openAuth);
   const signedIn = useAuthStore((s) => s.status === "signed_in");
 
   const cognitionMode = useUiPrefsStore((s) => s.cognitionMode);
@@ -77,7 +77,7 @@ export function SettingsPanel() {
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => (signedIn ? openProfileCenter("access") : openUpgrade())}
+            onClick={() => (signedIn ? openProfileCenter("access") : openAuth())}
           >
             {pickLocale(locale, "Access & billing", "Доступ и оплата")}
           </Button>

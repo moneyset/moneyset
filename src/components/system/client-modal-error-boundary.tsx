@@ -31,7 +31,16 @@ export class ClientModalErrorBoundary extends Component<Props, State> {
   }
 
   render() {
-    if (this.state.error) return null;
+    if (this.state.error) {
+      return (
+        <div className="rounded-ms-xl border border-ms-border/40 bg-ms-surface/60 px-4 py-5 text-center">
+          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-ms-faint">MONEYSET</p>
+          <p className="mt-2 text-[13px] leading-relaxed text-ms-muted">
+            Something interrupted this panel. Close and open it again.
+          </p>
+        </div>
+      );
+    }
     return this.props.children;
   }
 }

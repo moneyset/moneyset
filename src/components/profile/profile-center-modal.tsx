@@ -43,6 +43,7 @@ import { supabaseBrowser } from "@/lib/supabase/browser";
 import { usePaymentHistory } from "@/hooks/use-payment-history";
 import { useAccessStore } from "@/store/access-store";
 import { useAuthStore } from "@/store/auth-store";
+import { useAuthModalStore } from "@/store/auth-modal-store";
 import { useCheckoutModalStore } from "@/store/checkout-modal-store";
 import type { ProfileCenterSection } from "@/store/profile-center-store";
 import { useProfileCenterStore } from "@/store/profile-center-store";
@@ -142,10 +143,12 @@ function TelegramConnectionBlock() {
     try {
       const res = await fetch("/api/telegram/link-code", { method: "POST" });
       const json = (await res.json()) as { ok: boolean; code?: string };
-      if (!json.ok || !json.code) throw new Error("Link error");
+      if (!json.ok || !json.code) throw new Error("link_failed");
       setPending(json.code);
-    } catch (e) {
-      setNote(e instanceof Error ? e.message : "Telegram link error");
+    } catch {
+      setNote(
+        pickLocale(locale, "Could not start Telegram linking. Try again.", "Не удалось начать подключение Telegram. Попробуйте снова."),
+      );
     } finally {
       setBusy(false);
     }
@@ -233,9 +236,18 @@ function PaymentHistoryBlock() {
       </p>
 
       {loading ? (
-        <p className="mt-4 text-[11px] text-ms-faint">{pickLocale(locale, "Loading history…", "Загрузка истории…")}</p>
+        <div className="mt-4 space-y-2" aria-busy="true" aria-label={pickLocale(locale, "Loading history", "Загрузка истории")}>
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="ms-profile-center__payment-row animate-pulse">
+              <div className="h-3 w-2/5 rounded bg-ms-elevated/40" />
+              <div className="mt-2 h-2 w-1/3 rounded bg-ms-elevated/25" />
+            </div>
+          ))}
+        </div>
       ) : error ? (
-        <p className="mt-4 text-[11px] text-ms-muted">{error}</p>
+        <p className="mt-4 text-[11px] text-ms-muted">
+          {pickLocale(locale, "Payment history is unavailable right now.", "История оплат сейчас недоступна.")}
+        </p>
       ) : payments.length === 0 ? (
         <p className="mt-4 text-[11px] text-ms-muted">
           {pickLocale(locale, "No payments recorded yet.", "Оплат пока нет.")}
@@ -278,6 +290,7 @@ export function ProfileCenterModal({ open, onClose, initialSection = "overview" 
   const serverConfirmed = useAccessStore((s) => s.serverConfirmed);
   const authStatus = useAuthStore((s) => s.status);
   const authUser = useAuthStore((s) => s.user);
+  const openAuth = useAuthModalStore((s) => s.openAuth);
   const openCheckout = useCheckoutModalStore((s) => s.openCheckout);
   const tgStatus = useTelegramStore((s) => s.status);
   const sb = useMemo(() => supabaseBrowser(), []);
@@ -396,11 +409,23 @@ export function ProfileCenterModal({ open, onClose, initialSection = "overview" 
                       "Войдите, чтобы увидеть тариф, историю оплат и подключённые аккаунты.",
                     )}
                   </p>
-                  <Button type="button" variant="cognition" className="w-full" onClick={onClose}>
-                    {pickLocale(locale, "Open sign-in", "Открыть вход")}
+                  <Button
+                    type="button"
+                    variant="cognition"
+                    className="w-full"
+                    onClick={() => {
+                      onClose();
+                      openAuth();
+                    }}
+                  >
+                    {pickLocale(locale, "Sign in", "Войти")}
                   </Button>
                   <p className="text-center text-[11px] text-ms-faint">
-                    {pickLocale(locale, "Use the account icon again after signing in.", "После входа снова нажмите иконку аккаунта.")}
+                    {pickLocale(
+                      locale,
+                      "Your plan, billing, and connected accounts live here after sign-in.",
+                      "Тариф, оплаты и подключённые аккаунты — здесь после входа.",
+                    )}
                   </p>
                 </div>
               ) : (
@@ -433,7 +458,7 @@ export function ProfileCenterModal({ open, onClose, initialSection = "overview" 
                           hint={accessPlanDetail(locale, profile)}
                         />
                         <InfoRow
-                          label={pickLocale(locale, "Entitlement state", "Состояние доступа")}
+                          label={pickLocale(locale, "Access status", "Статус доступа")}
                           value={
                             serverConfirmed
                               ? subscriptionStatusLabel(locale, profile.subscriptionStatus)
@@ -623,7 +648,7 @@ export function ProfileCenterModal({ open, onClose, initialSection = "overview" 
                         <div className="mt-4 space-y-3 border-t border-ms-border/15 pt-4">
                           <InfoRow
                             label={pickLocale(locale, "Logged-in state", "Состояние входа")}
-                            value={pickLocale(locale, "Authenticated", "Аутентифицирован")}
+                            value={pickLocale(locale, "Signed in", "Вход выполнен")}
                           />
                           <InfoRow
                             label={pickLocale(locale, "Connected accounts", "Подключённые аккаунты")}
