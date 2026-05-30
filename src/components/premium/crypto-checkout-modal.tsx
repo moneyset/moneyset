@@ -16,7 +16,6 @@ import { useCheckoutModalStore } from "@/store/checkout-modal-store";
 import { useSubscriptionStore } from "@/store/subscription-store";
 import type { CreateInvoiceResult, InvoiceStatusResult } from "@/types/billing";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
-import { useShallow } from "zustand/react/shallow";
 
 // 30 minutes at 12-second intervals
 const POLL_INTERVAL_MS = 12_000;
@@ -36,18 +35,11 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
   const authStatus = useAuthStore((s) => s.status);
   const openAuth = useAuthModalStore((s) => s.openAuth);
   const setProfile = useAccessStore((s) => s.setProfile);
-  const sub = useSubscriptionStore(
-    useShallow((s) => ({
-      tier: s.tier,
-      status: s.status,
-      lastInvoiceId: s.lastInvoiceId,
-      lastPaymentUrl: s.lastPaymentUrl,
-      provider: s.provider,
-      setPendingInvoice: s.setPendingInvoice,
-      clearPendingInvoice: s.clearPendingInvoice,
-      setTierActive: s.setTierActive,
-    })),
-  );
+  const lastInvoiceId = useSubscriptionStore((s) => s.lastInvoiceId);
+  const lastPaymentUrl = useSubscriptionStore((s) => s.lastPaymentUrl);
+  const setPendingInvoice = useSubscriptionStore((s) => s.setPendingInvoice);
+  const clearPendingInvoice = useSubscriptionStore((s) => s.clearPendingInvoice);
+  const setTierActive = useSubscriptionStore((s) => s.setTierActive);
 
   const currency = "USDT" as const;
   const signedIn = authStatus === "signed_in" && Boolean(user?.id);
@@ -61,8 +53,8 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
   // last known invoice from the subscription store (resume-on-reload support)
   const invoiceId = useMemo(() => {
     if (invoice && invoice.ok) return invoice.invoiceId;
-    return sub.lastInvoiceId;
-  }, [invoice, sub.lastInvoiceId]);
+    return lastInvoiceId;
+  }, [invoice, lastInvoiceId]);
 
   // Reset state when modal closes
   useEffect(() => {
@@ -95,7 +87,7 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
       setPoll(json);
       if (json.ok && json.status === "paid") {
         const isFounding = productId === "founding_access";
-        sub.setTierActive("premium", {
+        setTierActive("premium", {
           provider: json.provider,
           periodDays: isFounding ? null : (product?.subscriptionDays ?? 30),
         });
@@ -109,7 +101,7 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
           profile?: Parameters<typeof setProfile>[0];
         };
         if (profileJson.ok && profileJson.profile) setProfile(profileJson.profile);
-        sub.clearPendingInvoice();
+        clearPendingInvoice();
         setNote(
           pickLocale(
             locale,
@@ -126,7 +118,7 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
     } finally {
       setBusy(false);
     }
-  }, [invoiceId, user?.id, session?.access_token, productId, product?.subscriptionDays, locale, sub, setProfile]);
+  }, [invoiceId, user?.id, session?.access_token, productId, product?.subscriptionDays, locale, setProfile, setTierActive, clearPendingInvoice]);
 
   const create = async () => {
     if (!signedIn) {
@@ -148,7 +140,7 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
       const json = (await res.json()) as CreateInvoiceResult;
       setInvoice(json);
       if (json.ok) {
-        sub.setPendingInvoice({
+        setPendingInvoice({
           provider: json.provider,
           invoiceId: json.invoiceId,
           paymentUrl: json.paymentUrl ?? null,
@@ -314,9 +306,9 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
               )}
 
               {/* Payment URL */}
-              {(invoice && invoice.ok && invoice.paymentUrl) || sub.lastPaymentUrl ? (
+              {(invoice && invoice.ok && invoice.paymentUrl) || lastPaymentUrl ? (
                 <a
-                  href={(invoice && invoice.ok && invoice.paymentUrl) || sub.lastPaymentUrl || "#"}
+                  href={(invoice && invoice.ok && invoice.paymentUrl) || lastPaymentUrl || "#"}
                   target="_blank"
                   rel="noreferrer"
                   className="ms-focus-ring flex w-full items-center justify-center gap-2 rounded-ms-lg border border-ms-cognition/40 bg-ms-cognition/8 px-4 py-3 text-[13px] font-medium text-ms-text hover:border-ms-cognition/60 hover:bg-ms-cognition/12 transition-colors"

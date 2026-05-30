@@ -12,7 +12,6 @@ import { supabaseBrowser, authCallbackUrl } from "@/lib/supabase/browser";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { clearClientSession } from "@/lib/auth/sign-out";
 import { useAuthStore } from "@/store/auth-store";
-import { useShallow } from "zustand/react/shallow";
 import { authModalPolicyNote } from "@/lib/i18n/trust-surface";
 import { useTelegramAuth } from "@/hooks/use-telegram-auth";
 import { TelegramLoginWidget } from "@/components/auth/telegram-login-widget";
@@ -51,7 +50,8 @@ function friendlyAuthError(message: string): string {
 export function AuthModal({ open, onClose }: AuthModalProps) {
   const t = useT();
   const locale = useUiPrefsStore((s) => s.uiLocale);
-  const auth = useAuthStore(useShallow((s) => ({ status: s.status, user: s.user })));
+  const authStatus = useAuthStore((s) => s.status);
+  const authUser = useAuthStore((s) => s.user);
   const sb = useMemo(() => supabaseBrowser(), []);
   const { signInWithTelegram, busy: telegramBusy, hasInitData, error: telegramError } = useTelegramAuth();
   const inTelegram = hasInitData;
@@ -207,14 +207,14 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
         ) : null}
 
         {/* ── Signed-in state ── */}
-        {auth.status === "signed_in" && auth.user ? (
+        {authStatus === "signed_in" && authUser ? (
           <div className="rounded-ms-xl border border-ms-border bg-ms-surface/35 p-4">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="ms-data-label text-ms-faint">{t("auth.signedInAs")}</p>
                 <p className="mt-1 truncate font-mono text-[12px] text-ms-text">
-                  {auth.user.email
-                    ? auth.user.email.replace(/^(.{2})(.*)(@.*)$/, (_, a, b, c) => `${a}${"•".repeat(b.length)}${c}`)
+                  {authUser.email
+                    ? authUser.email.replace(/^(.{2})(.*)(@.*)$/, (_, a, b, c) => `${a}${"•".repeat(b.length)}${c}`)
                     : pickLocale(locale, "Telegram session", "Telegram сессия")}
                 </p>
               </div>

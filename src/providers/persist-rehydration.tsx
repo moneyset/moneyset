@@ -28,6 +28,14 @@ export function PersistRehydration() {
         void store.persist.rehydrate();
       }
     }
+
+    const unsubAccess = useAccessStore.persist.onFinishHydration(() => {
+      useAccessStore.getState().retryProfileSync?.();
+    });
+
+    return () => {
+      unsubAccess();
+    };
   }, []);
 
   return null;
