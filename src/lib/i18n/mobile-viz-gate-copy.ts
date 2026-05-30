@@ -96,6 +96,16 @@ const COPY: Record<MobileVizSection, GateCopy> = {
   },
 };
 
+export function mobileVizAccessGateCopy(section: MobileVizSection) {
+  const c = COPY[section];
+  return {
+    titleEn: c.titleEn,
+    titleRu: c.titleRu,
+    bodyEn: c.bodyEn,
+    bodyRu: c.bodyRu,
+  };
+}
+
 export function mobileVizGateCopy(section: MobileVizSection, locale: UiLocale) {
   const c = COPY[section];
   return {

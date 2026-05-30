@@ -18,6 +18,7 @@ import { useSubscriptionStore } from "@/store/subscription-store";
 import type { CreateInvoiceResult, InvoiceStatusResult } from "@/types/billing";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
 import { MemberSupportPanel } from "@/components/support/member-support-panel";
+import { nowPaymentsInvoiceUrl } from "@/services/payments/providers/nowpayments";
 import { cn } from "@/lib/utils";
 
 const POLL_INTERVAL_MS = 12_000;
@@ -93,6 +94,23 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
     if (invoice?.ok && invoice.paymentUrl) return invoice.paymentUrl;
     return lastPaymentUrl;
   }, [checkoutMode, invoice, lastPaymentUrl]);
+
+  /** Payment link — derive from invoice id when store URL is missing. */
+  const effectivePaymentUrl = useMemo(() => {
+    if (paymentUrl) return paymentUrl;
+    const id = invoice?.ok ? invoice.invoiceId : checkoutMode === "resume" ? lastInvoiceId : null;
+    return id ? nowPaymentsInvoiceUrl(id) : null;
+  }, [paymentUrl, invoice, checkoutMode, lastInvoiceId]);
+
+  const invoiceReadyMessage = useMemo(
+    () =>
+      pickLocale(
+        locale,
+        "Invoice ready — complete payment on the checkout page.",
+        "Счёт готов — завершите оплату на странице checkout.",
+      ),
+    [locale],
+  );
 
   const resetCheckoutState = useCallback(() => {
     clearPendingInvoice();
@@ -277,20 +295,14 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
             return;
           }
 
-          if (shouldInvalidateBillingSession(res.status, err) && !paymentUrl) {
-            switchToCreate({ tone: "error", text: friendly });
+          // Status poll failed but invoice exists — non-fatal; user can still pay on NOWPayments.
+          if (pollInvoiceId) {
+            setSurfaceMessage({ tone: "neutral", text: invoiceReadyMessage });
             return;
           }
 
-          if (shouldInvalidateBillingSession(res.status, err) && paymentUrl) {
-            setSurfaceMessage({
-              tone: "neutral",
-              text: pickLocale(
-                locale,
-                "Invoice ready — complete payment on the checkout page.",
-                "Счёт готов — завершите оплату на странице checkout.",
-              ),
-            });
+          if (shouldInvalidateBillingSession(res.status, err)) {
+            switchToCreate({ tone: "error", text: friendly });
             return;
           }
 
@@ -306,14 +318,18 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
           });
         }
       } catch {
-        setSurfaceMessage({
-          tone: "error",
-          text: pickLocale(
-            locale,
-            "We couldn't verify your payment right now. Try again or contact Member Support.",
-            "Не удалось проверить оплату. Повторите попытку или напишите в Member Support.",
-          ),
-        });
+        if (pollInvoiceId) {
+          setSurfaceMessage({ tone: "neutral", text: invoiceReadyMessage });
+        } else {
+          setSurfaceMessage({
+            tone: "error",
+            text: pickLocale(
+              locale,
+              "We couldn't verify your payment right now. Try again or contact Member Support.",
+              "Не удалось проверить оплату. Повторите попытку или напишите в Member Support.",
+            ),
+          });
+        }
       } finally {
         setBusy(false);
       }
@@ -329,6 +345,7 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
       setProfile,
       setTierActive,
       paymentUrl,
+      invoiceReadyMessage,
       resetCheckoutState,
       switchToCreate,
     ],
@@ -370,11 +387,7 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
         pollTicksRef.current = 0;
         setSurfaceMessage({
           tone: "neutral",
-          text: pickLocale(
-            locale,
-            "Invoice ready — complete payment on the checkout page.",
-            "Счёт готов — завершите оплату на странице checkout.",
-          ),
+          text: invoiceReadyMessage,
         });
         return;
       }
@@ -408,7 +421,7 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
       : (product?.label ?? "Premium");
 
   const showPaymentSupport =
-    surfaceMessage?.tone === "error" && !paid;
+    surfaceMessage?.tone === "error" && !paid && checkoutMode === "create";
 
   const actionFooter = (
     <div className="ms-checkout-modal__action">
@@ -436,9 +449,9 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
             <div className="ms-checkout-modal__skeleton ms-checkout-modal__skeleton--copy" aria-hidden />
             <div className="ms-checkout-modal__skeleton ms-checkout-modal__skeleton--btn" aria-hidden />
           </>
-        ) : showResumeUi && paymentUrl ? (
+        ) : showResumeUi && effectivePaymentUrl ? (
           <a
-            href={paymentUrl}
+            href={effectivePaymentUrl}
             target="_blank"
             rel="noreferrer"
             className="ms-focus-ring flex w-full items-center justify-center gap-2 rounded-ms-lg border border-ms-cognition/40 bg-ms-cognition/8 px-4 py-3 text-[13px] font-medium text-ms-text transition-colors hover:border-ms-cognition/60 hover:bg-ms-cognition/12"

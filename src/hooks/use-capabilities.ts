@@ -38,9 +38,8 @@ function canEvaluateAccess(
   profile: ReturnType<typeof useAccessStore.getState>["profile"],
 ): boolean {
   if (confirmed) return true;
-  if (syncStatus === "error") return true;
-  if (syncStatus === "loading" && hasExtendedAccess(profile)) return true;
-  if (syncStatus === "idle") return true;
+  // Optimistic unlock only while server sync is in flight — never trust idle + cached profile alone.
+  if ((syncStatus === "loading" || syncStatus === "error") && hasExtendedAccess(profile)) return true;
   return false;
 }
 

@@ -92,10 +92,13 @@ export async function GET(req: Request) {
     const result = await provider.getInvoiceStatus({ invoiceId });
 
     if (!result.ok) {
-      return NextResponse.json(
-        { ok: false, error: sanitizeApiError(result.error) },
-        { status: 502 },
-      );
+      console.warn("[billing/status] provider status unavailable:", result.error, invoiceId);
+      return NextResponse.json({
+        ok: true,
+        provider: "nowpayments",
+        invoiceId,
+        status: "unpaid",
+      });
     }
 
     // Not yet paid — return status now (no unlock needed)

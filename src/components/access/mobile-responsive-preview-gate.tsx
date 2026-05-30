@@ -2,14 +2,12 @@
 
 import { Lock } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { PlatformAccessGate } from "@/components/access/platform-access-gate";
 import type { AccessCapability } from "@/lib/access/capabilities";
 import { useNarrowMobileViewport } from "@/hooks/use-narrow-mobile-viewport";
 import { useCanAccessCapability } from "@/hooks/use-capabilities";
-import { mobileVizGateCopy, type MobileVizSection } from "@/lib/i18n/mobile-viz-gate-copy";
-import { pickLocale } from "@/lib/i18n/cognition-dict";
+import { mobileVizAccessGateCopy, mobileVizGateCopy, type MobileVizSection } from "@/lib/i18n/mobile-viz-gate-copy";
 import { cn } from "@/lib/utils";
-import { useUpgradeModalStore } from "@/store/upgrade-modal-store";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
 
 type MobileResponsivePreviewGateProps = Readonly<{
@@ -20,8 +18,9 @@ type MobileResponsivePreviewGateProps = Readonly<{
 }>;
 
 /**
- * Hides complex visualizations on narrow mobile (≤430px) behind a premium-style preview.
- * Prevents unfinished responsive layouts from becoming the first impression.
+ * Two-layer gate for unfinished visualizations:
+ * 1. Premium / Founding — all viewports (PlatformAccessGate).
+ * 2. Narrow mobile — entitled users still see a clean preview until responsive layout ships.
  */
 export function MobileResponsivePreviewGate({
   section,
@@ -32,8 +31,23 @@ export function MobileResponsivePreviewGate({
   const narrow = useNarrowMobileViewport();
   const locale = useUiPrefsStore((s) => s.uiLocale);
   const entitled = useCanAccessCapability(capability);
-  const openUpgrade = useUpgradeModalStore((s) => s.openUpgrade);
+  const accessCopy = mobileVizAccessGateCopy(section);
   const copy = mobileVizGateCopy(section, locale);
+
+  if (!entitled) {
+    return (
+      <PlatformAccessGate
+        capability={capability}
+        className={className}
+        titleEn={accessCopy.titleEn}
+        titleRu={accessCopy.titleRu}
+        bodyEn={accessCopy.bodyEn}
+        bodyRu={accessCopy.bodyRu}
+      >
+        {children}
+      </PlatformAccessGate>
+    );
+  }
 
   if (!narrow) return <>{children}</>;
 
@@ -44,10 +58,7 @@ export function MobileResponsivePreviewGate({
         className,
       )}
     >
-      <div
-        className="ms-mobile-viz-gate__preview pointer-events-none select-none"
-        aria-hidden
-      >
+      <div className="ms-mobile-viz-gate__preview pointer-events-none select-none" aria-hidden>
         {children}
       </div>
 
@@ -74,13 +85,7 @@ export function MobileResponsivePreviewGate({
           ))}
         </div>
 
-        {entitled ? (
-          <p className="mt-5 max-w-[18rem] text-[10px] leading-relaxed text-ms-faint">{copy.desktopNote}</p>
-        ) : (
-          <Button type="button" variant="cognition" size="sm" className="mt-5" onClick={openUpgrade}>
-            {pickLocale(locale, "Founding Access — $149", "Founding Access — $149")}
-          </Button>
-        )}
+        <p className="mt-5 max-w-[18rem] text-[10px] leading-relaxed text-ms-faint">{copy.desktopNote}</p>
       </div>
     </div>
   );
