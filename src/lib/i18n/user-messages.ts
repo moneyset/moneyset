@@ -192,16 +192,18 @@ export function shouldInvalidateBillingSession(
   raw?: string | null | undefined,
 ): boolean {
   if (httpStatus === 401 || httpStatus === 429) return false;
-  if (httpStatus === 400 || httpStatus === 403 || httpStatus === 422) return true;
-  if (httpStatus === 502 || httpStatus === 503 || httpStatus === 500) return true;
-  if (!raw?.trim()) return httpStatus != null && httpStatus >= 400;
+  if (httpStatus === 502 || httpStatus === 503 || httpStatus === 500) return false;
+
+  if (!raw?.trim()) {
+    return httpStatus === 400 || httpStatus === 403 || httpStatus === 422;
+  }
 
   const lower = raw.toLowerCase();
   if (lower.includes("not configured") || lower.includes("misconfigured")) return true;
-  if (lower.includes("nowpayments") || lower.includes("provider")) return true;
-  if (lower.includes("missing invoice") || lower.includes("does not belong")) return true;
+  if (lower.includes("does not belong") || lower.includes("missing invoice")) return true;
   if (lower.includes("unknown product") || lower.includes("invoice does not")) return true;
-  return false;
+  if (lower.includes("expired") || lower.includes("failed")) return true;
+  return httpStatus === 400 || httpStatus === 403 || httpStatus === 422;
 }
 
 /** Map Telegram client/API errors for sign-in surfaces. */

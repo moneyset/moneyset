@@ -68,6 +68,12 @@ export async function POST(req: Request) {
         live.status !== "expired" &&
         live.status !== "failed"
       ) {
+        console.info("[billing/create] reusing pending invoice:", {
+          userId,
+          productId,
+          invoiceId: existingPending.record.idempotency_key,
+          status: live.status,
+        });
         return NextResponse.json({
           ok: true,
           provider: existingPending.record.provider,
@@ -91,6 +97,11 @@ export async function POST(req: Request) {
     const result = await provider.createInvoice({ ...body, productId }, { userId });
 
     if (!result.ok) {
+      console.error("[billing/create] provider.createInvoice failed:", {
+        userId,
+        productId,
+        error: result.error,
+      });
       return NextResponse.json(
         { ok: false, error: sanitizeApiError(result.error) },
         { status: 502 },

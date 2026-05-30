@@ -12,6 +12,7 @@ import {
 } from "@/lib/auth/telegram-oidc-cookies";
 import { unsignTelegramOidcState } from "@/lib/auth/telegram-oidc-state";
 import { logTelegramAuthEvent } from "@/lib/auth/telegram-telemetry";
+import { readPartnerRefCookie } from "@/lib/partners/partner-codes";
 import { hasExtendedAccess } from "@/lib/access/roles";
 import { sanitizeAuthNextPath } from "@/lib/supabase/auth-routing";
 import { supabaseAdmin } from "@/lib/supabase/admin";
@@ -83,7 +84,8 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${origin}/auth?error=${encodeURIComponent("auth_unconfigured")}`);
     }
 
-    const result = await establishTelegramSession(admin, user.telegramId, user.username);
+    const partnerCode = await readPartnerRefCookie();
+    const result = await establishTelegramSession(admin, user.telegramId, user.username, partnerCode);
     if (!result.ok || !result.session) {
       logTelegramAuthEvent("telegram_login_failed", {
         source: "oidc",

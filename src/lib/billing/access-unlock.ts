@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { billingProduct, type BillingProductId } from "@/lib/billing/catalog";
+import { recordPartnerPurchase } from "@/lib/partners/partner-attribution";
 import { ensureProfileRow } from "@/lib/supabase/ensure-profile";
 
 export type ProfileUnlockPatch = Readonly<Record<string, unknown>>;
@@ -78,5 +79,16 @@ export async function unlockProfileForProduct(
   };
   const { error } = await admin.from("profiles").update(patch).eq("id", userId);
   if (error) return { ok: false, error: error.message };
+
+  if (productId === "founding_access") {
+    const product = billingProduct(productId);
+    const amount = product?.priceUsd ?? 0;
+    try {
+      await recordPartnerPurchase(admin, userId, productId, amount);
+    } catch (e) {
+      console.error("[access-unlock] partner purchase attribution failed:", e instanceof Error ? e.message : e);
+    }
+  }
+
   return { ok: true };
 }

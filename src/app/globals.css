@@ -31,6 +31,7 @@
 @import "./globals-member-support.css";
 @import "./globals-audit-ux-restoration.css";
 @import "./globals-mobile-viz-gate.css";
+@import "./globals-founding-partners.css";
 
 @theme inline {
   --font-sans: var(--font-geist-sans);

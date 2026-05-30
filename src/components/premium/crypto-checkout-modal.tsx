@@ -277,8 +277,20 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
             return;
           }
 
-          if (shouldInvalidateBillingSession(res.status, err)) {
+          if (shouldInvalidateBillingSession(res.status, err) && !paymentUrl) {
             switchToCreate({ tone: "error", text: friendly });
+            return;
+          }
+
+          if (shouldInvalidateBillingSession(res.status, err) && paymentUrl) {
+            setSurfaceMessage({
+              tone: "neutral",
+              text: pickLocale(
+                locale,
+                "Invoice ready — complete payment on the checkout page.",
+                "Счёт готов — завершите оплату на странице checkout.",
+              ),
+            });
             return;
           }
 
@@ -316,6 +328,7 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
       locale,
       setProfile,
       setTierActive,
+      paymentUrl,
       resetCheckoutState,
       switchToCreate,
     ],
@@ -363,7 +376,6 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
             "Счёт готов — завершите оплату на странице checkout.",
           ),
         });
-        if (json.paymentUrl) void check({ invoiceId: json.invoiceId });
         return;
       }
 
@@ -602,9 +614,8 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
         "Lifetime intelligence depth — execution layer, structural zones, and full platform access.",
         "Пожизненная глубина интеллекта — слой исполнения, структурные зоны и полный доступ к платформе.",
       )}
-      footer={actionFooter}
     >
-      <div className="ms-checkout-modal ms-checkout-modal--premium">
+      <div className="ms-checkout-modal ms-checkout-modal--premium ms-checkout-modal__scroll">
         <div className="ms-checkout-modal__summary">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
@@ -642,6 +653,8 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
             </span>
           </div>
         </div>
+
+        {actionFooter}
       </div>
     </Modal>
   );

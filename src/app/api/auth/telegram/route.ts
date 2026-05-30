@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { verifyTelegramWebAppInitData } from "@/lib/auth/telegram-verify";
 import { establishTelegramSession } from "@/lib/auth/telegram-session";
 import { logTelegramAuthEvent } from "@/lib/auth/telegram-telemetry";
+import { readPartnerRefCookie } from "@/lib/partners/partner-codes";
 import { hasExtendedAccess } from "@/lib/access/roles";
 import { applyRateLimit } from "@/lib/ops/api-guard-helpers";
 import { logOpsEvent } from "@/lib/ops/operational-events";
@@ -57,7 +58,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Supabase admin not configured" }, { status: 503 });
   }
 
-  const result = await establishTelegramSession(admin, verified.user.id, verified.user.username ?? null);
+  const partnerCode = await readPartnerRefCookie();
+  const result = await establishTelegramSession(
+    admin,
+    verified.user.id,
+    verified.user.username ?? null,
+    partnerCode,
+  );
   if (!result.ok || !result.session || !result.userId) {
     logTelegramAuthEvent("telegram_login_failed", {
       source,

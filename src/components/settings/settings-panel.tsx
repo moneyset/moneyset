@@ -15,10 +15,12 @@ import { useAuthStore } from "@/store/auth-store";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
 import { trialAccessEndsLine } from "@/lib/i18n/trust-surface";
 import { Button } from "@/components/ui/button";
+
 import { InvitationAdminPanel } from "@/components/settings/invitation-admin-panel";
 import { TelegramSettingsCard } from "@/components/settings/telegram-settings-card";
 import { MemberSupportPanel } from "@/components/support/member-support-panel";
 import { accessTierLabel } from "@/lib/access/capabilities";
+import { isAdmin } from "@/lib/access/roles";
 import type { CognitionDensityMode } from "@/store/ui-prefs-store";
 import {
   settingsAlertsHelp,
@@ -280,6 +282,28 @@ export function SettingsPanel() {
         </CognitionPanel>
 
         <TelegramSettingsCard />
+        {isAdmin(profile) ? (
+          <CognitionPanel
+            id="admin-founding-partners"
+            eyebrow={pickLocale(locale, "Admin", "Админ")}
+            accent="warning"
+            title={pickLocale(locale, "Founding Partner Program", "Founding Partner Program")}
+          >
+            <p className="mt-2 text-[12px] leading-relaxed text-ms-muted">
+              {pickLocale(
+                locale,
+                "Manage partner links, referral tracking, and commission reporting.",
+                "Управление партнёрскими ссылками, отслеживание рефералов и отчёт по комиссиям.",
+              )}
+            </p>
+            <Link
+              href="/admin/partners"
+              className="ms-focus-ring mt-3 inline-flex items-center rounded-ms-lg border border-ms-cognition/35 bg-ms-cognition/8 px-3 py-2 text-[12px] font-medium text-ms-text"
+            >
+              {pickLocale(locale, "Open partner dashboard →", "Открыть панель партнёров →")}
+            </Link>
+          </CognitionPanel>
+        ) : null}
         <InvitationAdminPanel />
 
         <CognitionPanel

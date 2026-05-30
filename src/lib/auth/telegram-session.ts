@@ -1,7 +1,9 @@
 import type { Session, SupabaseClient } from "@supabase/supabase-js";
 
-import { roleFromProfile } from "@/lib/access/roles";
+import { attachPartnerSignup } from "@/lib/partners/partner-attribution";
+import { normalizePartnerCode } from "@/lib/partners/partner-codes";
 import type { ProfileAccess } from "@/lib/access/roles";
+import { roleFromProfile } from "@/lib/access/roles";
 import { isFounderTelegramId } from "@/lib/access/founder";
 import { telegramAuthEmail, telegramAuthPassword } from "@/lib/auth/telegram-credentials";
 import { ensureProfileRow } from "@/lib/supabase/ensure-profile";
@@ -21,6 +23,7 @@ export async function establishTelegramSession(
   admin: SupabaseClient,
   tgId: number,
   username?: string | null,
+  partnerCodeRaw?: string | null,
 ): Promise<TelegramSessionResult> {
   const email = telegramAuthEmail(tgId);
   const password = telegramAuthPassword(tgId);
@@ -96,6 +99,14 @@ export async function establishTelegramSession(
 
   const { data: profileRow } = await admin.from("profiles").select("*").eq("id", userId).maybeSingle();
   const profile = roleFromProfile(profileRow ?? {});
+
+  if (isNewUser) {
+    try {
+      await attachPartnerSignup(admin, userId, normalizePartnerCode(partnerCodeRaw));
+    } catch (e) {
+      console.error("[telegram-session] partner signup attribution failed:", e instanceof Error ? e.message : e);
+    }
+  }
 
   return { ok: true, session, userId, profile, isNewUser, isReturning };
 }

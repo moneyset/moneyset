@@ -1,0 +1,209 @@
+/* ─── Founding Partner Program — admin dashboard ─────────────────────────── */
+
+.ms-fpp-admin {
+  min-height: 100dvh;
+  padding: 1.5rem 1rem 3rem;
+  background:
+    radial-gradient(ellipse 80% 45% at 50% -10%, color-mix(in srgb, var(--ms-cognition) 8%, transparent), transparent 55%),
+    var(--ms-canvas);
+}
+
+.ms-fpp-admin--denied {
+  display: flex;
+  min-height: 60dvh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: var(--ms-muted);
+}
+
+.ms-fpp-admin__shell {
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+.ms-fpp-admin__header {
+  margin-bottom: 1.5rem;
+}
+
+.ms-fpp-admin__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  font-size: 0.75rem;
+  color: var(--ms-muted);
+}
+
+.ms-fpp-admin__wordmark {
+  margin: 0 0 0.5rem;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ms-text) 42%, transparent);
+}
+
+.ms-fpp-admin__title {
+  margin: 0;
+  font-size: clamp(1.35rem, 4vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ms-text);
+}
+
+.ms-fpp-admin__subtitle {
+  margin: 0.5rem 0 0;
+  max-width: 42rem;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--ms-muted);
+}
+
+.ms-fpp-admin__generator,
+.ms-fpp-admin__table-wrap {
+  margin-bottom: 1.25rem;
+  padding: 1.15rem;
+  border-radius: var(--ms-radius-xl, 0.75rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 35%, transparent);
+  background: color-mix(in srgb, var(--ms-elevated) 10%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.ms-fpp-admin__section-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.ms-fpp-admin__section-head h2 {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ms-text);
+}
+
+.ms-fpp-admin__form {
+  display: grid;
+  gap: 0.65rem;
+}
+
+@media (min-width: 640px) {
+  .ms-fpp-admin__form {
+    grid-template-columns: 1fr 1fr auto;
+    align-items: center;
+  }
+}
+
+.ms-fpp-admin__input {
+  width: 100%;
+  min-height: 2.75rem;
+  border-radius: var(--ms-radius-lg, 0.5rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 45%, transparent);
+  background: color-mix(in srgb, var(--ms-canvas) 50%, transparent);
+  padding: 0 0.85rem;
+  font-size: 0.8125rem;
+  color: var(--ms-text);
+}
+
+.ms-fpp-admin__error {
+  margin: 0.65rem 0 0;
+  font-size: 0.75rem;
+  color: var(--ms-muted);
+}
+
+.ms-fpp-admin__hint {
+  margin: 0.65rem 0 0;
+  font-size: 0.6875rem;
+  color: var(--ms-faint);
+}
+
+.ms-fpp-admin__summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .ms-fpp-admin__summary {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.ms-fpp-admin__metric {
+  padding: 0.85rem;
+  border-radius: var(--ms-radius-lg, 0.5rem);
+  border: 1px solid color-mix(in srgb, var(--ms-cognition) 18%, var(--ms-border));
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--ms-cognition) 5%, transparent),
+    color-mix(in srgb, var(--ms-elevated) 12%, transparent)
+  );
+}
+
+.ms-fpp-admin__metric-label {
+  margin: 0;
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ms-faint);
+}
+
+.ms-fpp-admin__metric-value {
+  margin: 0.35rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ms-text);
+}
+
+.ms-fpp-admin__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.ms-fpp-admin__table th,
+.ms-fpp-admin__table td {
+  padding: 0.65rem 0.5rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--ms-border) 30%, transparent);
+  text-align: left;
+  vertical-align: top;
+}
+
+.ms-fpp-admin__table th {
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ms-faint);
+}
+
+.ms-fpp-admin__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: color-mix(in srgb, var(--ms-cognition) 80%, var(--ms-text));
+  word-break: break-all;
+}
+
+.ms-fpp-admin__empty {
+  margin: 0.85rem 0 0;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--ms-muted);
+}
+
+@media (max-width: 767.98px) {
+  .ms-fpp-admin__table-wrap {
+    overflow-x: auto;
+  }
+
+  .ms-fpp-admin__table {
+    min-width: 42rem;
+  }
+}
