@@ -1,0 +1,189 @@
+/* ─── MONEYSET Member Support — private concierge presentation ───────────── */
+
+.ms-member-support {
+  border-radius: var(--ms-radius-lg, 0.5rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 32%, transparent);
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--ms-elevated) 16%, transparent),
+    color-mix(in srgb, var(--ms-surface) 28%, transparent)
+  );
+  padding: 0.75rem 0.85rem;
+}
+
+.ms-member-support__eyebrow {
+  margin: 0;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ms-cognition) 72%, var(--ms-muted));
+}
+
+.ms-member-support__title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ms-text);
+}
+
+.ms-member-support__lead {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--ms-text);
+}
+
+.ms-member-support__sub {
+  margin: 0.35rem 0 0;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: var(--ms-muted);
+}
+
+.ms-member-support__intro {
+  margin: 0.35rem 0 0;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: var(--ms-muted);
+}
+
+.ms-member-support__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-top: 0.65rem;
+}
+
+.ms-member-support__actions--row {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.ms-member-support__btn {
+  display: inline-flex;
+  min-height: 2.5rem;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border-radius: var(--ms-radius-md, 0.375rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 45%, transparent);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.ms-member-support__btn--telegram {
+  border-color: color-mix(in srgb, #54a9eb 35%, var(--ms-border));
+  background: color-mix(in srgb, #54a9eb 10%, transparent);
+  color: color-mix(in srgb, #54a9eb 88%, var(--ms-text));
+}
+
+.ms-member-support__btn--telegram:hover {
+  border-color: color-mix(in srgb, #54a9eb 55%, var(--ms-border));
+  background: color-mix(in srgb, #54a9eb 16%, transparent);
+}
+
+.ms-member-support__btn--email {
+  border-color: color-mix(in srgb, var(--ms-cognition) 28%, var(--ms-border));
+  background: color-mix(in srgb, var(--ms-cognition) 6%, transparent);
+  color: color-mix(in srgb, var(--ms-text) 88%, var(--ms-muted));
+}
+
+.ms-member-support__btn--email:hover {
+  border-color: color-mix(in srgb, var(--ms-cognition) 42%, var(--ms-border));
+  background: color-mix(in srgb, var(--ms-cognition) 10%, transparent);
+}
+
+.ms-member-support--compact {
+  padding: 0.55rem 0;
+  border: none;
+  background: transparent;
+}
+
+.ms-member-support--compact .ms-member-support__actions {
+  margin-top: 0.45rem;
+}
+
+.ms-member-support--auth-error,
+.ms-member-support--payment-error {
+  margin-top: 0.65rem;
+  padding: 0.65rem 0.75rem;
+  border-color: color-mix(in srgb, var(--ms-warning) 18%, var(--ms-border));
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--ms-warning) 4%, transparent),
+    color-mix(in srgb, var(--ms-elevated) 10%, transparent)
+  );
+}
+
+.ms-auth-modal--premium .ms-member-support--auth-error .ms-member-support__lead {
+  font-size: 0.75rem;
+}
+
+.ms-auth-modal--premium .ms-member-support--auth-error .ms-member-support__sub {
+  font-size: 0.625rem;
+}
+
+.ms-auth-modal--premium .ms-member-support--auth-error .ms-member-support__btn {
+  min-height: 2.375rem;
+  font-size: 0.625rem;
+}
+
+.ms-member-support--concierge {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.ms-member-support__concierge-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ms-member-support__concierge-list {
+  margin: 0.85rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.ms-member-support__concierge-label {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ms-text);
+}
+
+.ms-member-support__concierge-hint {
+  margin: 0.25rem 0 0;
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  color: var(--ms-muted);
+}
+
+.ms-member-support__contact-line {
+  margin: 0.85rem 0 0;
+  font-size: 0.625rem;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 639.98px) {
+  .ms-member-support__actions--row {
+    flex-direction: column;
+  }
+
+  .ms-member-support__btn {
+    width: 100%;
+    min-height: 2.75rem;
+  }
+}

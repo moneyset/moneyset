@@ -91,6 +91,12 @@ const SECTIONS: Array<{ en: string; ru: string; descEn: string; descRu: string }
     descRu: "Понять возможные пути.",
   },
   {
+    en: "Labs",
+    ru: "Лабы",
+    descEn: "Deep liquidity, chart, and structural intelligence modules.",
+    descRu: "Модули ликвидности, графиков и структурного интеллекта.",
+  },
+  {
     en: "Agents",
     ru: "Агенты",
     descEn: "Understand agreement and disagreement.",
@@ -297,6 +303,7 @@ export function MoneysetEntryOnboarding() {
   return (
     <m.div
       className="ms-ob ms-ob--premium"
+      data-theme="dark"
       role="dialog"
       aria-modal="true"
       aria-label={pickLocale(locale, "MONEYSET onboarding", "Вступление MONEYSET")}

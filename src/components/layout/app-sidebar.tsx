@@ -63,7 +63,7 @@ export function AppSidebar({ className }: { className?: string }) {
   return (
     <aside
       className={cn(
-        "relative z-30 flex w-[var(--ms-sidebar-width)] shrink-0 flex-col border-r border-ms-border bg-ms-elevated/92",
+        "relative z-30 flex h-full min-h-0 max-h-dvh w-[var(--ms-sidebar-width)] shrink-0 flex-col border-r border-ms-border bg-ms-elevated/92",
         collapsed ? "md:w-[4.25rem]" : "",
         className,
       )}
@@ -78,7 +78,10 @@ export function AppSidebar({ className }: { className?: string }) {
           MONEYSET
         </span>
       </div>
-      <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-2" aria-label="Primary">
+      <nav
+        className="ms-sidebar-nav flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto overscroll-y-contain p-2"
+        aria-label="Primary"
+      >
         <p
           className={cn(
             "px-3 pb-1 pt-1 text-[10px] font-medium text-ms-faint",

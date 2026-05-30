@@ -1,6 +1,7 @@
 "use client";
 
 import { CognitionNavRail } from "@/components/cognition/cognition-nav-rail";
+import { MobileResponsivePreviewGate } from "@/components/access/mobile-responsive-preview-gate";
 import { ExecutionMapLayer } from "@/components/execution/execution-map-layer";
 import { ExecutionStructuralRail } from "@/components/execution/execution-structural-rail";
 import { ExecutionTacticalTheater } from "@/components/execution/execution-tactical-theater";
@@ -43,12 +44,16 @@ export function ExecutionTacticalWorkspace({ className }: { className?: string }
         </div>
       </header>
 
-      <ExecutionTacticalTheater />
+      <MobileResponsivePreviewGate section="execution" capability="executionLayer">
+        <ExecutionTacticalTheater />
+      </MobileResponsivePreviewGate>
 
       <p className="mb-3 font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-ms-faint">
         {hierarchySectionLabel(locale, "evidence")} · {pickLocale(locale, "Execution map", "Карта исполнения")}
       </p>
-      <ExecutionMapLayer className="mb-5" />
+      <MobileResponsivePreviewGate section="executionMap" capability="executionMap" className="mb-5">
+        <ExecutionMapLayer />
+      </MobileResponsivePreviewGate>
 
       <details className="group mt-6 max-lg:hidden rounded-ms-lg border border-ms-border/20 bg-ms-surface/6">
         <summary className="ms-focus-ring cursor-pointer list-none px-4 py-3 text-[11px] font-medium text-ms-muted [&::-webkit-details-marker]:hidden">

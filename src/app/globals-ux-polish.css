@@ -1,7 +1,7 @@
 /* MONEYSET UX polish — layout stability, premium locks, modals, mobile (no redesign) */
 
 :root {
-  --ms-intel-bar-height-mobile: 5.25rem;
+  --ms-intel-bar-height-mobile: 6.5rem;
   --ms-mobile-nav-height: 4.5rem;
 }
 
@@ -11,13 +11,13 @@
 }
 
 @media (max-width: 1023.98px) {
-  .ms-intel-command > .grid {
+  .ms-intel-command > .flex-col {
     min-height: var(--ms-intel-bar-height-mobile);
   }
 }
 
 .ms-intel-command-right-cluster {
-  min-width: 9.5rem;
+  min-width: 0;
   justify-content: flex-end;
 }
 
@@ -52,7 +52,9 @@
 
 .ms-brand-logo {
   white-space: nowrap;
-  min-width: 4.75rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ─── B. Premium lock overlays ─── */
@@ -157,18 +159,7 @@
   padding-right: max(1rem, var(--ms-safe-right));
 }
 
-.ms-modal-panel {
-  max-height: min(88dvh, 640px);
-  display: flex;
-  flex-direction: column;
-}
-
-.ms-modal-body {
-  max-height: min(60dvh, 520px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-}
+/* Viewport + scroll: see globals-modal-viewport.css */
 
 .ms-auth-modal__method-btn {
   min-height: 2.75rem;

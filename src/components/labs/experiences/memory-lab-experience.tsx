@@ -1,6 +1,7 @@
 "use client";
 
 import { CognitionMachineShell } from "@/components/cognition/cognition-machine-shell";
+import { MobileResponsivePreviewGate } from "@/components/access/mobile-responsive-preview-gate";
 import { MarketMemoryConstellation } from "@/components/memory/market-memory-constellation";
 import { getLabIdentity } from "@/lib/cognition/lab-identities";
 import { getLabModule, labCopy } from "@/lib/labs/labs-modules";
@@ -18,7 +19,9 @@ export function MemoryLabExperience() {
       title={labCopy(locale, mod.title)}
       purpose={labCopy(locale, mod.purpose)}
     >
-      <MarketMemoryConstellation />
+      <MobileResponsivePreviewGate section="memoryLab" capability="marketMemory">
+        <MarketMemoryConstellation />
+      </MobileResponsivePreviewGate>
     </CognitionMachineShell>
   );
 }

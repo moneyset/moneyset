@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Menu, Settings, UserRound, LogOut } from "lucide-react";
+import { Menu, Settings, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
@@ -13,8 +13,6 @@ import { useAuthModalStore } from "@/store/auth-modal-store";
 import { useUpgradeModalStore } from "@/store/upgrade-modal-store";
 import { useProfileCenterStore } from "@/store/profile-center-store";
 import { useAuthStore } from "@/store/auth-store";
-import { supabaseBrowser } from "@/lib/supabase/browser";
-import { clearClientSession } from "@/lib/auth/sign-out";
 import { useAccessStore } from "@/store/access-store";
 import { hasFounderAccess } from "@/lib/access/founder";
 import { useMarketStore } from "@/store/market-store";
@@ -64,13 +62,6 @@ export function IntelligenceBar() {
   const handleAccountClick = () => {
     if (signedIn) openProfileCenter("overview");
     else openAuth();
-  };
-
-  const handleSignOut = async () => {
-    const sb = supabaseBrowser();
-    if (!sb) return;
-    await sb.auth.signOut();
-    clearClientSession();
   };
 
   const handleFoundingClick = () => {
@@ -135,86 +126,78 @@ export function IntelligenceBar() {
   const showStaleWarning =
     market.feedDegraded || market.connection === "stale" || (market.connection === "disconnected" && market.price !== null);
 
+  const priceDisplay = market.price ? market.price.toFixed(0) : null;
+
   return (
     <header
       className={cn(
         "ms-intel-command relative z-20 shrink-0 border-b border-ms-border/30 bg-ms-elevated/92 backdrop-blur-sm md:flex md:min-h-[var(--ms-intel-bar-height)] md:backdrop-blur-md",
       )}
     >
-      {/* Mobile / tablet compact bar — CSS grid avoids title vs controls overlap */}
-      <div className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 py-2.5 md:hidden">
-        <div className="flex min-w-0 items-center gap-2">
-          <button
-            type="button"
-            className="ms-focus-ring flex size-9 min-h-9 min-w-9 shrink-0 touch-manipulation items-center justify-center rounded-ms-md border border-ms-border/70 bg-ms-surface/45 text-ms-text transition-colors hover:border-ms-border-mid"
-            onClick={toggleMobileNav}
-            aria-label={pickLocale(locale, "Open navigation", "Открыть навигацию")}
-          >
-            <Menu className="size-4" strokeWidth={1.65} />
-          </button>
-          <BrandLogo size="md" />
-        </div>
-
-        <p className="min-w-0 truncate text-center text-[10px] leading-snug text-ms-muted tabular-nums" title={liveStateLine}>
-          {liveStateLine}
-        </p>
-
-        <div className={cn("ms-intel-command-right-cluster flex shrink-0 items-center justify-end gap-1.5")}>
-          <span className="ms-intel-command__price-slot font-mono text-[11.5px] font-medium tabular-nums tracking-[-0.01em] text-ms-text/90 sm:max-w-[6.25rem]">
-            <span className={cn("block truncate text-right", !market.price && "opacity-0")} aria-hidden={!market.price}>
-              {market.price ? market.price.toFixed(0) : "0"}
-            </span>
-          </span>
-          <Link
-            href="/settings"
-            title={prefsLabel}
-            aria-label={prefsLabel}
-            className="ms-focus-ring inline-flex size-9 min-h-10 min-w-10 shrink-0 touch-manipulation items-center justify-center rounded-ms-md border border-ms-border/55 bg-ms-surface/30 text-ms-muted transition-colors hover:border-ms-border-mid hover:text-ms-text"
-          >
-            <Settings className="size-3.5" strokeWidth={1.5} />
-          </Link>
-
-          <button
-            type="button"
-            onClick={handleFoundingClick}
-            className={cn(
-              "ms-intel-command__founding-btn ms-focus-ring inline-flex shrink-0 touch-manipulation items-center rounded-ms-md border px-1.5 py-1 text-[10px] font-semibold tracking-wide transition-colors min-[380px]:px-2.5 sm:py-1.5",
-              isFounder
-                ? "border-ms-warning/35 bg-ms-warning/10 text-ms-warning/90 hover:border-ms-warning/50"
-                : "border-ms-cognition/35 bg-ms-cognition/10 text-ms-cognition hover:border-ms-cognition/50 hover:bg-ms-cognition/15",
-            )}
-          >
-            {isFounder ? pickLocale(locale, "Founder", "Founder") : pickLocale(locale, "Founding", "Founding")}
-          </button>
-
-          <button
-            type="button"
-            className="ms-focus-ring flex size-9 min-h-10 min-w-10 shrink-0 touch-manipulation items-center justify-center rounded-ms-md border border-ms-border/55 bg-ms-surface/35 text-ms-muted transition-colors hover:border-ms-border-mid hover:text-ms-text"
-            aria-label={pickLocale(locale, "Account", "Аккаунт")}
-            onClick={handleAccountClick}
-          >
-            <UserRound className="size-4" strokeWidth={1.5} />
-          </button>
-          <span className="ms-intel-command__signout-slot">
+      {/* Mobile — stacked rows: brand / controls, then title + price, then live state */}
+      <div className="flex w-full flex-col md:hidden">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-1 py-2">
+          <div className="flex min-w-0 items-center gap-2">
             <button
               type="button"
-              className={cn(
-                "ms-focus-ring flex size-9 min-h-10 min-w-10 shrink-0 touch-manipulation items-center justify-center rounded-ms-md border border-ms-border/55 bg-ms-surface/35 text-ms-muted transition-colors hover:border-ms-border-mid hover:text-ms-text",
-                !signedIn && "pointer-events-none invisible",
-              )}
-              aria-label={pickLocale(locale, "Sign out", "Выйти")}
-              aria-hidden={!signedIn}
-              tabIndex={signedIn ? 0 : -1}
-              onClick={() => void handleSignOut()}
+              className="ms-focus-ring flex size-9 min-h-9 min-w-9 shrink-0 touch-manipulation items-center justify-center rounded-ms-md border border-ms-border/70 bg-ms-surface/45 text-ms-text transition-colors hover:border-ms-border-mid"
+              onClick={toggleMobileNav}
+              aria-label={pickLocale(locale, "Open navigation", "Открыть навигацию")}
             >
-              <LogOut className="size-3.5" strokeWidth={1.5} />
+              <Menu className="size-4" strokeWidth={1.65} />
             </button>
-          </span>
+            <BrandLogo size="md" className="min-w-0 shrink" />
+          </div>
+
+          <div className="ms-intel-command-right-cluster flex shrink-0 items-center justify-end gap-1">
+            <Link
+              href="/settings"
+              title={prefsLabel}
+              aria-label={prefsLabel}
+              className="ms-focus-ring inline-flex size-9 min-h-10 min-w-9 shrink-0 touch-manipulation items-center justify-center rounded-ms-md border border-ms-border/55 bg-ms-surface/30 text-ms-muted transition-colors hover:border-ms-border-mid hover:text-ms-text"
+            >
+              <Settings className="size-3.5" strokeWidth={1.5} />
+            </Link>
+
+            <button
+              type="button"
+              onClick={handleFoundingClick}
+              className={cn(
+                "ms-intel-command__founding-btn ms-focus-ring inline-flex shrink-0 touch-manipulation items-center rounded-ms-md border px-1.5 py-1 text-[10px] font-semibold tracking-wide transition-colors min-[380px]:px-2.5 sm:py-1.5",
+                isFounder
+                  ? "border-ms-warning/35 bg-ms-warning/10 text-ms-warning/90 hover:border-ms-warning/50"
+                  : "border-ms-cognition/35 bg-ms-cognition/10 text-ms-cognition hover:border-ms-cognition/50 hover:bg-ms-cognition/15",
+              )}
+            >
+              {isFounder ? pickLocale(locale, "Founder", "Founder") : pickLocale(locale, "Founding", "Founding")}
+            </button>
+
+            <button
+              type="button"
+              className="ms-focus-ring flex size-9 min-h-10 min-w-10 shrink-0 touch-manipulation items-center justify-center rounded-ms-md border border-ms-border/55 bg-ms-surface/35 text-ms-muted transition-colors hover:border-ms-border-mid hover:text-ms-text"
+              aria-label={pickLocale(locale, "Account", "Аккаунт")}
+              onClick={handleAccountClick}
+            >
+              <UserRound className="size-4" strokeWidth={1.5} />
+            </button>
+          </div>
         </div>
 
-        <div className="col-span-3 min-w-0 border-t border-ms-border/20 pt-1.5">
-          <p className="truncate text-[12.5px] font-medium leading-tight tracking-[-0.01em] text-ms-text/88">{workspaceTitle}</p>
+        <div className="flex min-w-0 items-center justify-between gap-3 border-t border-ms-border/20 px-2 pb-1 pt-1.5">
+          <p className="min-w-0 flex-1 truncate text-[12.5px] font-medium leading-tight tracking-[-0.01em] text-ms-text/88">
+            {workspaceTitle}
+          </p>
+          <div className="ms-intel-command__price-slot flex shrink-0 flex-col items-end leading-none">
+            <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-ms-faint/80">{inst}</span>
+            <span className={cn("font-mono text-[11.5px] font-medium tabular-nums text-ms-text/90", !priceDisplay && "opacity-0")}>
+              {priceDisplay ?? "—"}
+            </span>
+          </div>
         </div>
+
+        <p className="min-w-0 truncate px-2 pb-2 text-[10px] leading-snug text-ms-muted tabular-nums" title={liveStateLine}>
+          {liveStateLine}
+        </p>
       </div>
 
       {/* Desktop row */}
@@ -252,8 +235,8 @@ export function IntelligenceBar() {
         <div className={cn("ms-intel-command-right-cluster flex shrink-0 items-center gap-2.5 md:justify-end")}>
           <span className="ms-intel-command__price-slot hidden items-center gap-1.5 sm:inline-flex">
             <span className="font-mono text-[10px] text-ms-faint/70 tracking-[0.04em]">{inst}</span>
-            <span className={cn("font-mono text-[13px] font-medium tabular-nums tracking-[-0.01em] text-ms-text/92", !market.price && "opacity-0")}>
-              {market.price ? market.price.toFixed(0) : "0"}
+            <span className={cn("font-mono text-[13px] font-medium tabular-nums tracking-[-0.01em] text-ms-text/92", !priceDisplay && "opacity-0")}>
+              {priceDisplay ?? "—"}
             </span>
           </span>
           {!market.price ? (
@@ -295,21 +278,6 @@ export function IntelligenceBar() {
           >
             <UserRound className="size-3.5" strokeWidth={1.4} />
           </button>
-          <span className="ms-intel-command__signout-slot">
-            <button
-              type="button"
-              className={cn(
-                "ms-focus-ring flex size-8 shrink-0 touch-manipulation items-center justify-center rounded-ms-md border border-ms-border/40 bg-ms-surface/25 text-ms-faint transition-colors hover:border-ms-border/60 hover:text-ms-muted",
-                !signedIn && "pointer-events-none invisible",
-              )}
-              aria-label={pickLocale(locale, "Sign out", "Выйти")}
-              aria-hidden={!signedIn}
-              tabIndex={signedIn ? 0 : -1}
-              onClick={() => void handleSignOut()}
-            >
-              <LogOut className="size-3.5" strokeWidth={1.4} />
-            </button>
-          </span>
         </div>
       </div>
     </header>

@@ -1,0 +1,171 @@
+/* ─── Modal viewport shell — single scroll, sticky header/footer ───────────
+   Mobile, tablet, Telegram Mini App WebView safe.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.ms-modal-panel {
+  display: flex;
+  flex-direction: column;
+  max-height: min(
+    94dvh,
+    calc(100dvh - var(--ms-safe-top, 0px) - var(--ms-safe-bottom, 0px) - 1.5rem)
+  );
+}
+
+.ms-modal-header--premium,
+.ms-modal-panel > .border-b.border-ms-border {
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 4;
+}
+
+.ms-modal-body,
+.ms-modal-body--premium {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none !important;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+.ms-modal-footer,
+.ms-modal-footer--premium {
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  border-top: 1px solid color-mix(in srgb, var(--ms-border) 35%, transparent);
+  background: color-mix(in srgb, var(--ms-surface) 92%, var(--ms-canvas));
+  backdrop-filter: blur(12px) saturate(1.1);
+  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+  padding: 0.85rem 1.35rem max(0.85rem, env(safe-area-inset-bottom, 0px));
+}
+
+.ms-modal-panel--premium .ms-modal-footer--premium {
+  background: color-mix(in srgb, var(--ms-canvas) 88%, transparent);
+  border-top-color: color-mix(in srgb, var(--ms-cognition) 10%, var(--ms-border));
+}
+
+.ms-modal-footer--premium .ms-modal-footer__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Profile center — mirror modal shell */
+.ms-profile-center {
+  display: flex;
+  flex-direction: column;
+  max-height: min(
+    94dvh,
+    calc(100dvh - var(--ms-safe-top, 0px) - var(--ms-safe-bottom, 0px) - 1rem)
+  );
+}
+
+.ms-profile-center__header--premium {
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 4;
+}
+
+.ms-profile-center__body--premium {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+.ms-profile-center__footer--premium {
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  border-top: 1px solid color-mix(in srgb, var(--ms-border) 35%, transparent);
+  background: color-mix(in srgb, var(--ms-canvas) 90%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 0.85rem 1.35rem max(0.85rem, env(safe-area-inset-bottom, 0px));
+}
+
+/* Prevent nested scroll traps inside modal bodies */
+.ms-modal-body--premium > *,
+.ms-modal-body > * {
+  overflow: visible;
+}
+
+.ms-modal-body--premium .ms-upgrade-modal__hero,
+.ms-modal-body--premium .ms-checkout-modal__summary {
+  overflow: visible;
+}
+
+/* Telegram WebView */
+[data-ms-telegram-webapp="1"] .ms-modal-panel,
+[data-ms-telegram-webapp="1"] .ms-profile-center {
+  max-height: min(
+    92dvh,
+    calc(100dvh - var(--ms-tg-safe-top, 0px) - var(--ms-tg-safe-bottom, 0px) - 0.75rem)
+  );
+}
+
+[data-ms-telegram-webapp="1"] .ms-modal-overlay,
+[data-ms-telegram-webapp="1"] .ms-profile-center__overlay {
+  padding-bottom: max(0px, var(--ms-tg-safe-bottom, 0px));
+}
+
+@media (max-width: 639.98px) {
+  .ms-modal-overlay:has(.ms-modal-panel--premium),
+  .ms-modal-overlay:has(.ms-modal-panel) {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .ms-modal-panel,
+  .ms-modal-panel--premium {
+    max-height: min(94dvh, 100dvh);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .ms-modal-footer--premium,
+  .ms-modal-body--premium,
+  .ms-modal-header--premium {
+    padding-left: 1.15rem;
+    padding-right: 1.15rem;
+  }
+
+  .ms-profile-center__footer--premium,
+  .ms-profile-center__body--premium,
+  .ms-profile-center__header--premium {
+    padding-left: 1.15rem;
+    padding-right: 1.15rem;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023.98px) {
+  .ms-modal-panel,
+  .ms-modal-panel--premium {
+    max-height: min(90dvh, 680px);
+  }
+}
+
+html.ms-modal-open,
+html.ms-modal-open body {
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+html.ms-modal-open .ms-modal-body,
+html.ms-modal-open .ms-modal-body--premium,
+html.ms-modal-open .ms-profile-center__body--premium {
+  touch-action: pan-y;
+}

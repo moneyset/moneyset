@@ -20,6 +20,7 @@ import { createPortal } from "react-dom";
 
 import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/ui/status-pill";
+import { MemberSupportPanel } from "@/components/support/member-support-panel";
 import {
   accessPlanDetail,
   accessPlanLabel,
@@ -104,7 +105,7 @@ function InfoRow({ label, value, hint }: { label: string; value: string; hint?: 
   );
 }
 
-function TelegramConnectionBlock() {
+function TelegramConnectionBlock({ hideActions = false }: { hideActions?: boolean }) {
   const locale = useUiPrefsStore((s) => s.uiLocale);
   const tgStatus = useTelegramStore((s) => s.status);
   const tgLinkCode = useTelegramStore((s) => s.linkCode);
@@ -185,7 +186,7 @@ function TelegramConnectionBlock() {
         </StatusPill>
       </div>
 
-      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+      <div className={cn("mt-4 flex flex-col gap-2 sm:flex-row", hideActions && "hidden")}>
         <Button type="button" variant="outline" size="sm" className="flex-1 gap-2" onClick={() => void startLink()} disabled={busy}>
           <Link2 className="size-3.5" strokeWidth={1.5} />
           {pickLocale(locale, "Connect Telegram", "Подключить Telegram")}
@@ -218,7 +219,18 @@ function TelegramConnectionBlock() {
         </div>
       ) : null}
 
-      {note ? <p className="mt-3 text-[11px] text-ms-muted">{note}</p> : null}
+      {note ? (
+        <>
+          <p className="mt-3 text-[11px] text-ms-muted">{note}</p>
+          {note.includes("Could not") || note.includes("Не удалось") ? (
+            <MemberSupportPanel variant="auth-error" className="mt-3" />
+          ) : null}
+        </>
+      ) : null}
+
+      {!note || note.includes("Could not") || note.includes("Не удалось") ? (
+        <MemberSupportPanel variant="compact" className="mt-4" />
+      ) : null}
     </div>
   );
 }
@@ -245,9 +257,12 @@ function PaymentHistoryBlock() {
           ))}
         </div>
       ) : error ? (
-        <p className="mt-4 text-[11px] text-ms-muted">
-          {pickLocale(locale, "Payment history is unavailable right now.", "История оплат сейчас недоступна.")}
-        </p>
+        <>
+          <p className="mt-4 text-[11px] text-ms-muted">
+            {pickLocale(locale, "Payment history is unavailable right now.", "История оплат сейчас недоступна.")}
+          </p>
+          <MemberSupportPanel variant="payment-error" className="mt-3" />
+        </>
       ) : payments.length === 0 ? (
         <p className="mt-4 text-[11px] text-ms-muted">
           {pickLocale(locale, "No payments recorded yet.", "Оплат пока нет.")}
@@ -293,9 +308,12 @@ export function ProfileCenterModal({ open, onClose, initialSection = "overview" 
   const openAuth = useAuthModalStore((s) => s.openAuth);
   const openCheckout = useCheckoutModalStore((s) => s.openCheckout);
   const tgStatus = useTelegramStore((s) => s.status);
+  const setPending = useTelegramStore((s) => s.setPending);
+  const resetTg = useTelegramStore((s) => s.reset);
   const sb = useMemo(() => supabaseBrowser(), []);
   const [mounted, setMounted] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
+  const [tgLinkBusy, setTgLinkBusy] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
@@ -314,10 +332,9 @@ export function ProfileCenterModal({ open, onClose, initialSection = "overview" 
 
   useEffect(() => {
     if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    document.documentElement.classList.add("ms-modal-open");
     return () => {
-      document.body.style.overflow = prev;
+      document.documentElement.classList.remove("ms-modal-open");
     };
   }, [open]);
 
@@ -340,6 +357,93 @@ export function ProfileCenterModal({ open, onClose, initialSection = "overview" 
       setSigningOut(false);
     }
   };
+
+  const startTelegramLink = async () => {
+    setTgLinkBusy(true);
+    try {
+      const res = await fetch("/api/telegram/link-code", { method: "POST" });
+      const json = (await res.json()) as { ok: boolean; code?: string };
+      if (!json.ok || !json.code) throw new Error("link_failed");
+      setPending(json.code);
+    } catch {
+      /* TelegramConnectionBlock shows inline note when active */
+    } finally {
+      setTgLinkBusy(false);
+    }
+  };
+
+  const profileFooter = (
+    <div className="space-y-2">
+      {!signedIn ? (
+        <Button
+          type="button"
+          variant="cognition"
+          className="w-full"
+          onClick={() => {
+            onClose();
+            openAuth();
+          }}
+        >
+          {pickLocale(locale, "Sign in", "Войти")}
+        </Button>
+      ) : (
+        <>
+          {section === "overview" && !isPremium ? (
+            <Button type="button" variant="cognition" className="w-full" onClick={() => openCheckout("founding_access")}>
+              {pickLocale(locale, "Upgrade to Founding Access", "Founding Access")}
+            </Button>
+          ) : null}
+          {section === "access" && !isPremium ? (
+            <Button type="button" variant="cognition" className="w-full gap-2" onClick={() => openCheckout("founding_access")}>
+              <CreditCard className="size-4" strokeWidth={1.5} />
+              {pickLocale(locale, "Founding Access — $149", "Founding Access — $149")}
+            </Button>
+          ) : null}
+          {section === "connections" ? (
+            <div className="flex flex-col gap-2">
+              <Button type="button" variant="cognition" className="w-full gap-2" onClick={() => void startTelegramLink()} disabled={tgLinkBusy}>
+                <Link2 className="size-4" strokeWidth={1.5} />
+                {pickLocale(locale, "Connect Telegram", "Подключить Telegram")}
+              </Button>
+              {tgStatus !== "unlinked" ? (
+                <Button type="button" variant="ghost" className="w-full" onClick={resetTg} disabled={tgLinkBusy}>
+                  {pickLocale(locale, "Reset link", "Сбросить")}
+                </Button>
+              ) : null}
+            </div>
+          ) : null}
+          {section === "session" ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full gap-2 text-ms-muted"
+              disabled={signingOut}
+              onClick={() => void handleSignOut()}
+            >
+              <LogOut className="size-4" strokeWidth={1.5} />
+              {signingOut
+                ? pickLocale(locale, "Signing out…", "Выход…")
+                : pickLocale(locale, "Sign out on this device", "Выйти на этом устройстве")}
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full gap-2 text-ms-muted"
+              disabled={signingOut}
+              onClick={() => void handleSignOut()}
+            >
+              <LogOut className="size-4" strokeWidth={1.5} />
+              {signingOut
+                ? pickLocale(locale, "Signing out…", "Выход…")
+                : pickLocale(locale, "Sign out", "Выйти")}
+            </Button>
+          )}
+        </>
+      )}
+      <MemberSupportPanel variant="compact" />
+    </div>
+  );
 
   if (!mounted || !open) return null;
 
@@ -368,7 +472,7 @@ export function ProfileCenterModal({ open, onClose, initialSection = "overview" 
             animate={msFadeScale.animate}
             exit={msFadeScale.exit}
             transition={msTransition.medium}
-            className="ms-profile-center ms-profile-center--premium relative z-[1] flex max-h-[min(92dvh,720px)] w-full flex-col overflow-hidden rounded-t-ms-2xl sm:max-w-xl sm:rounded-ms-2xl"
+            className="ms-profile-center ms-profile-center--premium relative z-[1] flex w-full flex-col overflow-hidden rounded-t-ms-2xl sm:max-w-xl sm:rounded-ms-2xl"
           >
             {/* Header */}
             <div className="ms-profile-center__header--premium shrink-0">
@@ -409,17 +513,6 @@ export function ProfileCenterModal({ open, onClose, initialSection = "overview" 
                       "Войдите, чтобы увидеть тариф, историю оплат и подключённые аккаунты.",
                     )}
                   </p>
-                  <Button
-                    type="button"
-                    variant="cognition"
-                    className="w-full"
-                    onClick={() => {
-                      onClose();
-                      openAuth();
-                    }}
-                  >
-                    {pickLocale(locale, "Sign in", "Войти")}
-                  </Button>
                   <p className="text-center text-[11px] text-ms-faint">
                     {pickLocale(
                       locale,
@@ -466,12 +559,6 @@ export function ProfileCenterModal({ open, onClose, initialSection = "overview" 
                           }
                         />
                       </div>
-
-                      {!isPremium ? (
-                        <Button type="button" variant="cognition" className="w-full" onClick={() => openCheckout("founding_access")}>
-                          {pickLocale(locale, "Upgrade to Founding Access", "Founding Access")}
-                        </Button>
-                      ) : null}
                     </div>
                   ) : null}
 
@@ -521,13 +608,6 @@ export function ProfileCenterModal({ open, onClose, initialSection = "overview" 
                           />
                         </div>
                       </div>
-
-                      {!isPremium ? (
-                        <Button type="button" variant="outline" className="w-full" onClick={() => openCheckout("founding_access")}>
-                          <CreditCard className="size-4" strokeWidth={1.5} />
-                          {pickLocale(locale, "Founding Access — $149", "Founding Access — $149")}
-                        </Button>
-                      ) : null}
                     </div>
                   ) : null}
 
@@ -608,7 +688,7 @@ export function ProfileCenterModal({ open, onClose, initialSection = "overview" 
                         </div>
                       </div>
 
-                      <TelegramConnectionBlock />
+                      <TelegramConnectionBlock hideActions />
 
                       {telegramUsername ? (
                         <div className="ms-profile-center__panel">
@@ -665,27 +745,6 @@ export function ProfileCenterModal({ open, onClose, initialSection = "overview" 
                         </div>
                       </div>
 
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full gap-2 text-ms-muted"
-                        disabled={signingOut}
-                        onClick={() => void handleSignOut()}
-                      >
-                        <LogOut className="size-4" strokeWidth={1.5} />
-                        {signingOut
-                          ? pickLocale(locale, "Signing out…", "Выход…")
-                          : pickLocale(locale, "Sign out on this device", "Выйти на этом устройстве")}
-                      </Button>
-
-                      <p className="text-[10px] leading-relaxed text-ms-faint">
-                        {pickLocale(
-                          locale,
-                          "Logout ends your session here. Your entitlement remains tied to your account.",
-                          "Выход завершает сессию здесь. Право доступа остаётся привязанным к аккаунту.",
-                        )}
-                      </p>
-
                       <Link
                         href="/settings"
                         onClick={onClose}
@@ -698,6 +757,10 @@ export function ProfileCenterModal({ open, onClose, initialSection = "overview" 
                 </>
               )}
             </div>
+
+            {profileFooter ? (
+              <div className="ms-profile-center__footer--premium">{profileFooter}</div>
+            ) : null}
           </m.div>
         </m.div>
       ) : null}

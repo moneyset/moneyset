@@ -1,6 +1,7 @@
 "use client";
 
 import { CognitionMachineShell } from "@/components/cognition/cognition-machine-shell";
+import { MobileResponsivePreviewGate } from "@/components/access/mobile-responsive-preview-gate";
 import { ExecutionTerrainTheater } from "@/components/labs/chart/execution-terrain-theater";
 import { getLabIdentity } from "@/lib/cognition/lab-identities";
 import { getLabModule, labCopy } from "@/lib/labs/labs-modules";
@@ -18,7 +19,9 @@ export function ChartLabExperience() {
       title={labCopy(locale, mod.title)}
       purpose={labCopy(locale, mod.purpose)}
     >
-      <ExecutionTerrainTheater />
+      <MobileResponsivePreviewGate section="chartLab" capability="executionMap">
+        <ExecutionTerrainTheater />
+      </MobileResponsivePreviewGate>
     </CognitionMachineShell>
   );
 }

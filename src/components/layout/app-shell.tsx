@@ -23,10 +23,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const upgradeOpen = useUpgradeModalStore((s) => s.open);
   const closeUpgrade = useUpgradeModalStore((s) => s.closeUpgrade);
   return (
-    <div className="ms-category-shell relative flex min-h-0 min-w-0 flex-1 flex-col bg-ms-canvas text-ms-text md:flex-row">
+    <div className="ms-category-shell relative flex min-h-0 min-w-0 flex-1 flex-col bg-ms-canvas text-ms-text md:h-full md:max-h-dvh md:flex-row">
       <ShellAtmosphere />
-      <div className="relative z-10 hidden min-h-0 md:flex">
-        <AppSidebar />
+      <div className="relative z-10 hidden h-full min-h-0 md:flex">
+        <AppSidebar className="h-full" />
       </div>
       <div className="relative z-10 ms-shell-primary-column flex min-h-0 min-w-0 flex-1 flex-col">
         <div className="ms-shell-chrome-stack">

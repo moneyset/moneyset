@@ -7,6 +7,7 @@ import { CognitionPanel } from "@/components/ui/panel";
 import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/ui/status-pill";
 import { Toggle } from "@/components/ui/toggle";
+import { MemberSupportPanel } from "@/components/support/member-support-panel";
 import { useTelegramStore } from "@/store/telegram-store";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
 import { cn } from "@/lib/utils";
@@ -152,10 +153,17 @@ export function TelegramSettingsCard() {
       </div>
 
       {note ? (
-        <div className="mt-4 rounded-ms-lg border border-ms-border bg-ms-elevated/20 px-3 py-2 text-[12px] text-ms-muted">
-          {note}
-        </div>
+        <>
+          <div className="mt-4 rounded-ms-lg border border-ms-border bg-ms-elevated/20 px-3 py-2 text-[12px] text-ms-muted">
+            {note}
+          </div>
+          {note.includes("Could not") || note.includes("Не удалось") ? (
+            <MemberSupportPanel variant="auth-error" className="mt-3" />
+          ) : null}
+        </>
       ) : null}
+
+      <MemberSupportPanel variant="general" className="mt-4" />
     </CognitionPanel>
   );
 }

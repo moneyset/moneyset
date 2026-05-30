@@ -16,6 +16,7 @@ import { useUiPrefsStore } from "@/store/ui-prefs-store";
 import { useFullPlatformAccess } from "@/hooks/use-capabilities";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
 import { trialAccessEndsLine } from "@/lib/i18n/trust-surface";
+import { MemberSupportPanel } from "@/components/support/member-support-panel";
 
 type UpgradeModalProps = {
   open: boolean;
@@ -45,7 +46,32 @@ export function UpgradeModal({ open, onClose }: UpgradeModalProps) {
   const showDevControls = process.env.NODE_ENV === "development";
 
   return (
-    <Modal open={open} onClose={onClose} variant="premium" title={t("upgrade.title")} description={t("upgrade.subtitle")}>
+    <Modal
+      open={open}
+      onClose={onClose}
+      variant="premium"
+      title={t("upgrade.title")}
+      description={t("upgrade.subtitle")}
+      footer={
+        <>
+          <Button
+            type="button"
+            variant="cognition"
+            className="ms-upgrade-modal__cta-primary w-full"
+            onClick={() => {
+              openCheckout("founding_access");
+              onClose();
+            }}
+          >
+            {pickLocale(locale, "Founding Access — $149", "Founding Access — $149")}
+          </Button>
+          <Button type="button" variant="ghost" className="w-full text-ms-faint" onClick={onClose}>
+            {t("upgrade.close")}
+          </Button>
+          <MemberSupportPanel variant="compact" />
+        </>
+      }
+    >
       <div className="ms-upgrade-modal ms-upgrade-modal--premium">
         {trialLive && trialEndsAtTs ? (
           <p className="rounded-ms-lg border border-ms-border/60 bg-ms-elevated/20 px-3 py-2 font-mono text-[11px] leading-snug text-ms-muted">
@@ -103,23 +129,6 @@ export function UpgradeModal({ open, onClose }: UpgradeModalProps) {
               </li>
             ))}
           </ul>
-
-          <div className="mt-4 flex flex-col gap-2">
-            <Button
-              type="button"
-              variant="cognition"
-              className="ms-upgrade-modal__cta-primary w-full"
-              onClick={() => {
-                openCheckout("founding_access");
-                onClose();
-              }}
-            >
-              {pickLocale(locale, "Founding Access — $149", "Founding Access — $149")}
-            </Button>
-            <Button type="button" variant="ghost" className="w-full text-ms-faint" onClick={onClose}>
-              {t("upgrade.close")}
-            </Button>
-          </div>
           </div>
         </div>
 

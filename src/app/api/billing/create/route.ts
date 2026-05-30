@@ -3,9 +3,11 @@ import { NextResponse } from "next/server";
 import { resolveRequestUserId } from "@/lib/access/request-user";
 import { billingProduct, isSupportedPayCurrency, type BillingProductId } from "@/lib/billing/catalog";
 import { createPendingPayment } from "@/lib/billing/payment-record";
+import { getLatestPendingPaymentForUser, updatePaymentStatus } from "@/lib/billing/payment-recovery";
 import { checkRateLimit, rateLimitKey } from "@/lib/billing/rate-limit";
 import { sanitizeApiError } from "@/lib/services/shared/env";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { nowPaymentsInvoiceUrl } from "@/services/payments/providers/nowpayments";
 import { paymentProvider } from "@/services/payments/router";
 import type { CreateInvoiceInput } from "@/types/billing";
 
@@ -43,6 +45,10 @@ export async function POST(req: Request) {
     }
 
     const admin = supabaseAdmin();
+    if (!admin) {
+      return NextResponse.json({ ok: false, error: "Billing service unavailable" }, { status: 503 });
+    }
+
     const userId = await resolveRequestUserId(req, admin);
     if (!userId) {
       return NextResponse.json({ ok: false, error: "Sign in required for checkout" }, { status: 401 });
@@ -50,6 +56,38 @@ export async function POST(req: Request) {
 
     const product = billingProduct(productId)!;
     const provider = paymentProvider();
+
+    const existingPending = await getLatestPendingPaymentForUser(admin, userId, productId);
+    if (existingPending) {
+      const live = await provider.getInvoiceStatus({ invoiceId: existingPending.record.idempotency_key });
+      if (existingPending.likelyStale && live.ok && live.status === "unpaid") {
+        await updatePaymentStatus(admin, existingPending.record.idempotency_key, "expired");
+      } else if (
+        live.ok &&
+        live.status !== "paid" &&
+        live.status !== "expired" &&
+        live.status !== "failed"
+      ) {
+        return NextResponse.json({
+          ok: true,
+          provider: existingPending.record.provider,
+          invoiceId: existingPending.record.idempotency_key,
+          orderId: existingPending.record.order_id,
+          productId,
+          status: live.status,
+          payCurrency: body.payCurrency,
+          priceAmount: product.priceUsd,
+          paymentUrl: nowPaymentsInvoiceUrl(existingPending.record.idempotency_key),
+          payAddress: null,
+          payAmount: null,
+          expiresAtTs: null,
+        });
+      }
+      if (live.ok && (live.status === "expired" || live.status === "failed")) {
+        await updatePaymentStatus(admin, existingPending.record.idempotency_key, live.status);
+      }
+    }
+
     const result = await provider.createInvoice({ ...body, productId }, { userId });
 
     if (!result.ok) {
@@ -60,8 +98,7 @@ export async function POST(req: Request) {
     }
 
     // Create authoritative server-side payment record when invoice is generated
-    if (admin) {
-      const pending = await createPendingPayment(admin, {
+    const pending = await createPendingPayment(admin, {
         idempotencyKey: result.invoiceId,
         userId,
         productId,
@@ -77,7 +114,6 @@ export async function POST(req: Request) {
           { status: 502 },
         );
       }
-    }
 
     return NextResponse.json(result);
   } catch (e) {

@@ -1,5 +1,11 @@
 import { telegramMiniAppUrl } from "@/lib/auth/telegram-links";
 
+/** In-app browser opened from Telegram (may lack initData). */
+export function isTelegramEmbeddedBrowser(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return /Telegram/i.test(navigator.userAgent);
+}
+
 /** True when Telegram WebApp initData is present (verified auth context). */
 export function isTelegramMiniApp(): boolean {
   if (typeof window === "undefined") return false;

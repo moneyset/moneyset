@@ -14,6 +14,7 @@ type ModalProps = {
   title: string;
   description?: string;
   children?: React.ReactNode;
+  footer?: React.ReactNode;
   variant?: "default" | "premium";
   wordmark?: string;
 };
@@ -24,6 +25,7 @@ export function Modal({
   title,
   description,
   children,
+  footer,
   variant = "default",
   wordmark = "MONEYSET",
 }: ModalProps) {
@@ -46,10 +48,10 @@ export function Modal({
 
   useEffect(() => {
     if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const root = document.documentElement;
+    root.classList.add("ms-modal-open");
     return () => {
-      document.body.style.overflow = prev;
+      root.classList.remove("ms-modal-open");
     };
   }, [open]);
 
@@ -86,7 +88,7 @@ export function Modal({
             exit={msFadeScale.exit}
             transition={msTransition.medium}
             className={cn(
-              "ms-modal-panel relative z-[1] w-full max-w-lg overflow-hidden rounded-ms-2xl border border-ms-border-strong",
+              "ms-modal-panel relative z-[1] flex w-full max-w-lg flex-col overflow-hidden rounded-ms-2xl border border-ms-border-strong",
               premium
                 ? "ms-modal-panel--premium bg-transparent shadow-none"
                 : "bg-ms-surface shadow-ms-float",
@@ -94,7 +96,7 @@ export function Modal({
           >
             <div
               className={cn(
-                "flex items-start justify-between gap-4 border-b border-ms-border",
+                "flex shrink-0 items-start justify-between gap-4 border-b border-ms-border",
                 premium ? "ms-modal-header--premium px-0 py-0" : "px-6 py-5",
               )}
             >
@@ -131,6 +133,11 @@ export function Modal({
             {children ? (
               <div className={cn(premium ? "ms-modal-body--premium" : "ms-modal-body px-6 py-5")}>
                 {children}
+              </div>
+            ) : null}
+            {footer ? (
+              <div className={cn(premium ? "ms-modal-footer--premium" : "ms-modal-footer px-6 py-4")}>
+                <div className="ms-modal-footer__actions">{footer}</div>
               </div>
             ) : null}
           </m.div>

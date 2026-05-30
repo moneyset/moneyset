@@ -1,6 +1,7 @@
 "use client";
 
 import { CognitionMachineShell } from "@/components/cognition/cognition-machine-shell";
+import { MobileResponsivePreviewGate } from "@/components/access/mobile-responsive-preview-gate";
 import { LiquidityTopologyTheater } from "@/components/labs/liquidity/liquidity-topology-theater";
 import { getLabIdentity } from "@/lib/cognition/lab-identities";
 import { getLabModule, labCopy } from "@/lib/labs/labs-modules";
@@ -18,7 +19,9 @@ export function LiquidityLabExperience() {
       title={labCopy(locale, mod.title)}
       purpose={labCopy(locale, mod.purpose)}
     >
-      <LiquidityTopologyTheater />
+      <MobileResponsivePreviewGate section="liquidityLab" capability="deepInterpretation">
+        <LiquidityTopologyTheater />
+      </MobileResponsivePreviewGate>
     </CognitionMachineShell>
   );
 }

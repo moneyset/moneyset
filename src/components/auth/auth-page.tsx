@@ -12,6 +12,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { useEntryStore } from "@/store/entry-store";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
 import { useAuthModalStore } from "@/store/auth-modal-store";
+import { MemberSupportPanel } from "@/components/support/member-support-panel";
 
 export function AuthPage() {
   const locale = useUiPrefsStore((s) => s.uiLocale);
@@ -164,6 +165,10 @@ export function AuthPage() {
           </p>
         ) : null}
         {telegramHint ? <p className="ms-auth-page__hint">{telegramHint}</p> : null}
+
+        {telegramError || oauthError ? <MemberSupportPanel variant="auth-error" className="mt-3" /> : null}
+
+        {!telegramError && !oauthError ? <MemberSupportPanel variant="compact" className="mt-4" /> : null}
 
         {/* Separator */}
         <div className="ms-auth-page__divider">

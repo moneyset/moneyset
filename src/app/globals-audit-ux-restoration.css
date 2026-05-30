@@ -1,0 +1,154 @@
+/* ─── Audit UX restoration — nav scroll, onboarding contrast, execution, liquidity ─ */
+
+/* Sidebar: constrain height + visible scroll affordance */
+.ms-sidebar-nav {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--ms-border) 55%, transparent) transparent;
+}
+
+.ms-sidebar-nav::-webkit-scrollbar {
+  width: 5px;
+}
+
+.ms-sidebar-nav::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ms-border) 70%, transparent);
+}
+
+/* Onboarding: always dark-readable (fixes light-theme tokens on #020204 canvas) */
+.ms-ob {
+  color-scheme: dark;
+  --ms-text: rgba(228, 232, 238, 0.94);
+  --ms-text-primary: rgba(228, 232, 238, 0.94);
+  --ms-text-secondary: rgba(180, 184, 194, 0.86);
+  --ms-text-tertiary: rgba(148, 154, 168, 0.72);
+  --ms-text-faint: rgba(120, 126, 140, 0.58);
+  --ms-muted: rgba(180, 184, 194, 0.86);
+  --ms-faint: rgba(148, 154, 168, 0.72);
+  --ms-cognition: rgba(164, 198, 255, 0.88);
+}
+
+.ms-ob .ms-ob__statement,
+.ms-ob .ms-ob__body,
+.ms-ob .ms-ob__lead,
+.ms-ob .ms-ob__section-desc,
+.ms-ob .ms-ob__contrast,
+.ms-ob .ms-ob__advantage {
+  color: rgba(228, 232, 238, 0.92);
+}
+
+.ms-ob .ms-ob__statement--emphasis {
+  color: rgba(196, 218, 255, 0.96);
+}
+
+/* Execution — reduce overlap, clarify hierarchy */
+.ms-exec-tactical-system {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
+
+.ms-exec-tactical-theater {
+  margin-bottom: 1rem;
+  min-width: 0;
+}
+
+.ms-exec-interpretation {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  margin-bottom: 0.75rem;
+}
+
+.ms-exec-terrain-annotation {
+  max-width: min(100%, 18rem);
+  pointer-events: none;
+}
+
+.ms-exec-map-layer {
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 1023.98px) {
+  .ms-exec-interpretation--full .ms-exec-interpretation__posture {
+    font-size: 0.8125rem;
+    line-height: 1.45;
+  }
+
+  .ms-exec-terrain-theater__overlay-stack {
+    gap: 0.35rem;
+  }
+
+  .ms-exec-terrain-annotation {
+    font-size: 0.625rem;
+    max-width: min(100%, 14rem);
+  }
+}
+
+/* Liquidity Lab — premium institutional cards */
+.ms-liq-theater .ms-liq-feature,
+.ms-liq-theater .ms-liq-feature--priority-1 {
+  border-radius: var(--ms-radius-lg, 0.5rem);
+  border: 1px solid color-mix(in srgb, var(--ms-border) 38%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--ms-text) 6%, transparent),
+    0 8px 24px color-mix(in srgb, var(--ms-bg-canvas) 45%, transparent);
+}
+
+.ms-liq-feature--priority-1 {
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--ms-cognition) 8%, var(--ms-bg-elevated)) 0%,
+    color-mix(in srgb, var(--ms-bg-surface) 88%, transparent) 100%
+  ) !important;
+  border-color: color-mix(in srgb, var(--ms-cognition) 22%, var(--ms-border)) !important;
+}
+
+.ms-liq-feature--priority-1 .ms-liq-feature__label {
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ms-liq-feature__read {
+  font-size: 0.625rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--ms-text-secondary) 92%, var(--ms-text-primary));
+}
+
+@media (max-width: 767.98px) {
+  .ms-liq-feature--priority-1 .ms-liq-feature__label {
+    font-size: 0.75rem;
+  }
+
+  .ms-liq-feature__read {
+    font-size: 0.6875rem;
+  }
+}
+
+/* Premium gate — curiosity without confusion */
+.ms-premium-gate__ribbon,
+.ms-premium-gate__cognition-ribbon {
+  backdrop-filter: blur(6px);
+}
+
+@media (max-width: 430px) {
+  .ms-cognition-primary__state {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+    max-width: 100%;
+  }
+
+  .ms-cognition-primary--hero .ms-cognition-primary__state {
+    font-size: clamp(1.125rem, 6.5vw, 1.5rem);
+    line-height: 1.15;
+  }
+
+  .ms-exec-tactical-system > header {
+    overflow: hidden;
+  }
+}

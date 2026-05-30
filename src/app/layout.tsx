@@ -70,7 +70,7 @@ const themeInitScript = `
 (function(){
   try {
     var raw = localStorage.getItem('moneyset_theme_v1');
-    var pref = 'system';
+    var pref = 'dark';
     if (raw) {
       var parsed = JSON.parse(raw);
       if (parsed && parsed.state && parsed.state.preference) pref = parsed.state.preference;

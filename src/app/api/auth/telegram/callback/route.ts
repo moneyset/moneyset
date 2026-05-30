@@ -6,16 +6,16 @@ import { logTelegramAuthEvent } from "@/lib/auth/telegram-telemetry";
 import { hasExtendedAccess } from "@/lib/access/roles";
 import { sanitizeAuthNextPath } from "@/lib/supabase/auth-routing";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { supabaseServer } from "@/lib/supabase/server";
+import { redirectWithSupabaseSession } from "@/lib/supabase/session-redirect";
 import { env } from "@/lib/services/shared/env";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 /**
- * Telegram Login Widget callback (GET redirect).
- * BotFather /setdomain → moneyset.pro
- * Widget data-auth-url → https://moneyset.pro/api/auth/telegram/callback
+ * @deprecated Legacy Login Widget callback (HMAC hash verification).
+ * Browser login now uses OIDC → /api/auth/telegram/oidc/callback
+ * BotFather /setdomain is still required for legacy widget embeds only.
  */
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
@@ -75,13 +75,9 @@ export async function GET(request: Request) {
     logTelegramAuthEvent("telegram_account_linked", { source: "widget", telegram_id: verified.id });
   }
 
-  const supabase = await supabaseServer();
-  if (supabase) {
-    await supabase.auth.setSession({
-      access_token: result.session.access_token,
-      refresh_token: result.session.refresh_token,
-    });
-  }
-
-  return NextResponse.redirect(`${origin}${next}`);
+  return redirectWithSupabaseSession(
+    result.session,
+    `${origin}${next}`,
+    `${origin}/auth?error=${encodeURIComponent("telegram_session_failed")}`,
+  );
 }

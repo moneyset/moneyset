@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Mail, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
 
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
-import { StatusPill } from "@/components/ui/status-pill";
+import { EmailAccessIcon, GoogleIcon, TelegramBrandIcon } from "@/components/auth/auth-provider-icons";
 import { useT } from "@/lib/i18n/use-t";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
 import { supabaseBrowser, authCallbackUrl } from "@/lib/supabase/browser";
@@ -16,7 +16,9 @@ import { useAuthStore } from "@/store/auth-store";
 import { authModalPolicyNote } from "@/lib/i18n/trust-surface";
 import { useTelegramAuth } from "@/hooks/use-telegram-auth";
 import { TelegramLoginWidget } from "@/components/auth/telegram-login-widget";
+import { MemberSupportPanel } from "@/components/support/member-support-panel";
 import { openInExternalBrowser, openTelegramMiniApp } from "@/lib/auth/telegram-client";
+import { cn } from "@/lib/utils";
 
 type AuthModalProps = {
   open: boolean;
@@ -47,7 +49,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
-  const [emailExpanded, setEmailExpanded] = useState(false);
+  const [emailActive, setEmailActive] = useState(false);
   const [note, setNote] = useState<string | null>(null);
 
   const isBusy = busy || telegramBusy;
@@ -75,6 +77,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
   const doOAuth = async () => {
     setNote(null);
+    setEmailActive(false);
     if (inTelegram) {
       setNote(
         pickLocale(
@@ -178,17 +181,68 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     }
   };
 
+  const showSignInMethods = authStatus !== "signed_in" || !authUser;
+
+  const authInfoNotes = useMemo(
+    () =>
+      new Set([
+        t("auth.magicSent"),
+        pickLocale(locale, "Account created. Confirm your email if prompted, then sign in.", "Аккаунт создан. Подтвердите email при необходимости, затем войдите."),
+        pickLocale(locale, "Password reset link sent. Check your email.", "Ссылка для сброса отправлена. Проверьте почту."),
+        pickLocale(
+          locale,
+          "Telegram opened — tap Start, then Open MONEYSET. Sign-in completes automatically inside the app.",
+          "Telegram открыт — нажмите Start, затем «Открыть MONEYSET». Вход выполняется автоматически.",
+        ),
+        pickLocale(
+          locale,
+          "Google sign-in opens in your browser — not available inside the Telegram app.",
+          "Вход через Google откроется в браузере — внутри Telegram недоступен.",
+        ),
+      ]),
+    [locale, t],
+  );
+
+  const showAuthSupport = Boolean(telegramError) || (note != null && !authInfoNotes.has(note));
+  const oidcReady = Boolean(process.env.NEXT_PUBLIC_TELEGRAM_OIDC_CLIENT_ID?.trim());
+  const showBrowserOidc = !inTelegram && oidcReady;
+
+  const authFooter = showSignInMethods ? (
+    inTelegram ? (
+      <button
+        type="button"
+        className="ms-auth-modal__method ms-auth-modal__method--primary ms-focus-ring w-full"
+        disabled={isBusy}
+        onClick={() => void handleTelegram()}
+      >
+        <span className="ms-auth-modal__method-icon" aria-hidden>
+          <TelegramBrandIcon />
+        </span>
+        <span className="ms-auth-modal__method-label">
+          {isBusy
+            ? pickLocale(locale, "Signing in…", "Вход…")
+            : pickLocale(locale, "Continue with Telegram", "Продолжить через Telegram")}
+        </span>
+      </button>
+    ) : null
+  ) : (
+    <Button type="button" variant="outline" className="w-full" onClick={doSignOut} disabled={!sb || isBusy}>
+      {t("auth.signOut")}
+    </Button>
+  );
+
   return (
     <Modal
       open={open}
       onClose={() => {
         setNote(null);
-        setEmailExpanded(false);
+        setEmailActive(false);
         onClose();
       }}
       variant="premium"
       title={t("auth.title")}
       description={t("auth.subtitle")}
+      footer={authFooter}
     >
       <div className="ms-auth-modal ms-auth-modal--premium">
         {!sb ? (
@@ -197,199 +251,163 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
           </div>
         ) : null}
 
-        {authStatus !== "signed_in" || !authUser ? (
-          <div className="ms-premium-trust" role="note">
-            <Shield className="ms-premium-trust__icon size-4" strokeWidth={1.5} aria-hidden />
-            <p className="ms-premium-trust__text">
-              <strong>{pickLocale(locale, "Institutional access", "Институциональный доступ")}</strong>
-              {pickLocale(
-                locale,
-                "Encrypted session on this device. No feed, no noise — structure-first intelligence.",
-                "Шифрованная сессия на устройстве. Без ленты и шума — интеллект через структуру.",
-              )}
-            </p>
-          </div>
-        ) : null}
-
-        {/* ── Signed-in state ── */}
         {authStatus === "signed_in" && authUser ? (
           <div className="ms-auth-modal__signed-in">
-            <div className="flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <p className="ms-data-label text-ms-faint">{t("auth.signedInAs")}</p>
-                <p className="mt-1 truncate font-mono text-[12px] text-ms-text">
-                  {authUser.email
-                    ? authUser.email.replace(/^(.{2})(.*)(@.*)$/, (_, a, b, c) => `${a}${"•".repeat(b.length)}${c}`)
-                    : pickLocale(locale, "Telegram session", "Telegram сессия")}
-                </p>
-              </div>
-              <Button type="button" variant="outline" size="sm" onClick={doSignOut} disabled={!sb || isBusy}>
-                {t("auth.signOut")}
-              </Button>
+            <div className="min-w-0">
+              <p className="ms-data-label text-ms-faint">{t("auth.signedInAs")}</p>
+              <p className="mt-1 truncate font-mono text-[12px] text-ms-text">
+                {authUser.email
+                  ? authUser.email.replace(/^(.{2})(.*)(@.*)$/, (_, a, b, c) => `${a}${"•".repeat(b.length)}${c}`)
+                  : pickLocale(locale, "Telegram session", "Telegram сессия")}
+              </p>
             </div>
           </div>
         ) : (
-          <div className="space-y-2">
-            {/* ── Primary: Telegram ── */}
-            <Button
-              type="button"
-              variant="cognition"
-              className="ms-auth-modal__method-btn w-full justify-between gap-2"
-              disabled={isBusy}
-              onClick={() => void handleTelegram()}
-            >
-              <span className="flex min-w-0 flex-1 items-center gap-2 truncate">
-                <span className="shrink-0 text-[14px]" aria-hidden>✈</span>
-                <span className="truncate">
-                  {isBusy
-                    ? pickLocale(locale, "Signing in…", "Вход…")
-                    : inTelegram && hasInitData
-                      ? pickLocale(locale, "Continue with Telegram", "Продолжить через Telegram")
-                      : pickLocale(locale, "Open in Telegram", "Открыть в Telegram")}
+          <div className="ms-auth-modal__methods">
+            {showBrowserOidc ? (
+              <TelegramLoginWidget nextPath="/" className="ms-auth-modal__telegram-widget" />
+            ) : !inTelegram ? (
+              <button
+                type="button"
+                className="ms-auth-modal__method ms-auth-modal__method--primary ms-focus-ring"
+                disabled={isBusy}
+                onClick={() => void handleTelegram()}
+              >
+                <span className="ms-auth-modal__method-icon" aria-hidden>
+                  <TelegramBrandIcon />
                 </span>
-              </span>
-              <StatusPill accent="warning" className="shrink-0">
-                {pickLocale(locale, "Primary", "Основной")}
-              </StatusPill>
-            </Button>
-
-            {!inTelegram ? (
-              <div className="ms-auth-modal__widget-block">
-                <p className="ms-auth-modal__hint mb-2">
-                  {pickLocale(
-                    locale,
-                    "Or sign in here with Telegram (one tap, no app switch):",
-                    "Или войдите здесь через Telegram (один тап, без переключения):",
-                  )}
-                </p>
-                <TelegramLoginWidget nextPath="/" className="flex justify-center" />
-              </div>
+                <span className="ms-auth-modal__method-label">
+                  {pickLocale(locale, "Open in Telegram", "Открыть в Telegram")}
+                </span>
+              </button>
             ) : null}
 
-            {/* ── Secondary: Google ── */}
-            <Button
+            <button
               type="button"
-              variant="outline"
-              className="ms-auth-modal__method-btn w-full justify-between gap-2"
+              className="ms-auth-modal__method ms-auth-modal__method--google ms-focus-ring"
               onClick={() => void doOAuth()}
               disabled={!sb || isBusy}
             >
-              <span className="flex min-w-0 flex-1 items-center gap-2 truncate">
-                <span className="shrink-0 font-semibold" aria-hidden>G</span>
-                <span className="truncate">{t("auth.google")}</span>
+              <span className="ms-auth-modal__method-icon" aria-hidden>
+                <GoogleIcon />
               </span>
-              <StatusPill accent="neutral" className="shrink-0">
-                {pickLocale(locale, "Secure", "Безопасно")}
-              </StatusPill>
-            </Button>
+              <span className="ms-auth-modal__method-label">{t("auth.google")}</span>
+            </button>
 
-            {/* ── Tertiary: Email ── */}
-            <div className="ms-auth-modal__email-card">
-              <button
-                type="button"
-                className="ms-auth-modal__email-toggle flex w-full items-center justify-between text-left transition-colors hover:bg-ms-elevated/20"
-                onClick={() => setEmailExpanded((v) => !v)}
-                aria-expanded={emailExpanded}
-              >
-                <span className="flex items-center gap-2 text-[12px] text-ms-muted">
-                  <Mail className="size-3.5" strokeWidth={1.5} aria-hidden />
-                  {pickLocale(locale, "Continue with Email", "Продолжить через Email")}
-                </span>
-                <span
-                  className="font-mono text-[10px] text-ms-faint transition-transform duration-200"
-                  style={{ transform: emailExpanded ? "rotate(180deg)" : "rotate(0deg)" }}
-                  aria-hidden
-                >
-                  ↓
-                </span>
-              </button>
+            <button
+              type="button"
+              className={cn(
+                "ms-auth-modal__method ms-auth-modal__method--email ms-focus-ring",
+                emailActive && "ms-auth-modal__method--active",
+              )}
+              onClick={() => setEmailActive(true)}
+              disabled={!sb || isBusy}
+              aria-pressed={emailActive}
+            >
+              <span className="ms-auth-modal__method-icon" aria-hidden>
+                <EmailAccessIcon />
+              </span>
+              <span className="ms-auth-modal__method-label">
+                {pickLocale(locale, "Sign in with Email", "Войти через Email")}
+              </span>
+            </button>
 
-              {emailExpanded ? (
-                <div className="border-t border-ms-border/30 px-4 pb-4 pt-3">
-                  <label className="ms-data-label text-ms-faint">{t("auth.emailLabel")}</label>
-                  <div className="ms-auth-modal__input-wrap mt-2 flex items-center gap-2 px-3 py-2">
-                    <Mail className="size-4 text-ms-muted" strokeWidth={1.5} aria-hidden />
-                    <input
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder={t("auth.emailPlaceholder")}
-                      className="w-full bg-transparent text-[13px] text-ms-text outline-none placeholder:text-ms-faint"
-                      inputMode="email"
-                      autoComplete="email"
-                    />
-                  </div>
+            {emailActive ? (
+              <div className="ms-auth-modal__email-panel">
+                <p className="ms-auth-modal__email-lead">
+                  {pickLocale(locale, "Email access", "Доступ через Email")}
+                </p>
 
-                  <label className="ms-data-label mt-3 block text-ms-faint">
-                    {pickLocale(locale, "Password", "Пароль")}
-                  </label>
-                  <div className="ms-auth-modal__input-wrap mt-2 flex items-center gap-2 px-3 py-2">
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder={pickLocale(locale, "8+ characters", "8+ символов")}
-                      className="w-full bg-transparent text-[13px] text-ms-text outline-none placeholder:text-ms-faint"
-                      autoComplete="current-password"
-                    />
-                  </div>
-
-                  <div className="mt-3 grid grid-cols-2 gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={doMagic}
-                      disabled={!sb || isBusy || !canEmail}
-                      className="text-[11px]"
-                    >
-                      {t("auth.sendMagic")}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={doEmailSignIn}
-                      disabled={!sb || isBusy || !canEmail || !canPassword}
-                      className="text-[11px]"
-                    >
-                      {t("auth.emailSignIn")}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={doSignUp}
-                      disabled={!sb || isBusy || !canEmail || !canPassword}
-                      className="text-[11px]"
-                    >
-                      {t("auth.emailSignUp")}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={doResetPassword}
-                      disabled={!sb || isBusy || !canEmail}
-                      className="text-[11px]"
-                    >
-                      {pickLocale(locale, "Reset password", "Сброс пароля")}
-                    </Button>
-                  </div>
-
-                  <div className="mt-3 flex items-start gap-2 rounded-ms-md border border-ms-border bg-ms-elevated/20 px-3 py-2 text-[11px] leading-relaxed text-ms-muted sm:text-[12px]">
-                    <Shield className="mt-0.5 size-4 shrink-0 text-ms-warning/75" strokeWidth={1.5} aria-hidden />
-                    <p>{authModalPolicyNote(locale)}</p>
-                  </div>
+                <label className="ms-auth-modal__field-label" htmlFor="ms-auth-email">
+                  {t("auth.emailLabel")}
+                </label>
+                <div className="ms-auth-modal__input-wrap">
+                  <input
+                    id="ms-auth-email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={t("auth.emailPlaceholder")}
+                    className="ms-auth-modal__input"
+                    inputMode="email"
+                    autoComplete="email"
+                  />
                 </div>
-              ) : null}
-            </div>
+
+                <label className="ms-auth-modal__field-label" htmlFor="ms-auth-password">
+                  {pickLocale(locale, "Password", "Пароль")}
+                </label>
+                <div className="ms-auth-modal__input-wrap">
+                  <input
+                    id="ms-auth-password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder={pickLocale(locale, "8+ characters", "8+ символов")}
+                    className="ms-auth-modal__input"
+                    autoComplete="current-password"
+                  />
+                </div>
+
+                <div className="ms-auth-modal__email-actions">
+                  <button
+                    type="button"
+                    className="ms-auth-modal__email-action ms-auth-modal__email-action--primary ms-focus-ring"
+                    onClick={doEmailSignIn}
+                    disabled={!sb || isBusy || !canEmail || !canPassword}
+                  >
+                    {t("auth.emailSignIn")}
+                  </button>
+                  <button
+                    type="button"
+                    className="ms-auth-modal__email-action ms-focus-ring"
+                    onClick={doMagic}
+                    disabled={!sb || isBusy || !canEmail}
+                  >
+                    {t("auth.sendMagic")}
+                  </button>
+                  <button
+                    type="button"
+                    className="ms-auth-modal__email-action ms-focus-ring"
+                    onClick={doSignUp}
+                    disabled={!sb || isBusy || !canEmail || !canPassword}
+                  >
+                    {t("auth.emailSignUp")}
+                  </button>
+                  <button
+                    type="button"
+                    className="ms-auth-modal__email-action ms-auth-modal__email-action--ghost ms-focus-ring"
+                    onClick={doResetPassword}
+                    disabled={!sb || isBusy || !canEmail}
+                  >
+                    {pickLocale(locale, "Reset password", "Сброс пароля")}
+                  </button>
+                </div>
+
+                <div className="ms-auth-modal__policy">
+                  <Shield className="size-3.5 shrink-0 text-ms-faint" strokeWidth={1.5} aria-hidden />
+                  <p>{authModalPolicyNote(locale)}</p>
+                </div>
+              </div>
+            ) : null}
           </div>
         )}
 
         {note || telegramError ? (
-          <div className="ms-auth-modal__hint">
-            {note ?? mapTelegramAuthError(locale, telegramError)}
-          </div>
+          <div className="ms-auth-modal__hint">{note ?? mapTelegramAuthError(locale, telegramError)}</div>
+        ) : null}
+
+        {showSignInMethods && !showAuthSupport ? (
+          <p className="ms-auth-modal__trust-footnote" role="note">
+            {pickLocale(
+              locale,
+              "Encrypted session on this device. Structure-first intelligence — no feed, no noise.",
+              "Шифрованная сессия на устройстве. Интеллект через структуру — без ленты и шума.",
+            )}
+          </p>
+        ) : null}
+
+        {showSignInMethods && showAuthSupport ? (
+          <MemberSupportPanel variant="auth-error" className="ms-auth-modal__support" />
         ) : null}
       </div>
     </Modal>

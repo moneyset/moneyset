@@ -1,6 +1,7 @@
 "use client";
 
 import { CognitionMachineShell } from "@/components/cognition/cognition-machine-shell";
+import { MobileResponsivePreviewGate } from "@/components/access/mobile-responsive-preview-gate";
 import { GlobalPressureMatrix } from "@/components/narrative/global-pressure-matrix";
 import { getLabIdentity } from "@/lib/cognition/lab-identities";
 import { getLabModule, labCopy } from "@/lib/labs/labs-modules";
@@ -18,7 +19,9 @@ export function MacroLabExperience() {
       title={labCopy(locale, mod.title)}
       purpose={labCopy(locale, mod.purpose)}
     >
-      <GlobalPressureMatrix lens="macro" />
+      <MobileResponsivePreviewGate section="macroLab" capability="deepInterpretation">
+        <GlobalPressureMatrix lens="macro" />
+      </MobileResponsivePreviewGate>
     </CognitionMachineShell>
   );
 }

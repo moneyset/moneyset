@@ -27,6 +27,10 @@
 @import "./globals-legal.css";
 @import "./globals-ux-polish.css";
 @import "./globals-premium-modals.css";
+@import "./globals-modal-viewport.css";
+@import "./globals-member-support.css";
+@import "./globals-audit-ux-restoration.css";
+@import "./globals-mobile-viz-gate.css";
 
 @theme inline {
   --font-sans: var(--font-geist-sans);

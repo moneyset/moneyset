@@ -12,6 +12,7 @@ import { useAccessStore } from "@/store/access-store";
 import { useAuthModalStore } from "@/store/auth-modal-store";
 import { useAuthStore } from "@/store/auth-store";
 import { useUiPrefsStore } from "@/store/ui-prefs-store";
+import { MemberSupportPanel } from "@/components/support/member-support-panel";
 
 export default function InviteRedeemPage() {
   const params = useParams();
@@ -99,6 +100,8 @@ export default function InviteRedeemPage() {
         </p>
       ) : null}
 
+      {status === "error" ? <MemberSupportPanel variant="auth-error" className="mt-4" /> : null}
+
       {!user?.id ? (
         <Button type="button" variant="cognition" className="mt-6" onClick={openAuth}>
           {pickLocale(locale, "Sign in to activate", "Войти для активации")}
@@ -112,6 +115,8 @@ export default function InviteRedeemPage() {
       <Button type="button" variant="ghost" className="mt-3" onClick={() => router.push("/")}>
         {pickLocale(locale, "Return to Core", "На ядро")}
       </Button>
+
+      <MemberSupportPanel variant="compact" className="mt-4" />
     </div>
   );
 }

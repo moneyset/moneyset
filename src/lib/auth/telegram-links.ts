@@ -20,7 +20,19 @@ export function telegramMiniAppUrl(): string {
   return "https://t.me";
 }
 
-/** Login Widget callback URL for browser one-click auth. */
+/** OIDC Authorization Code callback — register in BotFather → Web Login. */
+export function telegramOidcCallbackUrl(origin?: string): string {
+  const base = origin ?? (typeof window !== "undefined" ? window.location.origin : publicSiteUrl());
+  return `${base.replace(/\/$/, "")}/api/auth/telegram/oidc/callback`;
+}
+
+/** Start OIDC login (server redirect + PKCE). */
+export function telegramOidcStartUrl(nextPath = "/"): string {
+  const next = nextPath.startsWith("/") ? nextPath : `/${nextPath}`;
+  return `/api/auth/telegram/oidc/start?next=${encodeURIComponent(next)}`;
+}
+
+/** @deprecated Legacy Login Widget callback — use telegramOidcCallbackUrl instead. */
 export function telegramLoginCallbackUrl(nextPath = "/"): string {
   const next = nextPath.startsWith("/") ? nextPath : `/${nextPath}`;
   if (typeof window !== "undefined") {

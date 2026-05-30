@@ -10,6 +10,12 @@ import type { CreateInvoiceInput, InvoiceStatus } from "@/types/billing";
 import type { PaymentProvider } from "@/services/payments/provider";
 
 const NOWPAYMENTS_BASE = "https://api.nowpayments.io/v1";
+const NOWPAYMENTS_INVOICE_URL = "https://nowpayments.io/payment/";
+
+export function nowPaymentsInvoiceUrl(invoiceId: string): string {
+  const id = invoiceId.trim();
+  return `${NOWPAYMENTS_INVOICE_URL}?iid=${encodeURIComponent(id)}`;
+}
 
 type NowPaymentRow = Readonly<{
   payment_id?: string | number;

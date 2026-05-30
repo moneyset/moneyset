@@ -25,7 +25,7 @@ type ThemeState = {
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set, get) => ({
-      preference: "system",
+      preference: "dark",
 
       setPreference: (next) => {
         set({ preference: next });

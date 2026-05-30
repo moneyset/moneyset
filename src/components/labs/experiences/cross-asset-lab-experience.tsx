@@ -1,6 +1,7 @@
 "use client";
 
 import { CognitionMachineShell } from "@/components/cognition/cognition-machine-shell";
+import { MobileResponsivePreviewGate } from "@/components/access/mobile-responsive-preview-gate";
 import { SystemicRiskTopology } from "@/components/fragility/systemic-risk-topology";
 import { getLabIdentity } from "@/lib/cognition/lab-identities";
 import { getLabModule, labCopy } from "@/lib/labs/labs-modules";
@@ -18,7 +19,9 @@ export function CrossAssetLabExperience() {
       title={labCopy(locale, mod.title)}
       purpose={labCopy(locale, mod.purpose)}
     >
-      <SystemicRiskTopology lens="transmission" />
+      <MobileResponsivePreviewGate section="crossAsset" capability="riskFraming">
+        <SystemicRiskTopology lens="transmission" />
+      </MobileResponsivePreviewGate>
     </CognitionMachineShell>
   );
 }

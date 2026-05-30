@@ -17,6 +17,7 @@ import { trialAccessEndsLine } from "@/lib/i18n/trust-surface";
 import { Button } from "@/components/ui/button";
 import { InvitationAdminPanel } from "@/components/settings/invitation-admin-panel";
 import { TelegramSettingsCard } from "@/components/settings/telegram-settings-card";
+import { MemberSupportPanel } from "@/components/support/member-support-panel";
 import { accessTierLabel } from "@/lib/access/capabilities";
 import type { CognitionDensityMode } from "@/store/ui-prefs-store";
 import {
@@ -280,6 +281,15 @@ export function SettingsPanel() {
 
         <TelegramSettingsCard />
         <InvitationAdminPanel />
+
+        <CognitionPanel
+          id="preferences-support"
+          eyebrow={pickLocale(locale, "Assistance", "Помощь")}
+          accent="cognition"
+          title={pickLocale(locale, "Help & Support", "Помощь и поддержка")}
+        >
+          <MemberSupportPanel variant="concierge" />
+        </CognitionPanel>
       </div>
 
       <div className="mt-[var(--ms-section-gap)] flex items-center justify-between gap-3 rounded-ms-xl border border-ms-border/20 bg-ms-elevated/12 px-4 py-3.5">
