@@ -65,9 +65,19 @@ export function siteOriginFromEnv(): string | undefined {
 
 /**
  * Public site origin for OAuth redirects, NOWPayments callbacks, OpenRouter referer.
+ * Client: always prefer runtime origin (NEXT_PUBLIC_* may be absent from the bundle).
  * Production never falls back to localhost or example.com.
  */
 export function publicSiteUrl(): string {
+  if (typeof window !== "undefined") {
+    try {
+      const { origin, hostname } = window.location;
+      if (origin && !isPlaceholderHost(hostname)) return origin;
+    } catch {
+      /* fall through */
+    }
+  }
+
   const fromEnv = siteOriginFromEnv();
   if (fromEnv) return fromEnv;
 

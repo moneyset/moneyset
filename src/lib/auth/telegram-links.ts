@@ -22,7 +22,10 @@ export function telegramMiniAppUrl(): string {
 
 /** Login Widget callback URL for browser one-click auth. */
 export function telegramLoginCallbackUrl(nextPath = "/"): string {
-  const origin = publicSiteUrl();
   const next = nextPath.startsWith("/") ? nextPath : `/${nextPath}`;
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}/api/auth/telegram/callback?next=${encodeURIComponent(next)}`;
+  }
+  const origin = publicSiteUrl();
   return `${origin}/api/auth/telegram/callback?next=${encodeURIComponent(next)}`;
 }

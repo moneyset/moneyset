@@ -6,6 +6,8 @@ import { Component } from "react";
 type Props = {
   children: ReactNode;
   label: string;
+  /** When this value changes, retry rendering after a prior failure. */
+  resetKey?: string | number | boolean;
 };
 
 type State = { error: Error | null };
@@ -16,6 +18,12 @@ export class ClientModalErrorBoundary extends Component<Props, State> {
 
   static getDerivedStateFromError(error: Error): State {
     return { error };
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (this.state.error && prevProps.resetKey !== this.props.resetKey) {
+      this.setState({ error: null });
+    }
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {

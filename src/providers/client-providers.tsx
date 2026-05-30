@@ -12,10 +12,11 @@ import { AccessSyncBanner } from "@/components/system/access-sync-banner";
 import { AuthBootstrap } from "@/components/auth/auth-bootstrap";
 import { IntelligenceBootstrap } from "@/components/intelligence/intelligence-bootstrap";
 import { MoneysetEntryOnboarding } from "@/components/onboarding/moneyset-entry-onboarding";
-import { ClientModalErrorBoundary } from "@/components/system/client-modal-error-boundary";
-import { GlobalAuthModal } from "@/components/auth/global-auth-modal";
-import { GlobalCheckoutModal } from "@/components/premium/global-checkout-modal";
-import { GlobalProfileCenterModal } from "@/components/profile/global-profile-center-modal";
+import {
+  BoundedGlobalAuthModal,
+  BoundedGlobalCheckoutModal,
+  BoundedGlobalProfileCenterModal,
+} from "@/components/system/bounded-global-modals";
 
 export function ClientProviders({ children }: { children: ReactNode }) {
   return (
@@ -28,15 +29,9 @@ export function ClientProviders({ children }: { children: ReactNode }) {
         <AuthBootstrap />
         <AccessSyncBanner />
         <MoneysetEntryOnboarding />
-        <ClientModalErrorBoundary label="auth-modal">
-          <GlobalAuthModal />
-        </ClientModalErrorBoundary>
-        <ClientModalErrorBoundary label="profile-center">
-          <GlobalProfileCenterModal />
-        </ClientModalErrorBoundary>
-        <ClientModalErrorBoundary label="checkout-modal">
-          <GlobalCheckoutModal />
-        </ClientModalErrorBoundary>
+        <BoundedGlobalAuthModal />
+        <BoundedGlobalProfileCenterModal />
+        <BoundedGlobalCheckoutModal />
         <IntelligenceBootstrap />
         {children}
       </ThemeProvider>
