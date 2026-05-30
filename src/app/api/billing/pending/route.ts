@@ -76,14 +76,16 @@ export async function GET(req: Request) {
     const live = await provider.getInvoiceStatus({ invoiceId: pending.record.idempotency_key });
 
     if (!live.ok) {
+      // Provider cannot verify this invoice — do not resume a broken session.
+      await updatePaymentStatus(admin, pending.record.idempotency_key, "failed");
       return NextResponse.json({
         ok: true,
-        invoiceId: pending.record.idempotency_key,
-        paymentUrl: nowPaymentsInvoiceUrl(pending.record.idempotency_key),
-        provider: pending.record.provider,
-        status: pending.record.status,
+        invoiceId: null,
+        paymentUrl: null,
+        provider: null,
+        status: "failed",
         productId: pending.record.product_id,
-        reused: true,
+        reused: false,
       } satisfies PendingPaymentResponse);
     }
 

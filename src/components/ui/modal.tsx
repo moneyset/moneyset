@@ -17,6 +17,7 @@ type ModalProps = {
   footer?: React.ReactNode;
   variant?: "default" | "premium";
   wordmark?: string;
+  panelClassName?: string;
 };
 
 export function Modal({
@@ -28,6 +29,7 @@ export function Modal({
   footer,
   variant = "default",
   wordmark = "MONEYSET",
+  panelClassName,
 }: ModalProps) {
   const titleId = useId();
   const [mounted, setMounted] = useState(false);
@@ -92,6 +94,7 @@ export function Modal({
               premium
                 ? "ms-modal-panel--premium bg-transparent shadow-none"
                 : "bg-ms-surface shadow-ms-float",
+              panelClassName,
             )}
           >
             <div

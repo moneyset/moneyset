@@ -9,7 +9,7 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { billingProduct } from "@/lib/billing/catalog";
 import { hasClientAuthToken, resolveClientAuthHeaders } from "@/lib/access/client-auth-headers";
 import { pickLocale } from "@/lib/i18n/cognition-dict";
-import { mapBillingUserMessage } from "@/lib/i18n/user-messages";
+import { mapBillingUserMessage, shouldInvalidateBillingSession } from "@/lib/i18n/user-messages";
 import { useAccessStore } from "@/store/access-store";
 import { useAuthModalStore } from "@/store/auth-modal-store";
 import { useAuthStore } from "@/store/auth-store";
@@ -23,7 +23,12 @@ import { cn } from "@/lib/utils";
 const POLL_INTERVAL_MS = 12_000;
 const POLL_MAX_TICKS = 150;
 
-type InitPhase = "idle" | "loading" | "ready";
+type CheckoutMode = "initializing" | "create" | "resume" | "paid";
+
+type SurfaceMessage = Readonly<{
+  tone: "neutral" | "error" | "success";
+  text: string;
+}>;
 
 type CryptoCheckoutModalProps = {
   open: boolean;
@@ -62,30 +67,56 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
   const signedIn = authStatus === "signed_in" && Boolean(user?.id);
   const canPoll = authReady && signedIn;
 
-  const [initPhase, setInitPhase] = useState<InitPhase>("idle");
+  const [checkoutMode, setCheckoutMode] = useState<CheckoutMode>("initializing");
+  const [surfaceMessage, setSurfaceMessage] = useState<SurfaceMessage | null>(null);
   const [busy, setBusy] = useState(false);
   const [invoice, setInvoice] = useState<CreateInvoiceResult | null>(null);
   const [poll, setPoll] = useState<InvoiceStatusResult | null>(null);
-  const [note, setNote] = useState<string | null>(null);
   const pollTicksRef = useRef(0);
 
+  const initializing = checkoutMode === "initializing" || !authReady;
+
   const invoiceId = useMemo(() => {
-    if (invoice && invoice.ok) return invoice.invoiceId;
+    if (checkoutMode === "create" || checkoutMode === "initializing") {
+      if (invoice?.ok) return invoice.invoiceId;
+      return null;
+    }
+    if (invoice?.ok) return invoice.invoiceId;
     return lastInvoiceId;
-  }, [invoice, lastInvoiceId]);
+  }, [checkoutMode, invoice, lastInvoiceId]);
 
   const paymentUrl = useMemo(() => {
-    if (invoice && invoice.ok && invoice.paymentUrl) return invoice.paymentUrl;
+    if (checkoutMode === "create" || checkoutMode === "initializing") {
+      if (invoice?.ok && invoice.paymentUrl) return invoice.paymentUrl;
+      return null;
+    }
+    if (invoice?.ok && invoice.paymentUrl) return invoice.paymentUrl;
     return lastPaymentUrl;
-  }, [invoice, lastPaymentUrl]);
+  }, [checkoutMode, invoice, lastPaymentUrl]);
+
+  const resetCheckoutState = useCallback(() => {
+    clearPendingInvoice();
+    setInvoice(null);
+    setPoll(null);
+    pollTicksRef.current = 0;
+  }, [clearPendingInvoice]);
+
+  const switchToCreate = useCallback(
+    (message?: SurfaceMessage | null) => {
+      resetCheckoutState();
+      setCheckoutMode("create");
+      setSurfaceMessage(message ?? null);
+    },
+    [resetCheckoutState],
+  );
 
   useEffect(() => {
     if (!open) {
       setInvoice(null);
       setPoll(null);
-      setNote(null);
+      setSurfaceMessage(null);
       setBusy(false);
-      setInitPhase("idle");
+      setCheckoutMode("initializing");
       pollTicksRef.current = 0;
     }
   }, [open]);
@@ -94,76 +125,99 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
     if (!open) return;
 
     let cancelled = false;
-    setInitPhase("loading");
+    setCheckoutMode("initializing");
+    setSurfaceMessage({
+      tone: "neutral",
+      text: pickLocale(locale, "Preparing checkout…", "Подготовка оплаты…"),
+    });
 
     void (async () => {
       await waitForSubscriptionHydration();
       if (cancelled) return;
 
-      if (signedIn && (await hasClientAuthToken())) {
-        try {
-          const authHeaders = await resolveClientAuthHeaders();
-          const qs = new URLSearchParams({ productId });
-          const res = await fetch(`/api/billing/pending?${qs.toString()}`, {
-            headers: authHeaders,
-            cache: "no-store",
-          });
-          const json = (await res.json()) as {
-            ok: boolean;
-            invoiceId?: string | null;
-            paymentUrl?: string | null;
-            provider?: string | null;
-            status?: string | null;
-          };
-
-          if (cancelled) return;
-
-          if (json.ok && json.invoiceId && json.provider) {
-            setPendingInvoice({
-              provider: json.provider as "nowpayments",
-              invoiceId: json.invoiceId,
-              paymentUrl: json.paymentUrl ?? null,
-            });
-          } else if (json.ok && !json.invoiceId) {
-            clearPendingInvoice();
-            if (json.status === "expired" || json.status === "failed") {
-              setNote(
-                pickLocale(
-                  locale,
-                  "Your previous invoice expired. Generate a new USDT invoice below.",
-                  "Предыдущий счёт истёк. Создайте новый USDT-счёт ниже.",
-                ),
-              );
-            }
-          }
-        } catch {
-          /* fall back to local resume state */
+      if (!signedIn || !(await hasClientAuthToken())) {
+        resetCheckoutState();
+        if (!cancelled) {
+          setCheckoutMode("create");
+          setSurfaceMessage(null);
         }
+        return;
       }
 
-      if (!cancelled) setInitPhase("ready");
+      try {
+        const authHeaders = await resolveClientAuthHeaders();
+        const qs = new URLSearchParams({ productId });
+        const res = await fetch(`/api/billing/pending?${qs.toString()}`, {
+          headers: authHeaders,
+          cache: "no-store",
+        });
+        const json = (await res.json()) as {
+          ok: boolean;
+          invoiceId?: string | null;
+          paymentUrl?: string | null;
+          provider?: string | null;
+          status?: string | null;
+        };
+
+        if (cancelled) return;
+
+        if (json.ok && json.invoiceId && json.provider) {
+          setPendingInvoice({
+            provider: json.provider as "nowpayments",
+            invoiceId: json.invoiceId,
+            paymentUrl: json.paymentUrl ?? null,
+          });
+          setCheckoutMode("resume");
+          setSurfaceMessage({
+            tone: "neutral",
+            text: pickLocale(
+              locale,
+              "Resuming your previous payment — we'll check status automatically.",
+              "Возобновляем предыдущую оплату — статус проверим автоматически.",
+            ),
+          });
+          return;
+        }
+
+        resetCheckoutState();
+        setCheckoutMode("create");
+        if (json.status === "expired" || json.status === "failed") {
+          setSurfaceMessage({
+            tone: "neutral",
+            text: pickLocale(
+              locale,
+              "Your previous payment session expired. Create a new invoice below.",
+              "Предыдущая сессия оплаты истекла. Создайте новый счёт ниже.",
+            ),
+          });
+        } else {
+          setSurfaceMessage(null);
+        }
+      } catch {
+        if (!cancelled) switchToCreate(null);
+      }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [open, signedIn, productId, locale, setPendingInvoice, clearPendingInvoice]);
+  }, [open, signedIn, productId, locale, setPendingInvoice, resetCheckoutState, switchToCreate]);
 
   const check = useCallback(
     async (opts?: { invoiceId?: string }) => {
       const pollInvoiceId = opts?.invoiceId ?? invoiceId;
-      if (!pollInvoiceId) return;
+      if (!pollInvoiceId || checkoutMode !== "resume") return;
       if (!authReady) return;
 
       if (!signedIn || !(await hasClientAuthToken())) {
-        setNote(
-          pickLocale(locale, "Sign in to check payment status.", "Войдите, чтобы проверить статус оплаты."),
-        );
+        setSurfaceMessage({
+          tone: "neutral",
+          text: pickLocale(locale, "Sign in to check payment status.", "Войдите, чтобы проверить статус оплаты."),
+        });
         return;
       }
 
       setBusy(true);
-      setNote(null);
       try {
         const authHeaders = await resolveClientAuthHeaders();
         const qs = new URLSearchParams({ invoiceId: pollInvoiceId });
@@ -175,14 +229,14 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
         setPoll(json);
 
         if (json.ok && (json.status === "expired" || json.status === "failed")) {
-          clearPendingInvoice();
-          setNote(
-            pickLocale(
+          switchToCreate({
+            tone: "neutral",
+            text: pickLocale(
               locale,
-              "This invoice expired. Generate a new USDT invoice to continue.",
-              "Срок счёта истёк. Создайте новый USDT-счёт, чтобы продолжить.",
+              "Your previous payment session expired. Create a new invoice below.",
+              "Предыдущая сессия оплаты истекла. Создайте новый счёт ниже.",
             ),
-          );
+          });
           return;
         }
 
@@ -198,36 +252,63 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
             profile?: Parameters<typeof setProfile>[0];
           };
           if (profileJson.ok && profileJson.profile) setProfile(profileJson.profile);
-          clearPendingInvoice();
-          setNote(
-            pickLocale(
+          resetCheckoutState();
+          setCheckoutMode("paid");
+          setSurfaceMessage({
+            tone: "success",
+            text: pickLocale(
               locale,
               isFounding ? "Founding Access active." : "Premium access active.",
               isFounding ? "Founding Access активен." : "Премиум доступ активен.",
             ),
-          );
+          });
+          return;
         }
 
         if (!json.ok) {
           const err = "error" in json ? json.error : null;
+          const friendly = mapBillingUserMessage(locale, err, { httpStatus: res.status, phase: "poll" });
+
           if (res.status === 401) {
-            setNote(
-              pickLocale(locale, "Sign in to check payment status.", "Войдите, чтобы проверить статус оплаты."),
-            );
-          } else {
-            setNote(mapBillingUserMessage(locale, err, { httpStatus: res.status, phase: "poll" }));
+            setSurfaceMessage({
+              tone: "neutral",
+              text: pickLocale(locale, "Sign in to check payment status.", "Войдите, чтобы проверить статус оплаты."),
+            });
+            return;
           }
+
+          if (shouldInvalidateBillingSession(res.status, err)) {
+            switchToCreate({ tone: "error", text: friendly });
+            return;
+          }
+
+          setSurfaceMessage({ tone: "error", text: friendly });
+        } else if (checkoutMode === "resume") {
+          setSurfaceMessage({
+            tone: "neutral",
+            text: pickLocale(
+              locale,
+              "Resuming your previous payment — we'll check status automatically.",
+              "Возобновляем предыдущую оплату — статус проверим автоматически.",
+            ),
+          });
         }
       } catch {
-        setNote(
-          pickLocale(locale, "Could not verify payment. Try again.", "Не удалось проверить оплату."),
-        );
+        setSurfaceMessage({
+          tone: "error",
+          text: pickLocale(
+            locale,
+            "We couldn't verify your payment right now. Try again or contact Member Support.",
+            "Не удалось проверить оплату. Повторите попытку или напишите в Member Support.",
+          ),
+        });
       } finally {
         setBusy(false);
       }
     },
     [
       invoiceId,
+      checkoutMode,
       authReady,
       signedIn,
       productId,
@@ -235,18 +316,27 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
       locale,
       setProfile,
       setTierActive,
-      clearPendingInvoice,
+      resetCheckoutState,
+      switchToCreate,
     ],
   );
 
   const create = async () => {
     if (!signedIn) {
-      setNote(pickLocale(locale, "Sign in to create an invoice.", "Войдите, чтобы создать счёт."));
+      setSurfaceMessage({
+        tone: "neutral",
+        text: pickLocale(locale, "Sign in to create an invoice.", "Войдите, чтобы создать счёт."),
+      });
       openAuth();
       return;
     }
-    setNote(null);
+
     setBusy(true);
+    setSurfaceMessage({
+      tone: "neutral",
+      text: pickLocale(locale, "Preparing invoice…", "Готовим счёт…"),
+    });
+
     try {
       const authHeaders = await resolveClientAuthHeaders();
       const res = await fetch("/api/billing/create", {
@@ -256,85 +346,99 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
       });
       const json = (await res.json()) as CreateInvoiceResult;
       setInvoice(json);
+
       if (json.ok) {
         setPendingInvoice({
           provider: json.provider,
           invoiceId: json.invoiceId,
           paymentUrl: json.paymentUrl ?? null,
         });
+        setCheckoutMode("resume");
         pollTicksRef.current = 0;
+        setSurfaceMessage({
+          tone: "neutral",
+          text: pickLocale(
+            locale,
+            "Invoice ready — complete payment on the checkout page.",
+            "Счёт готов — завершите оплату на странице checkout.",
+          ),
+        });
         if (json.paymentUrl) void check({ invoiceId: json.invoiceId });
+        return;
       }
-      if (!json.ok) {
-        setNote(mapBillingUserMessage(locale, "error" in json ? json.error : null, { httpStatus: res.status, phase: "create" }));
-      }
+
+      const friendly = mapBillingUserMessage(locale, "error" in json ? json.error : null, {
+        httpStatus: res.status,
+        phase: "create",
+      });
+      switchToCreate({ tone: "error", text: friendly });
     } catch {
-      setNote(
-        pickLocale(locale, "Could not create invoice. Try again.", "Не удалось создать счёт."),
-      );
+      switchToCreate({
+        tone: "error",
+        text: pickLocale(
+          locale,
+          "We couldn't create your payment invoice. Try again in a few minutes.",
+          "Не удалось создать счёт. Попробуйте через несколько минут.",
+        ),
+      });
     } finally {
       setBusy(false);
     }
   };
 
-  const paid = poll?.ok && poll.status === "paid";
+  const paid = checkoutMode === "paid" || (poll?.ok && poll.status === "paid");
   const confirming = poll?.ok && (poll.status === "confirming" || poll.status === "unpaid");
-  const hasInvoice = Boolean(invoiceId);
-  const isResumedInvoice = hasInvoice && !(invoice?.ok);
-  const initializing = initPhase !== "ready" || !authReady;
+  const showResumeUi = checkoutMode === "resume" && Boolean(invoiceId);
 
   const planLabel =
     productId === "founding_access"
       ? pickLocale(locale, "Founding Access", "Founding Access")
       : (product?.label ?? "Premium");
 
-  const paymentSuccessNotes = useMemo(
-    () =>
-      new Set([
-        pickLocale(locale, "Founding Access active.", "Founding Access активен."),
-        pickLocale(locale, "Premium access active.", "Премиум доступ активен."),
-      ]),
-    [locale],
-  );
-
-  const showPaymentSupport = note != null && !paid && !paymentSuccessNotes.has(note);
-
-  const resumeBannerText = initializing
-    ? pickLocale(locale, "Preparing checkout…", "Подготовка оплаты…")
-    : isResumedInvoice
-      ? canPoll
-        ? pickLocale(
-            locale,
-            "Resuming previous payment session — checking your transaction status.",
-            "Возобновляем предыдущую оплату — проверяем статус транзакции.",
-          )
-        : pickLocale(
-            locale,
-            "Resuming previous payment session — sign in to check status.",
-            "Возобновляем предыдущую оплату — войдите, чтобы проверить статус.",
-          )
-      : null;
+  const showPaymentSupport =
+    surfaceMessage?.tone === "error" && !paid;
 
   const actionFooter = (
-    <div className="ms-checkout-modal__action space-y-3">
+    <div className="ms-checkout-modal__action">
       <div
         className={cn(
-          "ms-checkout-modal__slot ms-checkout-modal__slot--banner",
-          !resumeBannerText && "ms-checkout-modal__slot--empty",
+          "ms-checkout-modal__slot ms-checkout-modal__slot--message",
+          !surfaceMessage && "ms-checkout-modal__slot--empty",
+          surfaceMessage?.tone === "error" && "ms-checkout-modal__slot--error",
+          surfaceMessage?.tone === "success" && "ms-checkout-modal__slot--success",
         )}
         aria-live="polite"
       >
-        {resumeBannerText ? (
-          <p className="text-[11px] leading-relaxed text-ms-muted">{resumeBannerText}</p>
-        ) : null}
+        {surfaceMessage ? (
+          <p className="ms-checkout-modal__message-text">{surfaceMessage.text}</p>
+        ) : (
+          <span className="ms-checkout-modal__message-text" aria-hidden>
+            &nbsp;
+          </span>
+        )}
       </div>
 
       <div className="ms-checkout-modal__slot ms-checkout-modal__slot--primary">
         {initializing ? (
-          <div className="ms-checkout-modal__skeleton ms-checkout-modal__skeleton--btn" aria-hidden />
-        ) : !hasInvoice ? (
           <>
-            <p className="mb-3 text-[12px] leading-relaxed text-ms-muted">
+            <div className="ms-checkout-modal__skeleton ms-checkout-modal__skeleton--copy" aria-hidden />
+            <div className="ms-checkout-modal__skeleton ms-checkout-modal__skeleton--btn" aria-hidden />
+          </>
+        ) : showResumeUi && paymentUrl ? (
+          <a
+            href={paymentUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="ms-focus-ring flex w-full items-center justify-center gap-2 rounded-ms-lg border border-ms-cognition/40 bg-ms-cognition/8 px-4 py-3 text-[13px] font-medium text-ms-text transition-colors hover:border-ms-cognition/60 hover:bg-ms-cognition/12"
+          >
+            <ExternalLink className="size-4" strokeWidth={1.5} />
+            {pickLocale(locale, "Open payment page", "Открыть страницу оплаты")}
+          </a>
+        ) : showResumeUi ? (
+          <div className="ms-checkout-modal__skeleton ms-checkout-modal__skeleton--btn" aria-hidden />
+        ) : (
+          <>
+            <p className="ms-checkout-modal__primary-copy">
               {signedIn
                 ? pickLocale(
                     locale,
@@ -347,7 +451,7 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
               type="button"
               variant="cognition"
               className="w-full"
-              disabled={busy || !signedIn}
+              disabled={busy || !signedIn || paid}
               onClick={create}
             >
               {busy
@@ -366,29 +470,15 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
               </p>
             ) : null}
           </>
-        ) : paymentUrl ? (
-          <a
-            href={paymentUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="ms-focus-ring flex w-full items-center justify-center gap-2 rounded-ms-lg border border-ms-cognition/40 bg-ms-cognition/8 px-4 py-3 text-[13px] font-medium text-ms-text transition-colors hover:border-ms-cognition/60 hover:bg-ms-cognition/12"
-          >
-            <ExternalLink className="size-4" strokeWidth={1.5} />
-            {pickLocale(locale, "Open payment page", "Открыть страницу оплаты")}
-          </a>
-        ) : (
-          <div className="flex w-full items-center justify-center rounded-ms-lg border border-dashed border-ms-border bg-ms-elevated/15 px-4 py-3 text-center text-[12px] text-ms-muted">
-            {pickLocale(locale, "Loading payment link…", "Загрузка ссылки оплаты…")}
-          </div>
         )}
       </div>
 
       <div className="ms-checkout-modal__slot ms-checkout-modal__slot--status">
         {initializing ? (
           <div className="ms-checkout-modal__skeleton ms-checkout-modal__skeleton--row" aria-hidden />
-        ) : hasInvoice ? (
+        ) : showResumeUi ? (
           !canPoll ? (
-            <div className="rounded-ms-lg border border-ms-border/60 bg-ms-elevated/15 px-3 py-3 text-center text-[12px] text-ms-muted">
+            <div className="ms-checkout-modal__status-placeholder">
               <p>
                 {authReady
                   ? pickLocale(
@@ -415,56 +505,46 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
                 variant="outline"
                 size="sm"
                 className="flex-1"
-                disabled={busy}
+                disabled={busy || paid}
                 onClick={() => void check()}
               >
                 {busy
                   ? pickLocale(locale, "Checking…", "Проверяем…")
                   : pickLocale(locale, "Check payment status", "Проверить статус")}
               </Button>
-              {poll?.ok ? (
-                <StatusPill accent={paid ? "warning" : "neutral"}>
-                  {paid
-                    ? pickLocale(locale, "Paid", "Оплачено")
-                    : poll.status === "confirming"
-                      ? pickLocale(locale, "Confirming", "Подтверждается")
-                      : poll.status === "expired"
-                        ? pickLocale(locale, "Expired", "Истёк")
-                        : pickLocale(locale, "Awaiting", "Ожидание")}
-                </StatusPill>
-              ) : (
-                <StatusPill accent="neutral" className="opacity-60">
-                  {pickLocale(locale, "Awaiting", "Ожидание")}
-                </StatusPill>
-              )}
+              <StatusPill accent={paid ? "warning" : "neutral"}>
+                {paid
+                  ? pickLocale(locale, "Paid", "Оплачено")
+                  : poll?.ok && poll.status === "confirming"
+                    ? pickLocale(locale, "Confirming", "Подтверждается")
+                    : poll?.ok && poll.status === "expired"
+                      ? pickLocale(locale, "Expired", "Истёк")
+                      : pickLocale(locale, "Awaiting", "Ожидание")}
+              </StatusPill>
             </div>
           )
         ) : (
-          <div className="rounded-ms-lg border border-transparent px-3 py-3 text-center text-[11px] text-ms-faint">
+          <div className="ms-checkout-modal__status-placeholder ms-checkout-modal__status-placeholder--muted">
             {pickLocale(locale, "Status appears after invoice creation.", "Статус появится после создания счёта.")}
           </div>
         )}
       </div>
 
-      {hasInvoice && !paid && canPoll && !initializing ? (
-        <p className="text-[11px] leading-relaxed text-ms-faint">
-          {pickLocale(
-            locale,
-            "We check automatically after you pay. Confirmation usually takes a few minutes.",
-            "Проверяем автоматически после оплаты. Подтверждение обычно занимает несколько минут.",
-          )}
-        </p>
-      ) : (
-        <div className="ms-checkout-modal__slot ms-checkout-modal__slot--hint" aria-hidden />
-      )}
-
-      {note ? (
-        <div
-          className={`rounded-ms-lg border px-3 py-2 text-[12px] ${paid ? "border-ms-warning/40 bg-ms-warning/8 text-ms-text" : "border-ms-border bg-ms-elevated/20 text-ms-muted"}`}
-        >
-          {note}
-        </div>
-      ) : null}
+      <div className="ms-checkout-modal__slot ms-checkout-modal__slot--hint">
+        {showResumeUi && !paid && canPoll && !initializing ? (
+          <p className="ms-checkout-modal__hint-text">
+            {pickLocale(
+              locale,
+              "We check automatically after you pay. Confirmation usually takes a few minutes.",
+              "Проверяем автоматически после оплаты. Подтверждение обычно занимает несколько минут.",
+            )}
+          </p>
+        ) : (
+          <span className="ms-checkout-modal__hint-text" aria-hidden>
+            &nbsp;
+          </span>
+        )}
+      </div>
 
       {showPaymentSupport ? <MemberSupportPanel variant="payment-error" /> : null}
 
@@ -484,7 +564,7 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
   );
 
   useEffect(() => {
-    if (!open || !invoiceId || !canPoll || initPhase !== "ready") return;
+    if (!open || checkoutMode !== "resume" || !invoiceId || !canPoll) return;
     if (paid) return;
 
     pollTicksRef.current = 0;
@@ -494,26 +574,28 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
       pollTicksRef.current += 1;
       if (pollTicksRef.current > POLL_MAX_TICKS) {
         window.clearInterval(id);
-        setNote(
-          pickLocale(
+        setSurfaceMessage({
+          tone: "neutral",
+          text: pickLocale(
             locale,
             "Verification timed out. Payment may still settle — reopen this panel or refresh access.",
             "Время проверки истекло. Оплата может ещё пройти — откройте панель снова или обновите доступ.",
           ),
-        );
+        });
         return;
       }
       void check();
     }, POLL_INTERVAL_MS);
 
     return () => window.clearInterval(id);
-  }, [open, invoiceId, paid, canPoll, check, locale, initPhase]);
+  }, [open, checkoutMode, invoiceId, paid, canPoll, check, locale]);
 
   return (
     <Modal
       open={open}
       onClose={() => onClose()}
       variant="premium"
+      panelClassName="ms-modal-panel--checkout"
       title={pickLocale(locale, "Founding Access", "Founding Access")}
       description={pickLocale(
         locale,
@@ -534,7 +616,9 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
                 <p className="mt-1 text-[12px] text-ms-muted">
                   {pickLocale(locale, "Lifetime access · no renewal", "Пожизненный доступ · без продления")}
                 </p>
-              ) : null}
+              ) : (
+                <span className="mt-1 block min-h-[1.125rem]" aria-hidden />
+              )}
             </div>
             <div className="shrink-0 text-right">
               <p className="ms-checkout-modal__price font-mono tabular-nums text-ms-text">
@@ -543,18 +627,19 @@ export function CryptoCheckoutModal({ open, onClose }: CryptoCheckoutModalProps)
               <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-ms-faint">USD</p>
             </div>
           </div>
-          <div className="mt-3 flex flex-wrap items-center gap-2">
+          <div className="ms-checkout-modal__pill-row mt-3 flex flex-wrap items-center gap-2">
             <StatusPill accent="neutral">{pickLocale(locale, "USDT", "USDT")}</StatusPill>
-            {paid ? (
-              <StatusPill accent="warning">
-                {pickLocale(locale, "Payment received", "Оплачено")}
-              </StatusPill>
-            ) : null}
-            {confirming && !paid ? (
-              <StatusPill accent="neutral">
-                {pickLocale(locale, "Awaiting confirmation", "Ожидаем подтверждения")}
-              </StatusPill>
-            ) : null}
+            <span className="ms-checkout-modal__pill-slot">
+              {paid ? (
+                <StatusPill accent="warning">
+                  {pickLocale(locale, "Payment received", "Оплачено")}
+                </StatusPill>
+              ) : confirming && showResumeUi ? (
+                <StatusPill accent="neutral">
+                  {pickLocale(locale, "Awaiting confirmation", "Ожидаем подтверждения")}
+                </StatusPill>
+              ) : null}
+            </span>
           </div>
         </div>
       </div>

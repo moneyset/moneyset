@@ -128,39 +128,42 @@ export function mapBillingUserMessage(
     );
   }
 
-  if (lower.includes("payment provider not configured") || lower.includes("not configured")) {
+  if (
+    lower.includes("payment provider not configured") ||
+    lower.includes("not configured") ||
+    lower.includes("misconfigured")
+  ) {
     return pickLocale(
       locale,
-      "Crypto checkout is not configured yet. Contact Member Support.",
-      "Крипто-оплата ещё не настроена. Свяжитесь с Member Support.",
+      "Payment is temporarily unavailable. Please try again later or contact Member Support.",
+      "Оплата временно недоступна. Попробуйте позже или напишите в Member Support.",
     );
   }
 
-  // NOWPayments API errors — preserve distinction from internal failures
   if (lower.includes("nowpayments")) {
     const npStatus = raw.match(/\((\d{3})\)/)?.[1];
     if (npStatus === "429" || npStatus === "503" || npStatus === "502" || npStatus === "504") {
       return pickLocale(
         locale,
-        "Crypto payment provider is temporarily unavailable. Try again in a few minutes.",
-        "Криптопровайдер временно недоступен. Попробуйте через несколько минут.",
+        "Payment service is temporarily unavailable. Try again in a few minutes.",
+        "Сервис оплаты временно недоступен. Попробуйте через несколько минут.",
       );
     }
     if (npStatus === "401" || npStatus === "403") {
       return pickLocale(
         locale,
-        "Crypto checkout is misconfigured. Contact Member Support.",
-        "Крипто-оплата настроена некорректно. Свяжитесь с Member Support.",
+        "We couldn't process your payment right now. Please try again or contact Member Support.",
+        "Не удалось обработать оплату. Попробуйте снова или напишите в Member Support.",
       );
     }
     return pickLocale(
       locale,
       phase === "poll"
-        ? "Could not verify payment with crypto provider. Try again or contact Member Support."
-        : "Crypto provider could not create your invoice. Try again in a few minutes.",
+        ? "We couldn't verify your payment right now. Try again or contact Member Support."
+        : "We couldn't create your payment invoice. Try again in a few minutes.",
       phase === "poll"
-        ? "Не удалось проверить оплату у криптопровайдера. Повторите или напишите в Member Support."
-        : "Криптопровайдер не смог создать счёт. Попробуйте через несколько минут.",
+        ? "Не удалось проверить оплату. Повторите попытку или напишите в Member Support."
+        : "Не удалось создать счёт. Попробуйте через несколько минут.",
     );
   }
 
@@ -176,11 +179,29 @@ export function mapBillingUserMessage(
     );
   }
 
-  if (raw.length <= 120 && !raw.includes("_")) {
-    return raw;
-  }
+  return pickLocale(
+    locale,
+    "Payment could not be completed. Try again or contact Member Support.",
+    "Оплату не удалось завершить. Попробуйте снова или напишите в Member Support.",
+  );
+}
 
-  return pickLocale(locale, "Payment could not be completed. Try again.", "Оплату не удалось завершить. Попробуйте снова.");
+/** Whether a billing poll/create failure should discard a resumed checkout session. */
+export function shouldInvalidateBillingSession(
+  httpStatus?: number,
+  raw?: string | null | undefined,
+): boolean {
+  if (httpStatus === 401 || httpStatus === 429) return false;
+  if (httpStatus === 400 || httpStatus === 403 || httpStatus === 422) return true;
+  if (httpStatus === 502 || httpStatus === 503 || httpStatus === 500) return true;
+  if (!raw?.trim()) return httpStatus != null && httpStatus >= 400;
+
+  const lower = raw.toLowerCase();
+  if (lower.includes("not configured") || lower.includes("misconfigured")) return true;
+  if (lower.includes("nowpayments") || lower.includes("provider")) return true;
+  if (lower.includes("missing invoice") || lower.includes("does not belong")) return true;
+  if (lower.includes("unknown product") || lower.includes("invoice does not")) return true;
+  return false;
 }
 
 /** Map Telegram client/API errors for sign-in surfaces. */
